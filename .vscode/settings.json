@@ -1,0 +1,4 @@
+{
+    "mplab.clangd.compileCommandsDir": "${workspaceFolder}\\_build\\ModBusRTU_MCU\\default",
+    "cmake.sourceDirectory": "D:/Project Docs/VS Code PRJ/Git Remote Works/ModBusRTU_MCU/cmake/ModBusRTU_MCU/default"
+}

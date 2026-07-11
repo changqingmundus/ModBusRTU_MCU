@@ -1,0 +1,39 @@
+{
+    "version": "1.9",
+    "configurations": [
+        {
+            "name": "default",
+            "id": "conf1",
+            "device": "dsPIC33CK256MP502",
+            "imagePath": "./out/ModBusRTU_MCU/default.elf",
+            "packs": [
+                {
+                    "name": "dsPIC33CK-MP_DFP",
+                    "vendor": "Microchip",
+                    "version": "1.15.423"
+                }
+            ],
+            "fileSet": "default",
+            "toolchain": "default-XC16"
+        }
+    ],
+    "propertyGroups": [
+        {
+            "name": "default-XC16",
+            "type": "toolchain",
+            "provider": "microchip.toolchains:xc16@2.10",
+            "properties": {}
+        }
+    ],
+    "fileSets": [
+        {
+            "name": "default",
+            "files": [
+                {
+                    "include": "**/*",
+                    "exclude": "**/@(build|_build|out|cmake|.vscode)/**/*"
+                }
+            ]
+        }
+    ]
+}
