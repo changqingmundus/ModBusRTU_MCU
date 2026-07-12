@@ -41,6 +41,7 @@ typedef struct
 }ENCODER_CONFIG;
 
 extern ENCODER_CONFIG Encoder_Config;  //聲明為全局變量
+extern uint32_t Absolute_SingleTurn_Data; //當前單圈數據值
 
 void Delay_us(uint16_t us);
 

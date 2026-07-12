@@ -106,9 +106,6 @@ void Encoder_Clear_Data(void)
 {
     Encoder_Read_Data();
 
-    int32_t abs = 0;
-    for (int i = 0; i < Encoder_Config.SingleTurn_Data; i++) {
-        abs |= ((uint32_t)Encoder_Config[Encoder_Config.MultiTurn_Data + i]) << (8 * (Encoder_Config.SingleTurn_Data - 1 - i));
-    }
-    Encoder_Config.SingleTurn_Data = abs;
+    uint32_t Absolute_SingleTurn_Data = 0;
+    Absolute_SingleTurn_Data = Encoder_Config.SingleTurn_Data;
 }
