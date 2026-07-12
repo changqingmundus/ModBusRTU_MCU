@@ -23,14 +23,15 @@
  * File: $Id$
  */
 
-#include "/home/coder/project/ModBusRTU_MCU/ModBusRTU.mcc/mcc_generated_files/uart/uart_interface.h"
-#include "/home/coder/project/ModBusRTU_MCU/ModBusRTU.mcc/mcc_generated_files/uart/uart1.h"
 #include "port.h"
 
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb.h"
 #include "mbport.h"
 #include <stdbool.h>
+
+#include <xc.h>
+#include "uart1.h"
 
 #define UART_BAUD_RATE          38400
 
@@ -81,12 +82,12 @@ xMBPortSerialGetByte( CHAR * pucByte )
     return TRUE;
 }
 
-UART1_TxCompleteCallback(void)
+void UART1_TxCompleteCallback(void)
 {
     pxMBFrameCBTransmitterEmpty(  );
 }
 
-UART1_RxCompleteCallback(void)
+void UART1_RxCompleteCallback(void)
 {
     pxMBFrameCBByteReceived(  );
 }

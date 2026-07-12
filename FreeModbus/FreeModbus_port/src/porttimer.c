@@ -24,6 +24,7 @@
 
 /* ----------------------- Platform includes --------------------------------*/
 #include "port.h"
+#include <xc.h>
 #include "sccp2.h"
 
 /* ----------------------- Modbus includes ----------------------------------*/
@@ -63,7 +64,7 @@ vMBPortTimersDisable(  )
    SCCP2_Timer_Stop();
 }
 
-SCCP2_TimeoutCallback (void)
+void SCCP2_TimeoutCallback(void)
 {
     ( void )pxMBPortCBTimerExpired(  );
 }

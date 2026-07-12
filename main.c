@@ -37,7 +37,7 @@ int main(void)
     eMBErrorCode eStatus;
     eStatus = eMBRTUInit(1, 0, 38400, MB_PAR_NONE);
 
-    if(eStatus = MB_ENOERR)
+    if(eStatus == MB_ENOERR)
     {
         eMBRTUStart();
         while(1)

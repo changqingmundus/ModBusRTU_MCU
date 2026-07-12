@@ -96,3 +96,25 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
 
   return MB_ENOREG;
 }
+
+eMBErrorCode eMBRegInputCB(UCHAR *pucRegBuffer,
+                           USHORT usAddress,
+                           USHORT usNRegs)
+{
+    return MB_ENOREG;
+}
+
+eMBErrorCode eMBRegCoilsCB(UCHAR *pucRegBuffer,
+                           USHORT usAddress,
+                           USHORT usNCoils,
+                           eMBRegisterMode eMode)
+{
+    return MB_ENOREG;
+}
+
+eMBErrorCode eMBRegDiscreteCB(UCHAR *pucRegBuffer,
+                              USHORT usAddress,
+                              USHORT usNDiscrete)
+{
+    return MB_ENOREG;
+}

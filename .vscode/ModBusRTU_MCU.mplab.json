@@ -6,6 +6,7 @@
             "id": "conf1",
             "device": "dsPIC33CK256MP502",
             "imagePath": "./out/ModBusRTU_MCU/default.elf",
+            "tool": "Simulator",
             "packs": [
                 {
                     "name": "dsPIC33CK-MP_DFP",
@@ -22,7 +23,9 @@
             "name": "default-XC16",
             "type": "toolchain",
             "provider": "microchip.toolchains:xc16@2.10",
-            "properties": {}
+            "properties": {
+                "compiler.code-model": "large-code"
+            }
         }
     ],
     "fileSets": [

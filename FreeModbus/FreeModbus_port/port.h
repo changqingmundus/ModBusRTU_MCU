@@ -34,8 +34,10 @@
 #define PR_BEGIN_EXTERN_C           extern "C" {
 #define	PR_END_EXTERN_C             }
 
-#define ENTER_CRITICAL_SECTION( )   cli()
-#define EXIT_CRITICAL_SECTION( )    sei()
+#include <xc.h>
+
+#define ENTER_CRITICAL_SECTION()  __builtin_disi(0x3FFF)
+#define EXIT_CRITICAL_SECTION()   __builtin_disi(0x0000)
 
 #define assert( x )
 
