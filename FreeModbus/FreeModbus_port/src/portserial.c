@@ -23,7 +23,8 @@
  * File: $Id$
  */
 
-#include "uart1.h"
+#include "/home/coder/project/ModBusRTU_MCU/ModBusRTU.mcc/mcc_generated_files/uart/uart_interface.h"
+#include "/home/coder/project/ModBusRTU_MCU/ModBusRTU.mcc/mcc_generated_files/uart/uart1.h"
 #include "port.h"
 
 /* ----------------------- Modbus includes ----------------------------------*/
@@ -63,8 +64,6 @@ xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity e
     IEC0bits.U1TXIE = 0;
     IEC0bits.U1RXIE = 0;
 
-    IFC0bits.U1TXIF = 0;
-    IFC0bits.U1RXIF = 0;
     return TRUE;
 }
 

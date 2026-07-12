@@ -19,7 +19,7 @@ void Encoder_Init(void)
       Encoder_Config.MultiTurn_Bit = 0;
       Encoder_Config.SingleTurn_Bit = 0;
       Encoder_Config.CRC_Bit = 0;
-      DEE_Read(DEE_Encoder_MultiturnBitSize, &Encoder_Config.MultiTurn_Bit);
+      DEE_Read(DEE_Encoder_MultiTurnBitSize, &Encoder_Config.MultiTurn_Bit);
       DEE_Read(DEE_Encoder_SingleTurnBitSize, &Encoder_Config.SingleTurn_Bit);
       DEE_Read(DEE_Encoder_CRCBitSize, &Encoder_Config.CRC_Bit);
    }
@@ -37,7 +37,7 @@ void Encoder_Read_Data(void)
 {
    MA_Clear();   //Start Readout Data
    Delay_us(1);
-   Encoder_SSI_Read(Encoder_Config.Multiturn_Bit,&Encoder_Config.Multiturn_Data);
+   Encoder_SSI_Read(Encoder_Config.MultiTurn_Bit,&Encoder_Config.MultiTurn_Data);
    Encoder_SSI_Read(Encoder_Config.SingleTurn_Bit,&Encoder_Config.SingleTurn_Data);
    Encoder_SSI_Read(Encoder_Config.Warning_Bit,&Encoder_Config.Warning_Data);
    Encoder_SSI_Read(Encoder_Config.Error_Bit,&Encoder_Config.Error_Data);
@@ -52,7 +52,7 @@ void Encoder_Read_Data(void)
       LED0_SetHigh();
    }
 
-   Encoder_Config.Raw_Data = ((uint64_t)Encoder_Config.Multiturn_Data  << (Encoder_Config.SingleTurn_Bit + 2 + Encoder_Config.CRC_Bit)) |
+   Encoder_Config.Raw_Data = ((uint64_t)Encoder_Config.MultiTurn_Data  << (Encoder_Config.SingleTurn_Bit + 2 + Encoder_Config.CRC_Bit)) |
                              ((uint64_t)Encoder_Config.SingleTurn_Data << (2 + Encoder_Config.CRC_Bit)) |
                              ((uint64_t)Encoder_Config.Warning_Data    << Encoder_Config.CRC_Bit + 1) |
                              ((uint64_t)Encoder_Config.Error_Data      << (Encoder_Config.CRC_Bit)) |

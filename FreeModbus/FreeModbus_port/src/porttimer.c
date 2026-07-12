@@ -43,10 +43,6 @@ xMBPortTimersInit( USHORT usTim1Timerout50us )
 {
     /* Calculate overflow counter an OCR values for Timer1. */
 
-    IFS1bits.CCT2IF = 0;
-    // Enabling SCCP2 interrupt
-    IEC1bits.CCT2IE = 1;
-
     vMBPortTimersDisable(  );
 
     return TRUE;

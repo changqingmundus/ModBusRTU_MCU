@@ -4,8 +4,8 @@
             "name": "XC16",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/ModbusRTU.mcc",
-                "${workspaceFolder}/ModbusRTU.mcc/driver",
+                "${workspaceFolder}/ModBusRTU.mcc",
+                "${workspaceFolder}/ModBusRTU.mcc/driver",
                 "${workspaceFolder}/FreeModbus/FreeModbus_app",
                 "${workspaceFolder}/FreeModbus/FreeModbus_core",
                 "${workspaceFolder}/FreeModbus/FreeModbus_port",
@@ -17,8 +17,8 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/ModbusRTU.mcc",
-                "${workspaceFolder}/ModbusRTU.mcc/driver",
+                "${workspaceFolder}/ModBusRTU.mcc",
+                "${workspaceFolder}/ModBusRTU.mcc/driver",
                 "${workspaceFolder}/FreeModbus/FreeModbus_app",
                 "${workspaceFolder}/FreeModbus/FreeModbus_core",
                 "${workspaceFolder}/FreeModbus/FreeModbus_port",

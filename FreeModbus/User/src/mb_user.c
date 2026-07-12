@@ -33,13 +33,13 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
       // Multiturn 高16位
       case 0x0002:
 
-        value = (Encoder_Config.Multiturn_Data >> 16);
+        value = (Encoder_Config.MultiTurn_Data >> 16);
         break;
 
       // Multiturn 低16位
       case 0x0003:
 
-        value = Encoder_Config.Multiturn_Data & 0xFFFF;
+        value = Encoder_Config.MultiTurn_Data & 0xFFFF;
         break;
 
       // Status
