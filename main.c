@@ -18,8 +18,11 @@
     EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR 
     THIS SOFTWARE.
 */
-#include "dee/dee.h"
-#include "system/system.h"
+#include "mb.h"
+#include "mbport.h"
+#include "encoder.h"
+#include "dee.h"
+#include "system.h"
 /*
     Main application
 */
@@ -29,7 +32,18 @@ int main(void)
     SYSTEM_Initialize();
     DEE_Init();
 
-    while(1)
+    Encoder_Init();
+    
+    eMBErrorCode eStatus;
+    eStatus = eMBRTUInit(1, 0, 38400, MB_PAR_NONE);
+
+    if(eStatus = MB_ENOERR)
     {
-    }    
+        eMBRTUStart();
+        while(1)
+       {
+        eMBPoll();
+       }
+        
+    } 
 }

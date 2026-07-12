@@ -6,6 +6,7 @@
 #include "stdint.h"
 #include "delay.h"
 #include "pins.h"
+#include <stdint.h>
 
 #define DEE_Encoder_MagicKey 0            //DEE存放編碼器出廠狀態數據
 #define DEE_Encoder_MultiturnBitSize 1    //DEE存放編碼器多圈位數配置
@@ -20,14 +21,14 @@
 
 typedef struct
 {
-    uint8_t Multiturn_Bit;    //配置編碼器多圈位數
+    uint8_t MultiTurn_Bit;    //配置編碼器多圈位數
     uint8_t SingleTurn_Bit;   //配置編碼器單圈位數
     bool Warning_Bit;           //配置編碼器警告位數
     bool Error_Bit;            //配置編碼器錯誤位數
     uint16_t CRC_Bit;          //配置編碼器CRC位數
     //ReadoutData
     uint64_t Raw_Data;         //編碼器原始數據
-    uint32_t Multiturn_Data;   //編碼器多圈數據
+    uint32_t MultiTurn_Data;   //編碼器多圈數據
     uint32_t SingleTurn_Data;  //編碼器單圈數據
     bool Warning_Data;          //編碼器警告數據
     bool Error_Data;           //編碼器錯誤數據

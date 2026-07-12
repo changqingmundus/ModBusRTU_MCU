@@ -1,13 +1,13 @@
 # The following functions contains all the flags passed to the different build stages.
 
-set(PACK_REPO_PATH "C:/Users/ChangqingMundus/.mchp_packs" CACHE PATH "Path to the root of a pack repository.")
+set(PACK_REPO_PATH "/home/coder/project/Tools" CACHE PATH "Path to the root of a pack repository.")
 
 function(ModBusRTU_MCU_default_default_XC16_assemble_rule target)
     set(options
         "-g"
         "-mcpu=33CK256MP502"
         "-Wa,--defsym=__MPLAB_BUILD=1,--defsym=__MPLAB_DEBUG=1,--defsym=__DEBUG=1,-g,--no-relax"
-        "-mdfp=${PACK_REPO_PATH}/Microchip/dsPIC33CK-MP_DFP/1.15.423/xc16")
+        "-mdfp=${PACK_REPO_PATH}/dsPIC33CK_DFP_1.15.423/xc16")
     list(REMOVE_ITEM options "")
     target_compile_options(${target} PRIVATE "${options}")
     target_compile_definitions(${target}
@@ -21,7 +21,7 @@ function(ModBusRTU_MCU_default_default_XC16_assemblePreproc_rule target)
         "-g"
         "-mcpu=33CK256MP502"
         "-Wa,--defsym=__MPLAB_BUILD=1,--defsym=__MPLAB_DEBUG=1,--defsym=__DEBUG=1,-g,--no-relax"
-        "-mdfp=${PACK_REPO_PATH}/Microchip/dsPIC33CK-MP_DFP/1.15.423/xc16")
+        "-mdfp=${PACK_REPO_PATH}/dsPIC33CK_DFP_1.15.423/xc16")
     list(REMOVE_ITEM options "")
     target_compile_options(${target} PRIVATE "${options}")
     target_compile_definitions(${target}
@@ -36,7 +36,7 @@ function(ModBusRTU_MCU_default_default_XC16_compile_rule target)
         "-msmart-io=1"
         "-Wall"
         "-msfr-warn=off"
-        "-mdfp=${PACK_REPO_PATH}/Microchip/dsPIC33CK-MP_DFP/1.15.423/xc16")
+        "-mdfp=${PACK_REPO_PATH}/dsPIC33CK_DFP_1.15.423/xc16")
     list(REMOVE_ITEM options "")
     target_compile_options(${target} PRIVATE "${options}")
     target_compile_definitions(${target}
@@ -47,7 +47,7 @@ function(ModBusRTU_MCU_default_dependentObject_rule target)
     set(options
         "-c"
         "-mcpu=33CK256MP502"
-        "-mdfp=${PACK_REPO_PATH}/Microchip/dsPIC33CK-MP_DFP/1.15.423/xc16")
+        "-mdfp=${PACK_REPO_PATH}/dsPIC33CK_DFP_1.15.423/xc16")
     list(REMOVE_ITEM options "")
     target_compile_options(${target} PRIVATE "${options}")
 endfunction()
@@ -56,7 +56,7 @@ function(ModBusRTU_MCU_default_link_rule target)
         "-g"
         "-mcpu=33CK256MP502"
         "-Wl,--script=p33CK256MP502.gld,--local-stack,--defsym=__MPLAB_BUILD=1,--defsym=__MPLAB_DEBUG=1,--defsym=__DEBUG=1,-D__DEBUG=__DEBUG,--stack=16,--check-sections,--data-init,--pack-data,--handles,--isr,--no-gc-sections,--fill-upper=0,--stackguard=16,--no-force-link,--smart-io,--report-mem,--memorysummary,memoryfile.xml"
-        "-mdfp=${PACK_REPO_PATH}/Microchip/dsPIC33CK-MP_DFP/1.15.423/xc16")
+        "-mdfp=${PACK_REPO_PATH}/dsPIC33CK_DFP_1.15.423/xc16")
     list(REMOVE_ITEM options "")
     target_link_options(${target} PRIVATE "${options}")
     target_compile_definitions(${target}
@@ -66,7 +66,7 @@ endfunction()
 function(ModBusRTU_MCU_default_bin2hex_rule target)
     add_custom_target(
         ModBusRTU_MCU_default_Bin2Hex ALL
-        COMMAND ${MP_BIN2HEX} ${ModBusRTU_MCU_default_image_name} -a -mdfp=${PACK_REPO_PATH}/Microchip/dsPIC33CK-MP_DFP/1.15.423/xc16
+        COMMAND ${MP_BIN2HEX} ${ModBusRTU_MCU_default_image_name} -a -mdfp=${PACK_REPO_PATH}/dsPIC33CK_DFP_1.15.423/xc16
         WORKING_DIRECTORY ${ModBusRTU_MCU_default_output_dir}
         BYPRODUCTS "${ModBusRTU_MCU_default_output_dir}/${ModBusRTU_MCU_default_image_base_name}.hex"
         COMMENT "Convert build file to .hex")

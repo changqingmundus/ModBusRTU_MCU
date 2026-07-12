@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "XC16",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/ModbusRTU.mcc",
+                "${workspaceFolder}/ModbusRTU.mcc/driver",
+                "${workspaceFolder}/FreeModbus/FreeModbus_app",
+                "${workspaceFolder}/FreeModbus/FreeModbus_core",
+                "${workspaceFolder}/FreeModbus/FreeModbus_port",
+                "/home/coder/project/Tools/xc16/include"
+            ],
+            "compilerPath": "D:/Microchip/xc16/bin/xc16-gcc",
+            "intelliSenseMode": "gcc-x86",
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/ModbusRTU.mcc",
+                "${workspaceFolder}/ModbusRTU.mcc/driver",
+                "${workspaceFolder}/FreeModbus/FreeModbus_app",
+                "${workspaceFolder}/FreeModbus/FreeModbus_core",
+                "${workspaceFolder}/FreeModbus/FreeModbus_port",
+                "/home/coder/project/Tools/xc16/include"
+                ]
+            }
+        }
+    ],
+    "version": 4
+}

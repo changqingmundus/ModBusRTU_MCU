@@ -23,135 +23,71 @@
  * File: $Id$
  */
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/signal.h>
-
+#include "uart1.h"
 #include "port.h"
 
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb.h"
 #include "mbport.h"
+#include <stdbool.h>
 
-#define UART_BAUD_RATE          9600
-#define UART_BAUD_CALC(UART_BAUD_RATE,F_OSC) \
-    ( ( F_OSC ) / ( ( UART_BAUD_RATE ) * 16UL ) - 1 )
+#define UART_BAUD_RATE          38400
 
 //#define UART_UCSRB  UCSR0B
 
 void
 vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
 {
-#ifdef RTS_ENABLE
-    UCSRB |= _BV( TXEN ) | _BV(TXCIE);
-#else
-    UCSRB |= _BV( TXEN );
-#endif
-
     if( xRxEnable )
     {
-        UCSRB |= _BV( RXEN ) | _BV( RXCIE );
+        IEC0bits.U1RXIE = 1;  //關閉RX中斷
     }
     else
     {
-        UCSRB &= ~( _BV( RXEN ) | _BV( RXCIE ) );
+        IEC0bits.U1RXIE = 0;  //開啟RX中斷
     }
 
     if( xTxEnable )
     {
-        UCSRB |= _BV( TXEN ) | _BV( UDRE );
-#ifdef RTS_ENABLE
-        RTS_HIGH;
-#endif
+        IEC0bits.U1TXIE = 1;  //關閉TX中斷
     }
     else
     {
-        UCSRB &= ~( _BV( UDRE ) );
+        IEC0bits.U1TXIE = 0;  //開啟TX中斷
     }
 }
 
 BOOL
 xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity eParity )
 {
-    UCHAR ucUCSRC = 0;
+    IEC0bits.U1TXIE = 0;
+    IEC0bits.U1RXIE = 0;
 
-    /* prevent compiler warning. */
-    (void)ucPORT;
-	
-    UBRR = UART_BAUD_CALC( ulBaudRate, F_CPU );
-
-    switch ( eParity )
-    {
-        case MB_PAR_EVEN:
-            ucUCSRC |= _BV( UPM1 );
-            break;
-        case MB_PAR_ODD:
-            ucUCSRC |= _BV( UPM1 ) | _BV( UPM0 );
-            break;
-        case MB_PAR_NONE:
-            break;
-    }
-
-    switch ( ucDataBits )
-    {
-        case 8:
-            ucUCSRC |= _BV( UCSZ0 ) | _BV( UCSZ1 );
-            break;
-        case 7:
-            ucUCSRC |= _BV( UCSZ1 );
-            break;
-    }
-
-#if defined (__AVR_ATmega168__)
-    UCSRC |= ucUCSRC;
-#elif defined (__AVR_ATmega169__)
-    UCSRC |= ucUCSRC;
-#elif defined (__AVR_ATmega8__)
-    UCSRC = _BV( URSEL ) | ucUCSRC;
-#elif defined (__AVR_ATmega16__)
-    UCSRC = _BV( URSEL ) | ucUCSRC;
-#elif defined (__AVR_ATmega32__)
-    UCSRC = _BV( URSEL ) | ucUCSRC;
-#elif defined (__AVR_ATmega128__)
-    UCSRC |= ucUCSRC;
-#endif
-
-    vMBPortSerialEnable( FALSE, FALSE );
-
-#ifdef RTS_ENABLE
-    RTS_INIT;
-#endif
+    IFC0bits.U1TXIF = 0;
+    IFC0bits.U1RXIF = 0;
     return TRUE;
 }
 
 BOOL
 xMBPortSerialPutByte( CHAR ucByte )
 {
-    UDR = ucByte;
+    UART1_Write(ucByte);
     return TRUE;
 }
 
 BOOL
 xMBPortSerialGetByte( CHAR * pucByte )
 {
-    *pucByte = UDR;
+    *pucByte = UART1_Read();
     return TRUE;
 }
 
-SIGNAL( SIG_USART_DATA )
+UART1_TxCompleteCallback(void)
 {
     pxMBFrameCBTransmitterEmpty(  );
 }
 
-SIGNAL( SIG_USART_RECV )
+UART1_RxCompleteCallback(void)
 {
     pxMBFrameCBByteReceived(  );
 }
-
-#ifdef RTS_ENABLE
-SIGNAL( SIG_UART_TRANS )
-{
-    RTS_LOW;
-}
-#endif
-

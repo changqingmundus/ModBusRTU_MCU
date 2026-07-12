@@ -28,8 +28,6 @@
 
 /* ----------------------- Platform includes --------------------------------*/
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
 
 /* ----------------------- Defines ------------------------------------------*/
 #define	INLINE                      inline

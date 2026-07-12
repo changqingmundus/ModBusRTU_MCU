@@ -1,4 +1,5 @@
 #include "encoder.h"
+#include "pins.h"
 
 
 
@@ -15,17 +16,19 @@ void Encoder_Init(void)
    DEE_Read(DEE_Encoder_MagicKey, &Magic_Value);
    if(Magic_Value == Factory_Magic_Value)
    {
-      Encoder_Config.Multiturn_Bit = 0;
+      Encoder_Config.MultiTurn_Bit = 0;
       Encoder_Config.SingleTurn_Bit = 0;
       Encoder_Config.CRC_Bit = 0;
-      DEE_Read(DEE_Encoder_MultiturnBitSize, &Encoder_Config.Multiturn_Bit);
+      DEE_Read(DEE_Encoder_MultiturnBitSize, &Encoder_Config.MultiTurn_Bit);
       DEE_Read(DEE_Encoder_SingleTurnBitSize, &Encoder_Config.SingleTurn_Bit);
       DEE_Read(DEE_Encoder_CRCBitSize, &Encoder_Config.CRC_Bit);
    }
    else
    {
-      Encoder_Config.Multiturn_Bit = 12;    //配置默認多圈位數
-      Encoder_Config.SingleTurn_Bit = 13;   //配置默認單圈位數
+      Encoder_Config.MultiTurn_Bit = 12;    //配置默認多圈位數
+      Encoder_Config.SingleTurn_Bit = 19;   //配置默認單圈位數
+      Encoder_Config.Warning_Bit = 1;
+      Encoder_Config.Error_Bit = 1;
       Encoder_Config.CRC_Bit = 6;           //配置默認CRC位數
    }
 }
@@ -41,6 +44,13 @@ void Encoder_Read_Data(void)
    Encoder_SSI_Read(Encoder_Config.CRC_Bit,&Encoder_Config.CRC_Data);
    Delay_us(5);
    MA_Set();
+   if(Encoder_Config.Warning_Data || Encoder_Config.Error_Data ==0 )
+   {
+      LED0_SetLow();
+   }
+   else {
+      LED0_SetHigh();
+   }
 
    Encoder_Config.Raw_Data = ((uint64_t)Encoder_Config.Multiturn_Data  << (Encoder_Config.SingleTurn_Bit + 2 + Encoder_Config.CRC_Bit)) |
                              ((uint64_t)Encoder_Config.SingleTurn_Data << (2 + Encoder_Config.CRC_Bit)) |
@@ -65,14 +75,4 @@ void Encoder_SSI_Read(uint8_t bit_num, uint32_t *data)
    {
    *data = Data_Temp;
    }
-}
-
-void Encoder_Update_To_CANopen(void)
-{
-   Encoder_Raw_Data = Encoder_Config.Raw_Data;
-   Multiturn_Data = Encoder_Config.Multiturn_Data;
-   SingleTurn_Data = Encoder_Config.SingleTurn_Data;
-   Warning_Data = Encoder_Config.Warning_Data;
-   Error_Data = Encoder_Config.Error_Data;
-   CRC_Data = Encoder_Config.CRC_Data;
 }

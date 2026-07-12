@@ -20,21 +20,18 @@
  */
 
 /* ----------------------- AVR includes -------------------------------------*/
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <avr/signal.h>
+
 
 /* ----------------------- Platform includes --------------------------------*/
 #include "port.h"
+#include "sccp2.h"
 
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb.h"
 #include "mbport.h"
 
 /* ----------------------- Defines ------------------------------------------*/
-#define MB_TIMER_PRESCALER      ( 1024UL )
-#define MB_TIMER_TICKS          ( F_CPU / MB_TIMER_PRESCALER )
-#define MB_50US_TICKS           ( 20000UL )
+
 
 /* ----------------------- Static variables ---------------------------------*/
 static USHORT   usTimerOCRADelta;
@@ -45,12 +42,10 @@ BOOL
 xMBPortTimersInit( USHORT usTim1Timerout50us )
 {
     /* Calculate overflow counter an OCR values for Timer1. */
-    usTimerOCRADelta =
-        ( MB_TIMER_TICKS * usTim1Timerout50us ) / ( MB_50US_TICKS );
 
-    TCCR1A = 0x00;
-    TCCR1B = 0x00;
-    TCCR1C = 0x00;
+    IFS1bits.CCT2IF = 0;
+    // Enabling SCCP2 interrupt
+    IEC1bits.CCT2IE = 1;
 
     vMBPortTimersDisable(  );
 
@@ -61,29 +56,18 @@ xMBPortTimersInit( USHORT usTim1Timerout50us )
 inline void
 vMBPortTimersEnable(  )
 {
-    TCNT1 = 0x0000;
-    if( usTimerOCRADelta > 0 )
-    {
-        TIMSK1 |= _BV( OCIE1A );
-        OCR1A = usTimerOCRADelta;
-    }
 
-    TCCR1B |= _BV( CS12 ) | _BV( CS10 );
+    SCCP2_Timer_Start();
 }
 
 inline void
 vMBPortTimersDisable(  )
 {
     /* Disable the timer. */
-    TCCR1B &= ~( _BV( CS12 ) | _BV( CS10 ) );
-    /* Disable the output compare interrupts for channel A/B. */
-    TIMSK1 &= ~( _BV( OCIE1A ) );
-    /* Clear output compare flags for channel A/B. */
-    TIFR1 |= _BV( OCF1A ) ;
+   SCCP2_Timer_Stop();
 }
 
-SIGNAL( SIG_OUTPUT_COMPARE1A )
+SCCP2_TimeoutCallback (void)
 {
     ( void )pxMBPortCBTimerExpired(  );
 }
-

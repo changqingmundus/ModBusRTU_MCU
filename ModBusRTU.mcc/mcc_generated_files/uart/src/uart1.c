@@ -15,7 +15,7 @@
 */
 
 /*
-© [2026] Microchip Technology Inc. and its subsidiaries.
+ï¿½ [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -217,7 +217,7 @@ void UART1_Deinitialize(void)
     
     // UART Error interrupt
     IFS3bits.U1EIF = 0;
-    IEC3bits.U1EIE    = 0;
+    IEC3bits.U1EIE = 0;
     
     U1MODE = 0x0U;
     U1MODEH = 0x0U;

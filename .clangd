@@ -1,0 +1,4 @@
+compileflags:
+ Add:
+  - -I/home/coder/project/Tools/xc16/support/generic/h
+  - -I/home/coder/project/ModBusRTU_MCU/ModBusRTU.mcc/mcc_generated_files
