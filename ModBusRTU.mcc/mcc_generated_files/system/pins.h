@@ -198,105 +198,105 @@
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB11 GPIO Pin which has a custom name of MA to High
+ * @brief    Sets the RB11 GPIO Pin which has a custom name of SCLK_MA to High
  * @pre      The RB11 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define MA_SetHigh()          (_LATB11 = 1)
+#define SCLK_MA_SetHigh()          (_LATB11 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB11 GPIO Pin which has a custom name of MA to Low
+ * @brief    Sets the RB11 GPIO Pin which has a custom name of SCLK_MA to Low
  * @pre      The RB11 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define MA_SetLow()           (_LATB11 = 0)
+#define SCLK_MA_SetLow()           (_LATB11 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RB11 GPIO Pin which has a custom name of MA
+ * @brief    Toggles the RB11 GPIO Pin which has a custom name of SCLK_MA
  * @pre      The RB11 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define MA_Toggle()           (_LATB11 ^= 1)
+#define SCLK_MA_Toggle()           (_LATB11 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RB11 GPIO Pin which has a custom name of MA
+ * @brief    Reads the value of the RB11 GPIO Pin which has a custom name of SCLK_MA
  * @param    none
  * @return   none  
  */
-#define MA_GetValue()         _RB11
+#define SCLK_MA_GetValue()         _RB11
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB11 GPIO Pin which has a custom name of MA as Input
+ * @brief    Configures the RB11 GPIO Pin which has a custom name of SCLK_MA as Input
  * @param    none
  * @return   none  
  */
-#define MA_SetDigitalInput()  (_TRISB11 = 1)
+#define SCLK_MA_SetDigitalInput()  (_TRISB11 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB11 GPIO Pin which has a custom name of MA as Output
+ * @brief    Configures the RB11 GPIO Pin which has a custom name of SCLK_MA as Output
  * @param    none
  * @return   none  
  */
-#define MA_SetDigitalOutput() (_TRISB11 = 0)
+#define SCLK_MA_SetDigitalOutput() (_TRISB11 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB13 GPIO Pin which has a custom name of SLO to High
+ * @brief    Sets the RB13 GPIO Pin which has a custom name of MISO_SLO to High
  * @pre      The RB13 must be set as Output Pin             
  * @param    none
  * @return   none  
  */
-#define SLO_SetHigh()          (_LATB13 = 1)
+#define MISO_SLO_SetHigh()          (_LATB13 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Sets the RB13 GPIO Pin which has a custom name of SLO to Low
+ * @brief    Sets the RB13 GPIO Pin which has a custom name of MISO_SLO to Low
  * @pre      The RB13 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define SLO_SetLow()           (_LATB13 = 0)
+#define MISO_SLO_SetLow()           (_LATB13 = 0)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Toggles the RB13 GPIO Pin which has a custom name of SLO
+ * @brief    Toggles the RB13 GPIO Pin which has a custom name of MISO_SLO
  * @pre      The RB13 must be set as Output Pin
  * @param    none
  * @return   none  
  */
-#define SLO_Toggle()           (_LATB13 ^= 1)
+#define MISO_SLO_Toggle()           (_LATB13 ^= 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Reads the value of the RB13 GPIO Pin which has a custom name of SLO
+ * @brief    Reads the value of the RB13 GPIO Pin which has a custom name of MISO_SLO
  * @param    none
  * @return   none  
  */
-#define SLO_GetValue()         _RB13
+#define MISO_SLO_GetValue()         _RB13
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB13 GPIO Pin which has a custom name of SLO as Input
+ * @brief    Configures the RB13 GPIO Pin which has a custom name of MISO_SLO as Input
  * @param    none
  * @return   none  
  */
-#define SLO_SetDigitalInput()  (_TRISB13 = 1)
+#define MISO_SLO_SetDigitalInput()  (_TRISB13 = 1)
 
 /**
  * @ingroup  pinsdriver
- * @brief    Configures the RB13 GPIO Pin which has a custom name of SLO as Output
+ * @brief    Configures the RB13 GPIO Pin which has a custom name of MISO_SLO as Output
  * @param    none
  * @return   none  
  */
-#define SLO_SetDigitalOutput() (_TRISB13 = 0)
+#define MISO_SLO_SetDigitalOutput() (_TRISB13 = 0)
 
 /**
  * @ingroup  pinsdriver
