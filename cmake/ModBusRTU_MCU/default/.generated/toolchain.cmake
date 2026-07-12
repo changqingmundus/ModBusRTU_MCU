@@ -1,27 +1,27 @@
 # This file configures the compiler to use with CMake.
 
 set(CMAKE_C_COMPILER_WORKS YES CACHE BOOL "Tell CMake that the compiler works, but cannot be run during the configuration stage")
-set(MP_CC "/home/coder/project/Tools/xc16/bin/xc16-gcc" CACHE STRING "Legacy variable from MPLAB X pointing to the compiler")
-set(MP_CC_DIR "/home/coder/project/Tools/xc16/bin" CACHE STRING "Legacy variable from MPLAB X pointing to the compiler base directory")
-set(CMAKE_C_COMPILER "/home/coder/project/Tools/xc16/bin/xc16-gcc" CACHE FILEPATH "Path to the compiler binary")
+set(MP_CC "d:\\Microchip\\xc16\\bin\\xc16-gcc.exe" CACHE STRING "Legacy variable from MPLAB X pointing to the compiler")
+set(MP_CC_DIR "d:\\Microchip\\xc16\\bin" CACHE STRING "Legacy variable from MPLAB X pointing to the compiler base directory")
+set(CMAKE_C_COMPILER "d:/Microchip/xc16/bin/xc16-gcc.exe" CACHE FILEPATH "Path to the compiler binary")
 
 set(CMAKE_ASM_COMPILER_WORKS YES CACHE BOOL "Tell CMake that the assembler works, but cannot be run during the configuration stage")
-set(MP_AS "/home/coder/project/Tools/xc16/bin/xc16-gcc" CACHE STRING "Legacy variable from MPLAB X pointing to the assembler")
-set(MP_AS_DIR "/home/coder/project/Tools/xc16/bin" CACHE STRING "Legacy variable from MPLAB X pointing to the assembler base directory")
-set(CMAKE_ASM_COMPILER "/home/coder/project/Tools/xc16/bin/xc16-gcc" CACHE FILEPATH "Path to the compiler binary.")
+set(MP_AS "d:\\Microchip\\xc16\\bin\\xc16-gcc.exe" CACHE STRING "Legacy variable from MPLAB X pointing to the assembler")
+set(MP_AS_DIR "d:\\Microchip\\xc16\\bin" CACHE STRING "Legacy variable from MPLAB X pointing to the assembler base directory")
+set(CMAKE_ASM_COMPILER "d:/Microchip/xc16/bin/xc16-gcc.exe" CACHE FILEPATH "Path to the compiler binary.")
 set(MP_AS "${CMAKE_ASM_COMPILER}" CACHE STRING "Legacy variable from MPLAB X pointing to the assembler binary.")
 
-set(MP_LD "/home/coder/project/Tools/xc16/bin/xc16-ld" CACHE STRING "Legacy variable from MPLAB X pointing to the linker binary.")
-set(MP_LD_DIR "/home/coder/project/Tools/xc16/bin" CACHE STRING "Legacy variable from MPLAB X pointing to the linker base directory")
+set(MP_LD "d:\\Microchip\\xc16\\bin\\xc16-ld.exe" CACHE STRING "Legacy variable from MPLAB X pointing to the linker binary.")
+set(MP_LD_DIR "d:\\Microchip\\xc16\\bin" CACHE STRING "Legacy variable from MPLAB X pointing to the linker base directory")
 
-set(MP_AR "/home/coder/project/Tools/xc16/bin/xc16-ar" CACHE STRING "Legacy variable from MPLAB X pointing to the archiver binary.")
-set(MP_AR_DIR "/home/coder/project/Tools/xc16/bin" CACHE STRING "Legacy variable from MPLAB X pointing to the archiver base directory")
+set(MP_AR "d:\\Microchip\\xc16\\bin\\xc16-ar.exe" CACHE STRING "Legacy variable from MPLAB X pointing to the archiver binary.")
+set(MP_AR_DIR "d:\\Microchip\\xc16\\bin" CACHE STRING "Legacy variable from MPLAB X pointing to the archiver base directory")
 
-set(CMAKE_AR "/home/coder/project/Tools/xc16/bin/xc16-ar" CACHE FILEPATH "Path to the archiver binary.")
+set(CMAKE_AR "d:/Microchip/xc16/bin/xc16-ar.exe" CACHE FILEPATH "Path to the archiver binary.")
 
-set(OBJCOPY "/home/coder/project/Tools/xc16/bin/xc16-objcopy" CACHE FILEPATH "Path to objcopy executable")
+set(OBJCOPY "d:/Microchip/xc16/bin/xc16-objcopy.exe" CACHE FILEPATH "Path to objcopy executable")
 
-set(MP_BIN2HEX "/home/coder/project/Tools/xc16/bin/xc16-bin2hex" CACHE STRING "Legacy variable from MPLAB X pointing to the bin2hex binary.")
+set(MP_BIN2HEX "d:\\Microchip\\xc16\\bin\\xc16-bin2hex.exe" CACHE STRING "Legacy variable from MPLAB X pointing to the bin2hex binary.")
 
 # Extend the object path max if the OS is capable and it looks like the toolchain supports it
 # See https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation
@@ -30,7 +30,7 @@ if(WIN32 AND NOT COMPILER_IS_LONG_PATH_AWARE)
         RESULT LONG_PATHS_ENABLED
         QUERY WINDOWS_REGISTRY "HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Control/FileSystem"
         VALUE "LongPathsEnabled")
-    if(${CMAKE_MAKE_PROGRAM} MATCHES ".*(make|make)")
+    if(${CMAKE_MAKE_PROGRAM} MATCHES ".*(make|make.exe)")
         message(STATUS "Make does not work well with long paths, leaving it low")
     elseif(${LONG_PATHS_ENABLED} STREQUAL "1")
         set(CMAKE_C_COMPILER_EXE_MANIFEST_FILE "${CMAKE_C_COMPILER}.manifest")

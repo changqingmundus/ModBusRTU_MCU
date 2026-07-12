@@ -19,7 +19,6 @@ foreach(source_file ${ModBusRTU_MCU_default_default_XC16_FILE_TYPE_assemblePrepr
 endforeach()
 
 set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_app/src/demo.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_core/src/mb.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_core/src/mbascii.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_core/src/mbcrc.c"
@@ -35,6 +34,7 @@ set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_port/src/portevent.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_port/src/portserial.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_port/src/porttimer.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/User/src/mb_user.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/encoder.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/dee/src/dee.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/flash/src/flash.c"

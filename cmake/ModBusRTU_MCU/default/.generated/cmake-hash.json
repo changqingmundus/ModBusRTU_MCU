@@ -1,7 +1,7 @@
 {
     "hashFileVersion": "1.1.0",
-    "projectFileHash": "f4f1b3b02d6729e160b769f884ef005f10ce1bbb6654cc32a3fed4c26048aa00",
-    "cmakeFilesHash": "83c536d398c4c0af808dd7c356f63c5a08efa236920b74344382845368cf5687",
+    "projectFileHash": "02809bba7b7f4d868991e17e78a706a3573f8d3c73d4fdef90d5334b7577d02e",
+    "cmakeFilesHash": "aba84728841c93d19703f8cc599e2b0ad1a99a79d061f3ef916500427a596115",
     "cmakerVersion": "4.3.0",
-    "workspacePath": "/home/coder/project/ModBusRTU_MCU"
+    "workspacePath": "d:/project docs/vs code prj/git remote works/modbusrtu_mcu"
 }

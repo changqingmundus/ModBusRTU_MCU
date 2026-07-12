@@ -1,4 +1,10 @@
 {
     "mplab.clangd.compileCommandsDir": "${workspaceFolder}\\_build\\ModBusRTU_MCU\\default",
-    "cmake.sourceDirectory": "/home/coder/project/ModBusRTU_MCU/cmake/ModBusRTU_MCU/default"
+    "cmake.sourceDirectory": "D:/Project Docs/VS Code PRJ/Git Remote Works/ModBusRTU_MCU/cmake/ModBusRTU_MCU/default",
+    "memory-inspector.debugTypes": [
+        "arm-debugger",
+        "embedded-debug",
+        "gdb",
+        "mplab-core-da"
+    ]
 }
