@@ -2,3 +2,6 @@ CompileFlags:
  Add:
   - -I/home/coder/project/Tools/xc16/support/generic/h
   - -I/home/coder/project/ModBusRTU_MCU/ModBusRTU.mcc/mcc_generated_files
+  - -I/home/coder/project/ModBusRTU_MCU/ModBusRTU.mcc/mcc_generated_files/dee
+  - -I/home/coder/project/ModBusRTU_MCU/ModBusRTU.mcc/mcc_generated_files/system
+  - -I/home/coder/project/ModBusRTU_MCU/ModBusRTU.mcc/mcc_generated_files/timer

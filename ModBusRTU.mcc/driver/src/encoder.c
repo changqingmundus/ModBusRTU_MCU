@@ -1,5 +1,6 @@
 #include "encoder.h"
 #include "pins.h"
+#include "cleardata.h"
 
 
 
@@ -22,6 +23,30 @@ void Encoder_Init(void)
       DEE_Read(DEE_Encoder_MultiTurnBitSize, &Encoder_Config.MultiTurn_Bit);
       DEE_Read(DEE_Encoder_SingleTurnBitSize, &Encoder_Config.SingleTurn_Bit);
       DEE_Read(DEE_Encoder_CRCBitSize, &Encoder_Config.CRC_Bit);
+
+
+
+      uint16_t Multi_LowData;
+      uint16_t Multi_HighData;
+
+      uint16_t Single_LowData;
+      uint16_t Single_HighData;
+      
+      DEE_Read(DEE_Encoder_MultiTurn_Data_L, &Multi_LowData);
+      DEE_Read(DEE_Encoder_MultiTurn_Data_H, &Multi_HighData);
+      DEE_Read(DEE_Encoder_SingleTurn_Data_L, &Single_LowData);
+      DEE_Read(DEE_Encoder_SingleTurn_Data_H, &Single_HighData);
+      Encoder_Config.MultiTurn_Data = ((uint32_t)Multi_HighData << 16) | Multi_LowData;
+      Encoder_Config.SingleTurn_Data = ((uint32_t)Single_HighData << 16) | Single_LowData;
+      if(Encoder_Config.MultiTurn_Data == 0xFFFFFFFF)
+      {
+        Encoder_Config.MultiTurn_Data = 0;
+      }
+      if(Encoder_Config.SingleTurn_Data == 0xFFFFFFFF)
+      {
+         Encoder_Config.SingleTurn_Data = 0;
+      }
+
    }
    else
    {
@@ -54,7 +79,7 @@ void Encoder_Read_Data(void)
 
    Encoder_Config.Raw_Data = ((uint64_t)Encoder_Config.MultiTurn_Data  << (Encoder_Config.SingleTurn_Bit + 2 + Encoder_Config.CRC_Bit)) |
                              ((uint64_t)Encoder_Config.SingleTurn_Data << (2 + Encoder_Config.CRC_Bit)) |
-                             ((uint64_t)Encoder_Config.Warning_Data    << Encoder_Config.CRC_Bit + 1) |
+                             ((uint64_t)Encoder_Config.Warning_Data    << (Encoder_Config.CRC_Bit + 1)) |
                              ((uint64_t)Encoder_Config.Error_Data      << (Encoder_Config.CRC_Bit)) |
                              ((uint64_t)Encoder_Config.CRC_Data);
 }
@@ -75,4 +100,15 @@ void Encoder_SSI_Read(uint8_t bit_num, uint32_t *data)
    {
    *data = Data_Temp;
    }
+}
+
+void Encoder_Clear_Data(void) 
+{
+    Encoder_Read_Data();
+
+    int32_t abs = 0;
+    for (int i = 0; i < Encoder_Config.SingleTurn_Data; i++) {
+        abs |= ((uint32_t)Encoder_Config[Encoder_Config.MultiTurn_Data + i]) << (8 * (Encoder_Config.SingleTurn_Data - 1 - i));
+    }
+    Encoder_Config.SingleTurn_Data = abs;
 }
