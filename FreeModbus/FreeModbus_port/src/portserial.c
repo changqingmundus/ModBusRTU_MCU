@@ -24,7 +24,7 @@
  */
 
 #include "port.h"
-
+#include "pins.h"
 /* ----------------------- Modbus includes ----------------------------------*/
 #include "mb.h"
 #include "mbport.h"
@@ -42,20 +42,20 @@ vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
 {
     if( xRxEnable )
     {
-        IEC0bits.U1RXIE = 1;  //關閉RX中斷
+        IEC0bits.U1RXIE = 1;  //開啟RX中斷
     }
     else
     {
-        IEC0bits.U1RXIE = 0;  //開啟RX中斷
+        IEC0bits.U1RXIE = 0;  //關閉RX中斷
     }
 
     if( xTxEnable )
     {
-        IEC0bits.U1TXIE = 1;  //關閉TX中斷
+        IEC0bits.U1TXIE = 1;  //開啟TX中斷
     }
     else
     {
-        IEC0bits.U1TXIE = 0;  //開啟TX中斷
+        IEC0bits.U1TXIE = 0;  //關閉TX中斷
     }
 }
 

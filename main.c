@@ -23,9 +23,14 @@
 #include "encoder.h"
 #include "dee.h"
 #include "system.h"
+
 /*
     Main application
 */
+
+extern volatile uint8_t debug_event;
+extern volatile uint8_t debug_len;
+extern volatile uint8_t debug_buf[];
 
 int main(void)
 {
@@ -35,15 +40,26 @@ int main(void)
     Encoder_Init();
     
     eMBErrorCode eStatus;
-    eStatus = eMBRTUInit(1, 0, 38400, MB_PAR_NONE);
+    eStatus = eMBInit(MB_RTU, 1, 0, 38400, MB_PAR_NONE);
+    eStatus = eMBEnable();
 
     if(eStatus == MB_ENOERR)
     {
-        eMBRTUStart();
         while(1)
        {
+        Encoder_Read_Data();
         eMBPoll();
+        if(debug_event)
+        {
+            debug_event = 0;
+            UART1_Write(debug_len);
+            for(uint8_t i = 0; i < 8; i++)
+            {
+                UART1_Write(debug_buf[i]);
+
+            }
+            
+        } 
        }
-        
     } 
 }

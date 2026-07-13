@@ -28,9 +28,9 @@ typedef struct
 {
     uint8_t MultiTurn_Bit;    //配置編碼器多圈位數
     uint8_t SingleTurn_Bit;   //配置編碼器單圈位數
-    uint32_t Warning_Bit;           //配置編碼器警告位數
+    bool Warning_Bit;           //配置編碼器警告位數
     bool Error_Bit;            //配置編碼器錯誤位數
-    bool CRC_Bit;          //配置編碼器CRC位數
+    uint8_t CRC_Bit;          //配置編碼器CRC位數
     //ReadoutData
     uint64_t Raw_Data;         //編碼器原始數據
     uint32_t MultiTurn_Data;   //編碼器多圈數據

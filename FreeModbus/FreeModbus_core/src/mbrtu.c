@@ -70,6 +70,11 @@ static volatile eMBRcvState eRcvState;
 
 volatile UCHAR  ucRTUBuf[MB_SER_PDU_SIZE_MAX];
 
+volatile uint8_t debug_event = 0;
+volatile uint8_t debug_len = 0;
+volatile uint8_t debug_buf[8];
+
+
 static volatile UCHAR *pucSndBufferCur;
 static volatile USHORT usSndBufferCount;
 
@@ -275,6 +280,7 @@ xMBRTUReceiveFSM( void )
         {
             eRcvState = STATE_RX_ERROR;
         }
+        
         vMBPortTimersEnable(  );
         break;
     }
@@ -335,6 +341,12 @@ xMBRTUTimerT35Expired( void )
          * a new frame was received. */
     case STATE_RX_RCV:
         xNeedPoll = xMBPortEventPost( EV_FRAME_RECEIVED );
+        debug_event = 1;
+        debug_len = usRcvBufferPos;
+        for(uint8_t i=0;i<usRcvBufferPos;i++)
+        {
+            debug_buf[i] = ucRTUBuf[i];
+        }
         break;
 
         /* An error occured while receiving the frame. */
