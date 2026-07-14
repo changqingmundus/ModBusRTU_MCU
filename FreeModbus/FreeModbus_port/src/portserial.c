@@ -71,6 +71,7 @@ xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity e
 BOOL
 xMBPortSerialPutByte( CHAR ucByte )
 {
+    UART1_Write(0x99);
     UART1_Write(ucByte);
     return TRUE;
 }

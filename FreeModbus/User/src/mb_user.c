@@ -20,7 +20,7 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
 
       // SingleTurn 高16位
       case 0x0000:
-
+      
         value = (Encoder_Config.SingleTurn_Data >> 16);
         break;
 
@@ -38,7 +38,6 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
 
       // Multiturn 低16位
       case 0x0003:
-
         value = Encoder_Config.MultiTurn_Data & 0xFFFF;
         break;
 

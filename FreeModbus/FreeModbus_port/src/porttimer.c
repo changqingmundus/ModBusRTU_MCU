@@ -53,7 +53,6 @@ xMBPortTimersInit( USHORT usTim1Timerout50us )
 inline void
 vMBPortTimersEnable(  )
 {
-
     SCCP2_Timer_Start();
 }
 

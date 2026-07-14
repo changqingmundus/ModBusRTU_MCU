@@ -30,7 +30,11 @@
 
 extern volatile uint8_t debug_event;
 extern volatile uint8_t debug_len;
+extern volatile uint8_t debug_state;
+extern volatile uint8_t debug_last_byte;
 extern volatile uint8_t debug_buf[];
+extern volatile uint8_t debug_buf_byte;
+extern volatile uint8_t debug_buf_count;
 
 int main(void)
 {
@@ -51,15 +55,18 @@ int main(void)
         eMBPoll();
         if(debug_event)
         {
+            //Delay_us(20);
             debug_event = 0;
-            UART1_Write(debug_len);
-            for(uint8_t i = 0; i < 8; i++)
-            {
-                UART1_Write(debug_buf[i]);
-
-            }
-            
-        } 
+            UART1_Write(0XAA);
+            UART1_Write(0XAA);
+            UART1_Write(0XAA);
+            UART1_Write(0XAA);
+            UART1_Write(0XAA);
+            UART1_Write(0XAA);
+            UART1_Write(0XAA);
+            UART1_Write(0XAA);
+            UART1_Write(0XAA);
+        }
        }
     } 
 }
