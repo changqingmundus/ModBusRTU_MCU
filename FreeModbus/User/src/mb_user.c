@@ -8,28 +8,34 @@ uint16_t Direction = 0x01;
 uint16_t Protocol = 0x01;
 
 eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
-                             USHORT usNRegs, eMBRegisterMode eMode) 
+                             USHORT usNRegs, eMBRegisterMode eMode)
 {
   Encoder_Read_Data();
   uint16_t value;
 
-  if (eMode == MB_REG_READ) {
+  if (eMode == MB_REG_READ)
+  {
+    uint32_t single_value;
+    single_value = (Encoder_Config.SingleTurn_Data - Absolute_SingleTurn_Data) &
+                   ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
+    while (usNRegs--)
+    {
 
-    while (usNRegs--) {
+      switch (usAddress)
+      {
 
-      switch (usAddress) {
-
-      // SingleTurn 高16位
       case 0x0000:
-      
-        value = (Encoder_Config.SingleTurn_Data >> 16);
+      {
+        value = (single_value >> 16) & 0x0007; // 高3位(bit18~bit16)
         break;
+      }
 
       // SingleTurn 低16位
       case 0x0001:
-
-        value = Encoder_Config.SingleTurn_Data & 0xFFFF;
+      {
+        value = single_value & 0xFFFF;
         break;
+      }
 
       // Multiturn 高16位
       case 0x0002:
@@ -101,7 +107,7 @@ eMBErrorCode eMBRegInputCB(UCHAR *pucRegBuffer,
                            USHORT usAddress,
                            USHORT usNRegs)
 {
-    return MB_ENOREG;
+  return MB_ENOREG;
 }
 
 eMBErrorCode eMBRegCoilsCB(UCHAR *pucRegBuffer,
@@ -109,12 +115,12 @@ eMBErrorCode eMBRegCoilsCB(UCHAR *pucRegBuffer,
                            USHORT usNCoils,
                            eMBRegisterMode eMode)
 {
-    return MB_ENOREG;
+  return MB_ENOREG;
 }
 
 eMBErrorCode eMBRegDiscreteCB(UCHAR *pucRegBuffer,
                               USHORT usAddress,
                               USHORT usNDiscrete)
 {
-    return MB_ENOREG;
+  return MB_ENOREG;
 }

@@ -3,7 +3,7 @@
 #include "cleardata.h"
 
 
-
+uint32_t Absolute_SingleTurn_Data = 0;
 ENCODER_CONFIG Encoder_Config;
 
 void Delay_us(uint16_t us)
@@ -105,7 +105,5 @@ void Encoder_SSI_Read(uint8_t bit_num, uint32_t *data)
 void Encoder_Clear_Data(void) 
 {
     Encoder_Read_Data();
-
-    uint32_t Absolute_SingleTurn_Data = 0;
     Absolute_SingleTurn_Data = Encoder_Config.SingleTurn_Data;
 }
