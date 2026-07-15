@@ -18,6 +18,9 @@
 #define DEE_Encoder_SingleTurn_Data_L 6   //DEE存放編碼器單圈低位數據
 #define DEE_Encoder_SingleTurn_Data_H 7   //DEE存放編碼器單圈高位數據
 
+#define DEE_ENCODER_ZERO_L 8              //DEE存放編碼器零點低位數據
+#define DEE_ENCODER_ZERO_H 9              //DEE存放編碼器零點高位數據
+
 
 #define MA_Clear() SCLK_MA_SetLow()     //設置SLO腳為低電平
 #define MA_Set() SCLK_MA_SetHigh()      //設置SLO腳為高電平
@@ -42,7 +45,7 @@ typedef struct
 }ENCODER_CONFIG;
 
 extern ENCODER_CONFIG Encoder_Config;  //聲明為全局變量
-extern uint32_t Absolute_SingleTurn_Data; //當前單圈數據值
+extern uint32_t Zero_SingleTurn_Data; //當前單圈數據值
 
 void Delay_us(uint16_t us);
 

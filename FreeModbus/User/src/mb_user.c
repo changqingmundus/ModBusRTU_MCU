@@ -16,7 +16,7 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
   if (eMode == MB_REG_READ)
   {
     uint32_t single_value;
-    single_value = (Encoder_Config.SingleTurn_Data - Absolute_SingleTurn_Data) &
+    single_value = (Encoder_Config.SingleTurn_Data - Zero_SingleTurn_Data) &
                    ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
     while (usNRegs--)
     {
