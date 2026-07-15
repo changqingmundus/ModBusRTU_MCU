@@ -15,7 +15,7 @@
 */
 
 /*
-© [2026] Microchip Technology Inc. and its subsidiaries.
+? [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -113,7 +113,6 @@
 // FBOOT
 #pragma config BTMODE = SINGLE    //Device Boot Mode Configuration->Device is in Single Boot (legacy) mode
 
-#pragma message("This generated MCC Melody content with device json version 5.15.1 is most compatible with dsPIC33CK-MP_DFP v1.15.423.")
 
 /**
  End of File

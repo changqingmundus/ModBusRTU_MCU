@@ -10,6 +10,7 @@ uint16_t Protocol = 0x01;
 eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
                              USHORT usNRegs, eMBRegisterMode eMode) 
 {
+  Encoder_Read_Data();
   uint16_t value;
 
   if (eMode == MB_REG_READ) {

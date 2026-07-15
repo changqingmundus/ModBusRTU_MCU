@@ -3,10 +3,11 @@
     "configurations": [
         {
             "name": "default",
-            "id": "conf1",
+            "id": "",
             "device": "dsPIC33CK256MP502",
             "imagePath": "./out/ModBusRTU_MCU/default.elf",
-            "tool": "Simulator",
+            "toolProperties": "default-tool-base",
+            "tool": "Snap",
             "packs": [
                 {
                     "name": "dsPIC33CK-MP_DFP",
@@ -26,6 +27,11 @@
             "properties": {
                 "compiler.code-model": "large-code"
             }
+        },
+        {
+            "name": "default-tool-base",
+            "type": "tool",
+            "properties": {}
         }
     ],
     "fileSets": [

@@ -2,8 +2,8 @@
 
 manifest_file_version: 1.0.0
 project: N/A
-creation_date: 2026-07-12T10:01:57.351+08:00[Asia/Shanghai]
-operating_system: Windows 11
+creation_date: 2026-07-15T10:50:13.888+08:00[Asia/Shanghai]
+operating_system: Windows 10
 mcc_mode: VSCodePlugin
 mcc_mode_version: Unknown
 device_name: dsPIC33CK256MP502

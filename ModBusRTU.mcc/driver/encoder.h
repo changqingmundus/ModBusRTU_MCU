@@ -4,6 +4,7 @@
 #include "dee.h"
 #include "stdbool.h"
 #include "stdint.h"
+#include "cleardata.h"
 #include "delay.h"
 #include "pins.h"
 

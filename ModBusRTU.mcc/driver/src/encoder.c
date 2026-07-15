@@ -71,7 +71,7 @@ void Encoder_Read_Data(void)
    MA_Set();
    if(Encoder_Config.Warning_Data || Encoder_Config.Error_Data ==0 )
    {
-      LED0_SetLow();
+      LED0_SetHigh();
    }
    else {
       LED0_SetHigh();

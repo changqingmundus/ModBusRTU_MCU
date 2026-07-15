@@ -22,6 +22,7 @@
 #include "mbport.h"
 #include "encoder.h"
 #include "dee.h"
+#include "sccp1.h"
 #include "system.h"
 
 /*
@@ -29,17 +30,14 @@
 */
 
 extern volatile uint8_t debug_event;
-extern volatile uint8_t debug_len;
-extern volatile uint8_t debug_state;
-extern volatile uint8_t debug_last_byte;
-extern volatile uint8_t debug_buf[];
-extern volatile uint8_t debug_buf_byte;
-extern volatile uint8_t debug_buf_count;
+extern volatile uint8_t debug_byte;
 
 int main(void)
 {
     SYSTEM_Initialize();
     DEE_Init();
+    SET_SetInterruptHandler(ClearData_CN_Callback);
+    Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
 
     Encoder_Init();
     
@@ -51,21 +49,12 @@ int main(void)
     {
         while(1)
        {
-        Encoder_Read_Data();
+        //Encoder_Read_Data();
         eMBPoll();
-        if(debug_event)
+        if(debug_event == 1)
         {
-            //Delay_us(20);
             debug_event = 0;
-            UART1_Write(0XAA);
-            UART1_Write(0XAA);
-            UART1_Write(0XAA);
-            UART1_Write(0XAA);
-            UART1_Write(0XAA);
-            UART1_Write(0XAA);
-            UART1_Write(0XAA);
-            UART1_Write(0XAA);
-            UART1_Write(0XAA);
+            UART1_Write(debug_byte);
         }
        }
     } 

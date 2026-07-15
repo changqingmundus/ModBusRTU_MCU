@@ -37,7 +37,7 @@ void ClearData_Timer_Callback(void) {
         if(ClearDataFlag == 1) {
             high_time_sec++; // 高電平依然存在，秒數加 1
             
-            // 如果時間已經達到或超過 15 秒，判定為超時無效
+            // 如果時間已經達到或超過 60 秒，判定為超時無效
             if(high_time_sec > 60) {
                 SCCP1_Timer_Stop();  // 停止計時
                 is_counting = 0;    // 重置狀態，不清零，直接結束
@@ -46,7 +46,7 @@ void ClearData_Timer_Callback(void) {
         } 
         else {
             // 【核心觸發點】：定時器進來時，發現 RA4 已經變低電平（放開）了
-            // 判斷放開時的累積秒數是否在 10 秒 到 14 秒之間（即大於等於10s，小於15s）
+            // 判斷放開時的累積秒數是否在 2 秒 到 10 秒之間（即大於等於2s，小於10s）
             if(high_time_sec >= 2 && high_time_sec < 10) {
                 
                 // ======= 執行編碼器數據清零代碼 =======

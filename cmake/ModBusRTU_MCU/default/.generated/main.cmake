@@ -45,17 +45,17 @@ endif()
 
 
 # Main target for this project
-add_executable(ModBusRTU_MCU_default_image_zcwHaz8G ${ModBusRTU_MCU_default_library_list})
+add_executable(ModBusRTU_MCU_default_image_7gsMsF5d ${ModBusRTU_MCU_default_library_list})
 
-set_target_properties(ModBusRTU_MCU_default_image_zcwHaz8G PROPERTIES
+set_target_properties(ModBusRTU_MCU_default_image_7gsMsF5d PROPERTIES
     OUTPUT_NAME "default"
     SUFFIX ".elf"
     RUNTIME_OUTPUT_DIRECTORY "${ModBusRTU_MCU_default_output_dir}")
-target_link_libraries(ModBusRTU_MCU_default_image_zcwHaz8G PRIVATE ${ModBusRTU_MCU_default_default_XC16_FILE_TYPE_link})
+target_link_libraries(ModBusRTU_MCU_default_image_7gsMsF5d PRIVATE ${ModBusRTU_MCU_default_default_XC16_FILE_TYPE_link})
 
 # Add the link options from the rule file.
-ModBusRTU_MCU_default_link_rule( ModBusRTU_MCU_default_image_zcwHaz8G)
+ModBusRTU_MCU_default_link_rule( ModBusRTU_MCU_default_image_7gsMsF5d)
 
 # Call bin2hex function from the rule file
-ModBusRTU_MCU_default_bin2hex_rule(ModBusRTU_MCU_default_image_zcwHaz8G)
+ModBusRTU_MCU_default_bin2hex_rule(ModBusRTU_MCU_default_image_7gsMsF5d)
 

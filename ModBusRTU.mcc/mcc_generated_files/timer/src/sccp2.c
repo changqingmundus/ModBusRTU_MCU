@@ -15,7 +15,7 @@
 */
 
 /*
-© [2026] Microchip Technology Inc. and its subsidiaries.
+? [2026] Microchip Technology Inc. and its subsidiaries.
 
     Subject to your compliance with these terms, you may use Microchip 
     software and any derivatives exclusively with Microchip products. 
@@ -74,8 +74,8 @@ const struct TIMER_INTERFACE Timer2 = {
 
 void SCCP2_Timer_Initialize(void)
 {
-    // MOD 16-Bit/32-Bit Timer; CCSEL disabled; TMR32 16 Bit; TMRPS 1:4; CLKSEL FOSC/2; TMRSYNC disabled; CCPSLP disabled; CCPSIDL disabled; CCPON disabled; 
-    CCP2CON1L = 0x40U; //The module is disabled, till other settings are configured
+    // MOD 16-Bit/32-Bit Timer; CCSEL disabled; TMR32 16 Bit; TMRPS 1:16; CLKSEL FOSC/2; TMRSYNC disabled; CCPSLP disabled; CCPSIDL disabled; CCPON disabled; 
+    CCP2CON1L = 0x80U; //The module is disabled, till other settings are configured
     //SYNC None; ALTSYNC disabled; ONESHOT disabled; TRIGEN disabled; IOPS Each Time Base Period Match; RTRGEN disabled; OPSRC Timer Interrupt Event; 
     CCP2CON1H = 0x0U;
     //ASDG 0x0; SSDG disabled; ASDGM disabled; PWMRSEN disabled; 
@@ -90,8 +90,8 @@ void SCCP2_Timer_Initialize(void)
     CCP2TMRL = 0x0U;
     //TMRH 0x0000; 
     CCP2TMRH = 0x0U;
-    //PRL 17499; 
-    CCP2PRL = 0x445BU;
+    //PRL 24999; 
+    CCP2PRL = 0x61A7U;
     //PRH 0; 
     CCP2PRH = 0x0U;
     //CMPA 0; 
