@@ -51,6 +51,7 @@ int main(void)
        {
         //Encoder_Read_Data();
         eMBPoll();
+        LED1_SetHigh();
         if(debug_event == 1)
         {
             debug_event = 0;

@@ -55,7 +55,7 @@ void ClearData_Timer_Callback(void) {
                 DEE_Write(DEE_ENCODER_ZERO_H, (uint16_t)(Encoder_Config.SingleTurn_Data >> 16));
                 // ===================================
             }
-            else if (high_time_sec >= 10 && high_time_sec <= 60 ) {
+            else if (high_time_sec >= 10 && high_time_sec < 60 ) {
                 DEE_Write(DEE_ENCODER_ZERO_L, 0);
                 DEE_Write(DEE_ENCODER_ZERO_H, 0);            
             }

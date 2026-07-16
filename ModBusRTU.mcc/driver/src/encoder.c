@@ -76,11 +76,12 @@ void Encoder_Read_Data(void)
    MA_Set();
    if(Encoder_Config.Warning_Data || Encoder_Config.Error_Data ==0 )
    {
-      LED0_SetHigh();
+      LED0_SetLow();
    }
    else {
       LED0_SetHigh();
    }
+   LED1_SetLow();
 
    Encoder_Config.Raw_Data = ((uint64_t)Encoder_Config.MultiTurn_Data  << (Encoder_Config.SingleTurn_Bit + 2 + Encoder_Config.CRC_Bit)) |
                              ((uint64_t)Encoder_Config.SingleTurn_Data << (2 + Encoder_Config.CRC_Bit)) |
