@@ -24,32 +24,32 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
       switch (usAddress)
       {
 
-      case 0x0000:
+      case 0x0001:   //對應地址0x0000開始
       {
         value = (single_value >> 16) & 0x0007; // 高3位(bit18~bit16)
         break;
       }
 
       // SingleTurn 低16位
-      case 0x0001:
+      case 0x0002:
       {
         value = single_value & 0xFFFF;
         break;
       }
 
       // Multiturn 高16位
-      case 0x0002:
+      case 0x0003:
 
         value = (Encoder_Config.MultiTurn_Data >> 16);
         break;
 
       // Multiturn 低16位
-      case 0x0003:
+      case 0x0004:
         value = Encoder_Config.MultiTurn_Data & 0xFFFF;
         break;
 
       // Status
-      case 0x0004:
+      case 0x0005:
 
         value = 0;
 
@@ -62,25 +62,25 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
         break;
 
       // Encoder CRC
-      case 0x0005:
+      case 0x0006:
 
         value = Encoder_Config.CRC_Data;
         break;
 
       // 從機地址
-      case 0x0006:
+      case 0x0007:
 
         value = Slave_ID;
         break;
 
       // 波特率
-      case 0x0007:
+      case 0x0008:
 
         value = BaudRate;
         break;
 
       // 校驗
-      case 0x0008:
+      case 0x0009:
 
         value = Parity;
         break;
