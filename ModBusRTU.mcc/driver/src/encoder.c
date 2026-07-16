@@ -24,8 +24,13 @@ void Encoder_Init(void)
       DEE_Read(DEE_Encoder_SingleTurnBitSize, &Encoder_Config.SingleTurn_Bit);
       DEE_Read(DEE_Encoder_CRCBitSize, &Encoder_Config.CRC_Bit);
 
+      uint16_t Zero_LowData;
+      uint16_t Zero_HighData;
+      DEE_Read(DEE_ENCODER_ZERO_L,&Zero_LowData);
+      DEE_Read(DEE_ENCODER_ZERO_L,&Zero_HighData);
+      Zero_SingleTurn_Data = ((uint32_t)Zero_HighData << 16) | Zero_LowData;
 
-
+      /*
       uint16_t Multi_LowData;
       uint16_t Multi_HighData;
 
@@ -46,12 +51,7 @@ void Encoder_Init(void)
       {
          Encoder_Config.SingleTurn_Data = 0;
       }
-
-      uint16_t Zero_LowData;
-      uint16_t Zero_HighData;
-      DEE_Read(DEE_ENCODER_ZERO_L,&Zero_LowData);
-      DEE_Read(DEE_ENCODER_ZERO_L,&Zero_HighData);
-      Zero_SingleTurn_Data = ((uint32_t)Zero_HighData << 16) | Zero_LowData;
+      */
    }
    else
    {
@@ -60,6 +60,8 @@ void Encoder_Init(void)
       Encoder_Config.Warning_Bit = 1;
       Encoder_Config.Error_Bit = 1;
       Encoder_Config.CRC_Bit = 6;           //配置默認CRC位數
+
+      Zero_SingleTurn_Data = 0;
    }
 }
 
@@ -112,4 +114,10 @@ void Encoder_Clear_Data(void)
 {
     Encoder_Read_Data();
     Zero_SingleTurn_Data = Encoder_Config.SingleTurn_Data;
+}
+
+void Encoder_Save_to_DEE(uint16_t Addr_L, uint16_t Addr_H, uint32_t Data)
+{
+    DEE_Write(Addr_L, (uint16_t)(Data & 0xFFFF));
+    DEE_Write(Addr_H, (uint16_t)(Data >> 16));
 }

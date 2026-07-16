@@ -51,8 +51,9 @@ void ClearData_Timer_Callback(void) {
                 
                 // ======= 執行編碼器數據清零代碼 =======
                 Encoder_Clear_Data(); 
-                DEE_Write(DEE_ENCODER_ZERO_L, (uint16_t)(Encoder_Config.SingleTurn_Data & 0xFFFF));
-                DEE_Write(DEE_ENCODER_ZERO_H, (uint16_t)(Encoder_Config.SingleTurn_Data >> 16));
+                Encoder_Save_to_DEE(DEE_ENCODER_ZERO_L,
+                                    DEE_ENCODER_ZERO_H,
+                                    Encoder_Config.SingleTurn_Data);
                 // ===================================
             }
             else if (high_time_sec >= 10 && high_time_sec < 60 ) {
