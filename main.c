@@ -55,11 +55,11 @@ int main(void)
             // Encoder_Read_Data();
             eMBPoll();
             LED1_SetHigh();
-            if (debug_event == 1)
+            /*if (debug_event == 1)
             {
                 debug_event = 0;
                 UART1_Write(debug_byte);
-            }
+            }*/
             if (BaudRate_Update_Flag)
             {
                 if (UART1_IsTxDone())

@@ -35,8 +35,7 @@
 
 #define UART_BAUD_RATE          38400
 
-volatile uint8_t debug_byte = 0;
-volatile uint8_t debug_event = 0;
+
 //#define UART_UCSRB  UCSR0B
 
 void
@@ -73,9 +72,12 @@ xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity e
 BOOL
 xMBPortSerialPutByte( CHAR ucByte )
 {
-    debug_event = 1;
-    debug_byte = ucByte;
-    return TRUE;
+    if (UART1_IsTxReady())
+    {
+        UART1_Write(ucByte);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 BOOL
