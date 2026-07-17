@@ -35,8 +35,8 @@
 
 
 /* ----------------------- Static variables ---------------------------------*/
-static USHORT   usTimerOCRADelta;
-static USHORT   usTimerOCRBDelta;
+//static USHORT   usTimerOCRADelta;
+//static USHORT   usTimerOCRBDelta;
 
 /* ----------------------- Start implementation -----------------------------*/
 BOOL

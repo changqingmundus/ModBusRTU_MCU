@@ -7,4 +7,9 @@
         "gdb",
         "mplab-core-da"
     ]
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}/_build/ModBusRTU_MCU/default",
+        "--background-index"
+    ]
+       
 }

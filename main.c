@@ -19,7 +19,7 @@
     THIS SOFTWARE.
 */
 #include "mb.h"
-#include "mbport.h"
+#include "uart1.h"
 #include "encoder.h"
 #include "MB_User_Config.h"
 #include "sccp1.h"
