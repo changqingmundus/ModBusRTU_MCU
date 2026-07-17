@@ -26,7 +26,7 @@
 #define MA_Set() SCLK_MA_SetHigh()      //設置SLO腳為高電平
 #define SLO_Get_Value() MISO_SLO_GetValue()  //讀取MISO腳的電平值
 
-#define Factory_Magic_Value 0x500A        //編碼器出廠特徵碼
+#define FACTORY_MAGIC_KEY 0x500A        //編碼器出廠特徵碼
 
 typedef struct
 {

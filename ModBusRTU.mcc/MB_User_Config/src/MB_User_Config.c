@@ -1,4 +1,6 @@
 #include "MB_User_Config.h"
+#include "encoder.h"
+#include "dee.h"
 
 uint16_t Slave_ID = 1;
 uint16_t BaudRate_Index = 0x03;
@@ -8,6 +10,7 @@ uint32_t BaudRate = 38400;
 eMBParity MB_Parity = MB_PAR_NONE;
 
 void MB_User_Config_Init(void) {
+  
   uint16_t temp;
 
   DEE_Read(DEE_SLAVE_ID, &temp);

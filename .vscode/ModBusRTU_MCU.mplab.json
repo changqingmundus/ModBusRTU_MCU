@@ -7,7 +7,7 @@
             "device": "dsPIC33CK256MP502",
             "imagePath": "./out/ModBusRTU_MCU/default.elf",
             "toolProperties": "default-tool-base",
-            "tool": "Snap",
+            "tool": "Simulator",
             "packs": [
                 {
                     "name": "dsPIC33CK-MP_DFP",
