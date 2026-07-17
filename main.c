@@ -21,7 +21,7 @@
 #include "mb.h"
 #include "mbport.h"
 #include "encoder.h"
-#include "dee.h"
+#include "MB_User_Config.h"
 #include "sccp1.h"
 #include "system.h"
 
@@ -42,7 +42,7 @@ int main(void)
     Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
 
     Encoder_Init();
-    Port_Config_Init();
+    MB_User_Config_Init();
 
     eMBErrorCode eStatus;
     eMBInit(MB_RTU,Slave_ID,0,BaudRate,Parity);

@@ -37,6 +37,7 @@ set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/User/src/mb_user.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src/cleardata.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src/encoder.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/MB_User_Config/src/MB_User_Config.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/dee/src/dee.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/flash/src/flash.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/system/src/clock.c"

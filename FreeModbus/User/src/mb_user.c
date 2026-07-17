@@ -1,11 +1,7 @@
 #include "encoder.h"
+#include "MB_User_Config.h"
 #include "mb.h"
 
-uint16_t Slave_ID = 1;
-uint16_t BaudRate = 0x01;
-uint16_t Parity = 0x01;
-uint16_t Direction = 0x01;
-uint16_t Protocol = 0x01;
 
 volatile uint8_t BaudRate_Update_Flag = 0;
 volatile uint32_t New_BaudRate = 38400;
