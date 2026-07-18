@@ -8,6 +8,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/MB_User_Config
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/MB_User_Config/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/Protool_Config
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/Protool_Config/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_core
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_port
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/User

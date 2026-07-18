@@ -24,6 +24,7 @@
 #include "sccp1.h"
 #include "system.h"
 #include "Protool_Config.h"
+#include "MB_User_Config.h"
 
 /*
     Main application
@@ -40,17 +41,17 @@ int main(void)
     DEE_Init();
     SET_SetInterruptHandler(ClearData_CN_Callback);
     Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
-
+    
+    MB_User_Config_Init();
     Protool_Init();
     Encoder_Init();
-    MB_User_Config_Init();
 
     while (1)
     {
-        switch (Protool)
+        switch (Protocol)
         {
             case ModBusRTU:
-            if (eStatus != MB_ENOERR)
+            if (Modbus_Status  != MB_ENOERR)
             {
                  // Encoder_Read_Data();
                  eMBPoll();

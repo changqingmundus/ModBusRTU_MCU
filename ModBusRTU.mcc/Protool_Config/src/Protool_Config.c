@@ -1,22 +1,25 @@
 #include "Protool_Config.h"
-#include "mb.h"
 #include "MB_User_Config.h"
+
+eMBErrorCode Modbus_Status;
+uint8_t Protocol;
+uint8_t Update_Time;
 
 void Protool_Init(void)
 {
-    DEE_Read(DEE_Encoder_Protool,&Protool);
+    DEE_Read(DEE_Encoder_Protool,&Protocol);
 
-    if (Protool != FreeMode && Protool != ModBusRTU)
+    if (Protocol != FreeMode && Protocol != ModBusRTU)
     {
-        Protool = Protool_ModBusRTU;
+        Protocol = ModBusRTU;
     }
 
-    if (Protool == Protool_ModBusRTU)
+    if (Protocol == ModBusRTU)
     {
         ModBusRTU_Init();
     }
 
-    else if (Protool == Protool_FreeMode)
+    else if (Protocol == FreeMode)
     {
         FreeMode_Init();
     }
@@ -24,17 +27,20 @@ void Protool_Init(void)
 
 void ModBusRTU_Init(void)
 {
-    eMBErrorCode eStatus;
     eMBInit(MB_RTU, Slave_ID, 0, BaudRate, Parity);
-    eStatus = eMBEnable();
+    if(Modbus_Status  == MB_ENOERR)
+    {
+        Modbus_Status  = eMBEnable();
+    }
 }
 
 void FreeMode_Init(void)
 {
     DEE_Read(DEE_Update_Time,&Update_Time);
-    if(Update_Time > 1 && < 3000)
+    if(Update_Time > 1 && Update_Time < 3000)
     {
-        
+        Update_Time = 10;
+    }
     else
     {
         Update_Time = 10; 
