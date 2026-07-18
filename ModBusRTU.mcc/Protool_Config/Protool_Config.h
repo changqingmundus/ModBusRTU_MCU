@@ -9,7 +9,8 @@
 #define FreeMode  0x02
 
 extern uint8_t Protocol;
-extern uint8_t Update_Time;
+extern uint16_t Update_Time;
+extern bool FreeMode_Enable;
 
 extern eMBErrorCode Modbus_Status;
 

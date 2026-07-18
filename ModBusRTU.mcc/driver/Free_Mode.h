@@ -4,3 +4,5 @@
 
 
 void FreeMode_Task(void);
+void FreeMode_Process(void);
+void FreeMode_Send(void);

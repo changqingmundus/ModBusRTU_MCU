@@ -3,7 +3,8 @@
 
 eMBErrorCode Modbus_Status;
 uint8_t Protocol;
-uint8_t Update_Time;
+uint16_t Update_Time;
+bool FreeMode_Enable;
 
 void Protool_Init(void)
 {
@@ -12,6 +13,7 @@ void Protool_Init(void)
     if (Protocol != FreeMode && Protocol != ModBusRTU)
     {
         Protocol = ModBusRTU;
+        DEE_Write(DEE_Encoder_Protool,Protocol);
     }
 
     if (Protocol == ModBusRTU)
@@ -37,13 +39,11 @@ void ModBusRTU_Init(void)
 void FreeMode_Init(void)
 {
     DEE_Read(DEE_Update_Time,&Update_Time);
-    if(Update_Time > 1 && Update_Time < 3000)
+    if(Update_Time < 1 || Update_Time > 3000)
     {
         Update_Time = 10;
+        DEE_Write(DEE_Update_Time,Update_Time);
+        FreeMode_Enable = true;
     }
-    else
-    {
-        Update_Time = 10; 
-    }
-
+    FreeMode_Enable = true;
 }

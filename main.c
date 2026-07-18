@@ -18,13 +18,13 @@
     EXCEED AMOUNT OF FEES, IF ANY, YOU PAID DIRECTLY TO MICROCHIP FOR
     THIS SOFTWARE.
 */
-#include "mb.h"
-#include "uart1.h"
 #include "Free_Mode.h"
+#include "MB_User_Config.h"
+#include "Protool_Config.h"
+#include "mb.h"
 #include "sccp1.h"
 #include "system.h"
-#include "Protool_Config.h"
-#include "MB_User_Config.h"
+#include "uart1.h"
 
 /*
     Main application
@@ -35,46 +35,42 @@ extern volatile uint8_t debug_byte;
 extern volatile uint8_t BaudRate_Update_Flag;
 extern volatile uint32_t New_BaudRate;
 
-int main(void)
-{
-    SYSTEM_Initialize();
-    DEE_Init();
-    SET_SetInterruptHandler(ClearData_CN_Callback);
-    Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
-    
-    MB_User_Config_Init();
-    Protool_Init();
-    Encoder_Init();
+int main(void) {
+  SYSTEM_Initialize();
+  DEE_Init();
+  SET_SetInterruptHandler(ClearData_CN_Callback);
+  Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
 
-    while (1)
-    {
-        switch (Protocol)
+  MB_User_Config_Init();
+  Protool_Init();
+  Encoder_Init();
+
+  if (Protocol == ModBusRTU) {
+    while (1) {
+      if (Modbus_Status != MB_ENOERR) {
+        // Encoder_Read_Data();
+        eMBPoll();
+        LED1_SetHigh();
+        /*if (debug_event == 1)
         {
-            case ModBusRTU:
-            if (Modbus_Status  != MB_ENOERR)
-            {
-                 // Encoder_Read_Data();
-                 eMBPoll();
-                 LED1_SetHigh();
-                 /*if (debug_event == 1)
-                 {
-                     debug_event = 0;
-                     UART1_Write(debug_byte);
-                 }*/
-               if (BaudRate_Update_Flag)
-               {
-                if (UART1_IsTxDone())
-                {
-                    BaudRate_Update_Flag = 0;
-                    UART1_BaudRateSet(New_BaudRate);
-                }
-               }
-            }
-            break;
-
-            case FreeMode:
-              FreeMode_Task();
-            break;
+            debug_event = 0;
+            UART1_Write(debug_byte);
+        }*/
+        if (BaudRate_Update_Flag) {
+          if (UART1_IsTxDone()) {
+            BaudRate_Update_Flag = 0;
+            UART1_BaudRateSet(New_BaudRate);
+          }
         }
+      }
     }
+  }
+
+  else if (Protocol == FreeMode) {
+    while (1) {
+      if (FreeMode_Enable) {
+        FreeMode_Task();
+      }
+    }
+  }
 }
