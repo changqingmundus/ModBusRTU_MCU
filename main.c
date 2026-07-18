@@ -20,10 +20,10 @@
 */
 #include "mb.h"
 #include "uart1.h"
-#include "encoder.h"
-#include "MB_User_Config.h"
+#include "Free_Mode.h"
 #include "sccp1.h"
 #include "system.h"
+#include "Protool_Config.h"
 
 /*
     Main application
@@ -41,34 +41,39 @@ int main(void)
     SET_SetInterruptHandler(ClearData_CN_Callback);
     Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
 
+    Protool_Init();
     Encoder_Init();
     MB_User_Config_Init();
 
-    eMBErrorCode eStatus;
-    eMBInit(MB_RTU,Slave_ID,0,BaudRate,Parity);
-    eStatus = eMBEnable();
-
-    if (eStatus == MB_ENOERR)
+    while (1)
     {
-        while (1)
+        switch (Protool)
         {
-            // Encoder_Read_Data();
-            eMBPoll();
-            LED1_SetHigh();
-            /*if (debug_event == 1)
+            case ModBusRTU:
+            if (eStatus != MB_ENOERR)
             {
-                debug_event = 0;
-                UART1_Write(debug_byte);
-            }*/
-            if (BaudRate_Update_Flag)
-            {
+                 // Encoder_Read_Data();
+                 eMBPoll();
+                 LED1_SetHigh();
+                 /*if (debug_event == 1)
+                 {
+                     debug_event = 0;
+                     UART1_Write(debug_byte);
+                 }*/
+               if (BaudRate_Update_Flag)
+               {
                 if (UART1_IsTxDone())
                 {
                     BaudRate_Update_Flag = 0;
-
                     UART1_BaudRateSet(New_BaudRate);
                 }
+               }
             }
+            break;
+
+            case FreeMode:
+              FreeMode_Task();
+            break;
         }
     }
 }

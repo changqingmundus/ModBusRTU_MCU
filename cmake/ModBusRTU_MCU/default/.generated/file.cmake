@@ -37,6 +37,8 @@ set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/User/src/mb_user.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/MB_User_Config/src/MB_FuncFactory.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/MB_User_Config/src/MB_User_Config.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/Protool_Config/src/Protool_Config.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src/Free_Mode.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src/cleardata.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src/encoder.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/dee/src/dee.c"
