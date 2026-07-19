@@ -30,11 +30,6 @@
     Main application
 */
 
-extern volatile uint8_t debug_event;
-extern volatile uint8_t debug_byte;
-extern volatile uint8_t BaudRate_Update_Flag;
-extern volatile uint32_t New_BaudRate;
-
 int main(void) {
   SYSTEM_Initialize();
   DEE_Init();
@@ -47,15 +42,10 @@ int main(void) {
 
   if (Protocol == ModBusRTU) {
     while (1) {
-      if (Modbus_Status != MB_ENOERR) {
+      if (Modbus_Status == MB_ENOERR) {
         // Encoder_Read_Data();
         eMBPoll();
         LED1_SetHigh();
-        /*if (debug_event == 1)
-        {
-            debug_event = 0;
-            UART1_Write(debug_byte);
-        }*/
         if (BaudRate_Update_Flag) {
           if (UART1_IsTxDone()) {
             BaudRate_Update_Flag = 0;

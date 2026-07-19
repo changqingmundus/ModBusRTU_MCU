@@ -18,6 +18,9 @@ extern uint16_t Parity;
 extern uint32_t BaudRate;
 extern eMBParity MB_Parity;
 
+extern volatile uint8_t BaudRate_Update_Flag;
+extern volatile uint32_t New_BaudRate;
+
 
 void MB_User_Config_Init(void);
 

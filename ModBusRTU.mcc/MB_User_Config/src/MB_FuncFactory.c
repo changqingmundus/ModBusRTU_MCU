@@ -92,8 +92,8 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)
 void Factory_Config_Save(void)
 {
 
-    DEE_Write(DEE_Encoder_SingleTurnBitSize, &Factory_SingleTurnBit);
-    DEE_Write(DEE_Encoder_MultiTurnBitSize, &Factory_MultiTurnBit);
-    DEE_Write(DEE_Encoder_CRCBitSize, &Factory_CRCBit);
-    DEE_Write(DEE_Encoder_MagicKey, &Factory_MagicKey);
+    DEE_Write(DEE_Encoder_SingleTurnBitSize, Factory_SingleTurnBit);
+    DEE_Write(DEE_Encoder_MultiTurnBitSize, Factory_MultiTurnBit);
+    DEE_Write(DEE_Encoder_CRCBitSize, Factory_CRCBit);
+    DEE_Write(DEE_Encoder_MagicKey, Factory_MagicKey);
 }

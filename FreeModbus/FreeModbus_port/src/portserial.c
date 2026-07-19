@@ -33,9 +33,6 @@
 #include <xc.h>
 #include "uart1.h"
 
-#define UART_BAUD_RATE          38400
-
-
 //#define UART_UCSRB  UCSR0B
 
 void

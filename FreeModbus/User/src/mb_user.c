@@ -25,7 +25,7 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
 
       case 0x0001: // 對應地址0x0000開始
       {
-        value = (single_value >> 16) & 0x0007; // 高3位(bit18~bit16)
+        value = (single_value >> 16);
         break;
       }
 
@@ -70,26 +70,7 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
 
         value = 0;
         break;
-
-      // Status
-      case 0x0009:
-
-        value = 0;
-
-        if (Encoder_Config.Warning_Data)
-          value |= 0x01;
-
-        if (Encoder_Config.Error_Data)
-          value |= 0x02;
-
-        break;
-
-      // Encoder CRC
-      case 0x00010:
-
-        value = Encoder_Config.CRC_Data;
-        break;
-
+        
       default:
 
         return MB_ENOREG;
