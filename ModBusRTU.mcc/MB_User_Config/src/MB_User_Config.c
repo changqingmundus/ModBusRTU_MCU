@@ -1,4 +1,5 @@
 #include "MB_User_Config.h"
+#include "MB_FunFactory.h"
 #include "encoder.h"
 #include "dee.h"
 
@@ -9,33 +10,32 @@ uint16_t Parity = 0x01;
 uint32_t BaudRate = 38400;
 eMBParity MB_Parity = MB_PAR_NONE;
 
-void MB_User_Config_Init(void) {
-  
-  uint16_t temp;
+void MB_User_Config_Init(void)
+{
 
-  DEE_Read(DEE_SLAVE_ID, &temp);
-  Slave_ID = temp;
+  uint16_t MagicKey;
+  DEE_Read(DEE_Encoder_MagicKey, &MagicKey);
 
-  DEE_Read(DEE_BAUDRATE_INDEX, &temp);
-  BaudRate_Index = temp;
-
-  DEE_Read(DEE_PARITY, &temp);
-  Parity = temp;
-
-  // 地址異常，使用默認值
-  if (Slave_ID == 0xFFFF) {
+  if (MagicKey != FACTORY_Save_KEY)
+  {
     Slave_ID = 1;
+    BaudRate_Index = 3;
+    Parity = 1;
+
+    DEE_Write(DEE_Encoder_MagicKey, FACTORY_Save_KEY);
+    DEE_Write(DEE_SLAVE_ID, Slave_ID);
+    DEE_Write(DEE_BAUDRATE_INDEX, BaudRate_Index);
+    DEE_Write(DEE_PARITY, Parity);
+  }
+  else
+  {
+    DEE_Read(DEE_SLAVE_ID, &Slave_ID);
+    DEE_Read(DEE_BAUDRATE_INDEX, &BaudRate_Index);
+    DEE_Read(DEE_PARITY, &Parity);
   }
 
-  if (BaudRate_Index == 0xFFFF) {
-    BaudRate_Index = 0x03;
-  }
-
-  if (Parity == 0xFFFF) {
-    Parity = 0x01;
-  }
-
-  switch (BaudRate_Index) {
+  switch (BaudRate_Index)
+  {
   case 0x01:
     BaudRate = 9600;
     break;
@@ -62,7 +62,8 @@ void MB_User_Config_Init(void) {
     break;
   }
 
-  switch (Parity) {
+  switch (Parity)
+  {
   case 0x01:
     MB_Parity = MB_PAR_NONE;
     break;

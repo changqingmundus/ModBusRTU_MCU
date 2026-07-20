@@ -124,6 +124,9 @@ PR_BEGIN_EXTERN_C
 /*! \brief If the <em>Read/Write Multiple Registers</em> function should be enabled. */
 #define MB_FUNC_READWRITE_HOLDING_ENABLED       (  1 )
 
+/*User Config*/
+#define MB_FUNC_FACTORY_ENABLED                 (  1 )    //factory config
+
 /*! @} */
 #ifdef __cplusplus
     PR_END_EXTERN_C

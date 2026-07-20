@@ -27,6 +27,8 @@
  *
  */
 
+#include "MB_FunFactory.h"
+
 /* ----------------------- System includes ----------------------------------*/
 #include "stdlib.h"
 #include "string.h"
@@ -123,7 +125,7 @@ static xMBFunctionHandler xFuncHandlers[MB_FUNC_HANDLERS_MAX] = {
     {MB_FUNC_READ_DISCRETE_INPUTS, eMBFuncReadDiscreteInputs},
 #endif
 #if MB_FUNC_FACTORY_ENABLED > 0
-    {MB_FuncFatory, embFuncFactoryConfig},
+    {MB_FUNC_FACTORY, eMBFuncFactoryConfig},
 #endif
 };
 

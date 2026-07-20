@@ -6,7 +6,7 @@
 
 #define MB_FUNC_FACTORY       0x66
 
-#define FACTORY_Save_KEY      0x505A
+#define FACTORY_Save_KEY      0x505A   //config code
 
 
 #define FACTORY_SINGLE_BIT    0x0001

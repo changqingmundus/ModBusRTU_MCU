@@ -5,9 +5,8 @@ uint8_t Factory_SingleTurnBit = 0;
 uint8_t Factory_MultiTurnBit = 0;
 uint8_t Factory_CRCBit = 0;
 
-uint16_t Factory_MagicKey = 0;
 
-eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)
+eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)  //factory config
 {
     USHORT key;
     USHORT address;
@@ -85,7 +84,11 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)
         pucFrame += 2;
         address++;
     }
-    Factory_MagicKey = key;
+
+    // 所有配置成功
+
+    pucFrame[0] = MB_FUNC_FACTORY;
+    pucFrame[1] = 0x88;    // config success reply
 
     return MB_EX_NONE;
 }
@@ -95,5 +98,5 @@ void Factory_Config_Save(void)
     DEE_Write(DEE_Encoder_SingleTurnBitSize, Factory_SingleTurnBit);
     DEE_Write(DEE_Encoder_MultiTurnBitSize, Factory_MultiTurnBit);
     DEE_Write(DEE_Encoder_CRCBitSize, Factory_CRCBit);
-    DEE_Write(DEE_Encoder_MagicKey, Factory_MagicKey);
+    DEE_Write(DEE_Encoder_MagicKey, FACTORY_MAGIC_KEY);
 }
