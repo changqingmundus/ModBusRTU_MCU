@@ -29,6 +29,8 @@
 /*
     Main application
 */
+extern volatile uint8_t debug_flag;
+extern volatile uint8_t debug_data;
 
 int main(void) {
   SYSTEM_Initialize();
@@ -46,6 +48,11 @@ int main(void) {
         // Encoder_Read_Data();
         eMBPoll();
         LED1_SetHigh();
+        if(debug_flag == 1)
+        {
+          debug_flag = 0;
+          UART1_Write(debug_data);
+        }
         if (BaudRate_Update_Flag) {
           if (UART1_IsTxDone()) {
             BaudRate_Update_Flag = 0;

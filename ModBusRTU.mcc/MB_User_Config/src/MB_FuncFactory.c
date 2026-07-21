@@ -5,9 +5,10 @@ uint8_t Factory_SingleTurnBit = 0;
 uint8_t Factory_MultiTurnBit = 0;
 uint8_t Factory_CRCBit = 0;
 
-
-eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)  //factory config
+eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)
 {
+    UCHAR *pData = &pucFrame[1];
+
     USHORT key;
     USHORT address;
     USHORT quantity;
@@ -16,7 +17,7 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)  //factory config
     USHORT value;
 
     // Key
-    key = ((USHORT)pucFrame[0] << 8) | pucFrame[1];
+    key = ((USHORT)pData[0] << 8) | pData[1];
 
     if (key != FACTORY_MAGIC_KEY)
     {
@@ -24,49 +25,45 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)  //factory config
     }
 
     // 起始地址
-    address = ((USHORT)pucFrame[2] << 8) | pucFrame[3];
+    address = ((USHORT)pData[2] << 8) | pData[3];
 
     // 寄存器數量
-    quantity = ((USHORT)pucFrame[4] << 8) | pucFrame[5];
+    quantity = ((USHORT)pData[4] << 8) | pData[5];
 
-    // 數據字節數
-    byteCount = pucFrame[6];
+    // 字節數
+    byteCount = pData[6];
 
     if (byteCount != quantity * 2)
     {
         return MB_EX_ILLEGAL_DATA_VALUE;
     }
 
-    pucFrame += 7;
+    pData += 7;
 
     while (quantity--)
     {
-
-        value = ((USHORT)pucFrame[0] << 8) | pucFrame[1];
+        value = ((USHORT)pData[0] << 8) | pData[1];
 
         switch (address)
         {
         case FACTORY_SINGLE_BIT:
 
             if (value > 32)
-            {
                 return MB_EX_ILLEGAL_DATA_VALUE;
-            }
-            Factory_SingleTurnBit = value;
 
+            Factory_SingleTurnBit = value;
             break;
 
         case FACTORY_MULTI_BIT:
 
             Factory_MultiTurnBit = value;
-
             break;
 
         case FACTORY_CRC_BIT:
 
             Factory_CRCBit = value;
-
             break;
+
         case FACTORY_SAVE:
 
             if (value == FACTORY_Save_KEY)
@@ -77,26 +74,28 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)  //factory config
             break;
 
         default:
-
             return MB_EX_ILLEGAL_DATA_ADDRESS;
         }
 
-        pucFrame += 2;
+        pData += 2;
         address++;
     }
-
-    // 所有配置成功
-
+    // 回覆
     pucFrame[0] = MB_FUNC_FACTORY;
-    pucFrame[1] = 0x88;    // config success reply
+    pucFrame[1] = 0x88;
+
+    //*pusLength = 2;
 
     return MB_EX_NONE;
 }
 void Factory_Config_Save(void)
 {
-
-    DEE_Write(DEE_Encoder_SingleTurnBitSize, Factory_SingleTurnBit);
     DEE_Write(DEE_Encoder_MultiTurnBitSize, Factory_MultiTurnBit);
+    DEE_Write(DEE_Encoder_SingleTurnBitSize, Factory_SingleTurnBit);
     DEE_Write(DEE_Encoder_CRCBitSize, Factory_CRCBit);
     DEE_Write(DEE_Encoder_MagicKey, FACTORY_MAGIC_KEY);
+
+    UART1_Write(Factory_SingleTurnBit);
+    UART1_Write(Factory_MultiTurnBit);
+    UART1_Write(Factory_CRCBit);
 }

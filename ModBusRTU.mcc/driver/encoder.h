@@ -12,12 +12,7 @@
 #define DEE_Encoder_MultiTurnBitSize 1    //DEE存放編碼器多圈位數配置
 #define DEE_Encoder_SingleTurnBitSize 2   //DEE存放編碼器單圈位數配置
 #define DEE_Encoder_CRCBitSize 3          //DEE存放編碼器CRC位數配置
-/*
-#define DEE_Encoder_MultiTurn_Data_L 4    //DEE存放編碼器多圈低位數據
-#define DEE_Encoder_MultiTurn_Data_H 5    //DEE存放編碼器多圈高位數據
-#define DEE_Encoder_SingleTurn_Data_L 6   //DEE存放編碼器單圈低位數據
-#define DEE_Encoder_SingleTurn_Data_H 7   //DEE存放編碼器單圈高位數據
-*/
+
 #define DEE_ENCODER_ZERO_L 8              //DEE存放編碼器零點低位數據
 #define DEE_ENCODER_ZERO_H 9              //DEE存放編碼器零點高位數據
 

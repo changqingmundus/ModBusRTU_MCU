@@ -34,6 +34,8 @@
 #include "uart1.h"
 
 //#define UART_UCSRB  UCSR0B
+volatile uint8_t debug_flag = 0;
+volatile uint8_t debug_data = 0;
 
 void
 vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
@@ -69,12 +71,10 @@ xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity e
 BOOL
 xMBPortSerialPutByte( CHAR ucByte )
 {
-    if (UART1_IsTxReady())
-    {
-        UART1_Write(ucByte);
-        return TRUE;
-    }
-    return FALSE;
+    debug_flag = 1;
+    debug_data = ucByte;
+    //UART1_Write(ucByte);
+    return TRUE;
 }
 
 BOOL

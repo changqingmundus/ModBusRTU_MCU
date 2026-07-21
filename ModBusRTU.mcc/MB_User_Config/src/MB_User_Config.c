@@ -16,13 +16,13 @@ void MB_User_Config_Init(void)
   uint16_t MagicKey;
   DEE_Read(DEE_Encoder_MagicKey, &MagicKey);
 
-  if (MagicKey != FACTORY_Save_KEY)
+  if (MagicKey != FACTORY_MAGIC_KEY)
   {
     Slave_ID = 1;
     BaudRate_Index = 3;
     Parity = 1;
 
-    DEE_Write(DEE_Encoder_MagicKey, FACTORY_Save_KEY);
+    DEE_Write(DEE_Encoder_MagicKey, FACTORY_MAGIC_KEY);
     DEE_Write(DEE_SLAVE_ID, Slave_ID);
     DEE_Write(DEE_BAUDRATE_INDEX, BaudRate_Index);
     DEE_Write(DEE_PARITY, Parity);

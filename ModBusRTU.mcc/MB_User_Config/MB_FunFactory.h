@@ -12,7 +12,7 @@
 #define FACTORY_SINGLE_BIT    0x0001
 #define FACTORY_MULTI_BIT     0x0002
 #define FACTORY_CRC_BIT       0x0003
-#define FACTORY_SAVE          0x00FF
+#define FACTORY_SAVE          0x0004
 
 extern uint8_t Factory_SingleTurnBit;
 extern uint8_t Factory_MultiTurnBit;
