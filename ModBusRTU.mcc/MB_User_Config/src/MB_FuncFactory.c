@@ -94,8 +94,4 @@ void Factory_Config_Save(void)
     DEE_Write(DEE_Encoder_SingleTurnBitSize, Factory_SingleTurnBit);
     DEE_Write(DEE_Encoder_CRCBitSize, Factory_CRCBit);
     DEE_Write(DEE_Encoder_MagicKey, FACTORY_MAGIC_KEY);
-
-    UART1_Write(Factory_SingleTurnBit);
-    UART1_Write(Factory_MultiTurnBit);
-    UART1_Write(Factory_CRCBit);
 }

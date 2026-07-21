@@ -13,8 +13,8 @@
 #define DEE_Encoder_SingleTurnBitSize 2   //DEE存放編碼器單圈位數配置
 #define DEE_Encoder_CRCBitSize 3          //DEE存放編碼器CRC位數配置
 
-#define DEE_ENCODER_ZERO_L 8              //DEE存放編碼器零點低位數據
-#define DEE_ENCODER_ZERO_H 9              //DEE存放編碼器零點高位數據
+#define DEE_ENCODER_ZERO_L 4              //DEE存放編碼器零點低位數據
+#define DEE_ENCODER_ZERO_H 5              //DEE存放編碼器零點高位數據
 
 
 #define MA_Clear() SCLK_MA_SetLow()     //設置SLO腳為低電平
@@ -25,11 +25,11 @@
 
 typedef struct
 {
-    uint8_t MultiTurn_Bit;    //配置編碼器多圈位數
-    uint8_t SingleTurn_Bit;   //配置編碼器單圈位數
+    uint16_t MultiTurn_Bit;    //配置編碼器多圈位數
+    uint16_t SingleTurn_Bit;   //配置編碼器單圈位數
     bool Warning_Bit;           //配置編碼器警告位數
     bool Error_Bit;            //配置編碼器錯誤位數
-    uint8_t CRC_Bit;          //配置編碼器CRC位數
+    uint16_t CRC_Bit;          //配置編碼器CRC位數
     //ReadoutData
     uint64_t Raw_Data;         //編碼器原始數據
     uint32_t MultiTurn_Data;   //編碼器多圈數據

@@ -14,12 +14,6 @@ void Encoder_Init(void)
 {
    uint16_t Magic_Value = 0;
    DEE_Read(DEE_Encoder_MagicKey, &Magic_Value);
-   UART1_Write(Magic_Value >> 8);
-   UART1_Write(Magic_Value & 0xFF);
-
-   UART1_Write(Encoder_Config.SingleTurn_Bit);
-   UART1_Write(Encoder_Config.MultiTurn_Bit);
-   UART1_Write(Encoder_Config.CRC_Bit);
    if (Magic_Value == FACTORY_MAGIC_KEY)
    {
       Encoder_Config.MultiTurn_Bit = 0;

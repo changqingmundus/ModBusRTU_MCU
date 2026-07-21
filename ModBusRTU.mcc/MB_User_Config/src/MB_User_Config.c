@@ -1,6 +1,5 @@
 #include "MB_User_Config.h"
 #include "MB_FunFactory.h"
-#include "encoder.h"
 #include "dee.h"
 
 uint16_t Slave_ID = 1;
@@ -14,15 +13,15 @@ void MB_User_Config_Init(void)
 {
 
   uint16_t MagicKey;
-  DEE_Read(DEE_Encoder_MagicKey, &MagicKey);
+  DEE_Read(DEE_MODBUS_MagicKey, &MagicKey);
 
-  if (MagicKey != FACTORY_MAGIC_KEY)
+  if (MagicKey != MODBUS_MAGIC_KEY)
   {
     Slave_ID = 1;
     BaudRate_Index = 3;
     Parity = 1;
 
-    DEE_Write(DEE_Encoder_MagicKey, FACTORY_MAGIC_KEY);
+    DEE_Write(DEE_MODBUS_MagicKey, MODBUS_MAGIC_KEY);
     DEE_Write(DEE_SLAVE_ID, Slave_ID);
     DEE_Write(DEE_BAUDRATE_INDEX, BaudRate_Index);
     DEE_Write(DEE_PARITY, Parity);

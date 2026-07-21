@@ -6,10 +6,12 @@
 
 
 // Modbus User Config DEE Address
+#define DEE_MODBUS_MagicKey 9
 #define DEE_SLAVE_ID       10
 #define DEE_BAUDRATE_INDEX 11
 #define DEE_PARITY         12
 
+#define MODBUS_MAGIC_KEY 0x510A
 
 extern uint16_t Slave_ID;
 extern uint16_t BaudRate_Index;
