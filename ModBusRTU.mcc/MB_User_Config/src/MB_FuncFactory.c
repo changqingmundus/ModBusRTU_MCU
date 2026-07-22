@@ -5,7 +5,7 @@ uint8_t Factory_SingleTurnBit = 0;
 uint8_t Factory_MultiTurnBit = 0;
 uint8_t Factory_CRCBit = 0;
 
-eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)
+eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
 {
     UCHAR *pData = &pucFrame[1];
 
@@ -84,7 +84,7 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame)
     pucFrame[0] = MB_FUNC_FACTORY;
     pucFrame[1] = 0x88;
 
-    //*pusLength = 2;
+    *usLen = 2;
 
     return MB_EX_NONE;
 }

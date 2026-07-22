@@ -19,7 +19,7 @@ extern uint8_t Factory_MultiTurnBit;
 extern uint8_t Factory_CRCBit;
 extern uint16_t Factory_MagicKey;
 
-eMBException eMBFuncFactoryConfig(UCHAR *pucFrame);
+eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen);
 void Factory_Config_Save(void);
 
 
