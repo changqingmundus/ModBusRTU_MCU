@@ -73,7 +73,6 @@ eMBException    eMBFuncReadDiscreteInputs( UCHAR * pucFrame, USHORT * usLen );
 eMBException    eMBFuncReadWriteMultipleHoldingRegister( UCHAR * pucFrame, USHORT * usLen );
 #endif
 
-
 #ifdef __cplusplus
 PR_END_EXTERN_C
 #endif

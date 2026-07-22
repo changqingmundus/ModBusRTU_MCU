@@ -8,12 +8,12 @@ bool FreeMode_Enable;
 
 void Protool_Init(void)
 {
-    DEE_Read(DEE_Encoder_Protool,&Protocol);
+    DEE_Read(DEE_Encoder_Protocol,&Protocol);
 
     if (Protocol != FreeMode && Protocol != ModBusRTU)
     {
         Protocol = ModBusRTU;
-        DEE_Write(DEE_Encoder_Protool,Protocol);
+        DEE_Write(DEE_Encoder_Protocol,Protocol);
     }
 
     if (Protocol == ModBusRTU)

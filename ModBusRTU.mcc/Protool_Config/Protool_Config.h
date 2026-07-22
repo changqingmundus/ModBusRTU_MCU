@@ -2,7 +2,7 @@
 #include "uart1.h"
 #include "mb.h"
 
-#define DEE_Encoder_Protool 15  //通信模式存儲地址
+#define DEE_Encoder_Protocol  15  //通信模式存儲地址
 #define DEE_Update_Time     16  //上傳時間存儲地址
 
 #define ModBusRTU 0x01

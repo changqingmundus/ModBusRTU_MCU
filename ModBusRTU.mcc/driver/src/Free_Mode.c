@@ -66,9 +66,8 @@ void FreeMode_Process(void) {
 }
 
 void FreeMode_Send(void) {
-  // 發送
   for (int i = 0; i < tx_len; i++) {
-    while (!UART1_IsTxReady());
+    //while (!UART1_IsTxReady());
     UART1_Write(tx[i]);
   }
 }
