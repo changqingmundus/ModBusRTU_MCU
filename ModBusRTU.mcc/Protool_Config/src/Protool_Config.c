@@ -45,5 +45,8 @@ void FreeMode_Init(void)
         DEE_Write(DEE_Update_Time,Update_Time);
         FreeMode_Enable = true;
     }
-    FreeMode_Enable = true;
+    else
+    {
+        FreeMode_Enable = true;
+    }
 }

@@ -3,7 +3,7 @@
 #include "encoder.h"
 #include <stdint.h>
 
-static uint8_t tx[12];
+static uint8_t tx[FreeMode_Data_Length];
 static uint8_t tx_len = 0;
 
 void FreeMode_Task(void) {
@@ -65,9 +65,12 @@ void FreeMode_Process(void) {
   tx_len = index;
 }
 
-void FreeMode_Send(void) {
-  for (int i = 0; i < tx_len; i++) {
-    //while (!UART1_IsTxReady());
-    UART1_Write(tx[i]);
-  }
+void FreeMode_Send(void)
+{
+    for(uint8_t i=0;i<tx_len;i++)
+    {
+        while(U1STAHbits.UTXBF);
+        U1TXREG = tx[i];
+    }
+    while(!U1STAbits.TRMT);
 }

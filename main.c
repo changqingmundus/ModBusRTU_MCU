@@ -32,29 +32,35 @@
 extern volatile uint8_t debug_flag;
 extern volatile uint8_t debug_data;
 
-int main(void) {
+int main(void)
+{
   SYSTEM_Initialize();
   DEE_Init();
   SET_SetInterruptHandler(ClearData_CN_Callback);
   Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
 
-  MB_User_Config_Init();
   Protool_Init();
+  MB_User_Config_Init();
   Encoder_Init();
 
-  if (Protocol == ModBusRTU) {
-    while (1) {
-      if (Modbus_Status == MB_ENOERR) {
+  if (Protocol == ModBusRTU)
+  {
+    while (1)
+    {
+      if (Modbus_Status == MB_ENOERR)
+      {
         // Encoder_Read_Data();
         eMBPoll();
         LED1_SetHigh();
-        if(debug_flag == 1)
+        if (debug_flag == 1)
         {
           debug_flag = 0;
           UART1_Write(debug_data);
         }
-        if (BaudRate_Update_Flag) {
-          if (UART1_IsTxDone()) {
+        if (BaudRate_Update_Flag)
+        {
+          if (UART1_IsTxDone())
+          {
             BaudRate_Update_Flag = 0;
             UART1_BaudRateSet(New_BaudRate);
           }
@@ -63,9 +69,12 @@ int main(void) {
     }
   }
 
-  else if (Protocol == FreeMode) {
-    while (1) {
-      if (FreeMode_Enable) {
+  else if (Protocol == FreeMode)
+  {
+    if (FreeMode_Enable)
+    {
+      while (1)
+      {
         FreeMode_Task();
       }
     }
