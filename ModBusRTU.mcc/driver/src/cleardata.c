@@ -3,6 +3,7 @@
 #include "sccp1.h"
 #include "dee.h"
 #include "delay.h"
+#include "Protocol_Config.h"
 
 // 全局變量定義
 volatile uint8_t high_time_sec = 0; // 記錄高電平持續的秒數
@@ -58,7 +59,9 @@ void ClearData_Timer_Callback(void) {
             }
             else if (high_time_sec >= 10 && high_time_sec < 60 ) {
                 DEE_Write(DEE_ENCODER_ZERO_L, 0);
-                DEE_Write(DEE_ENCODER_ZERO_H, 0);            
+                DEE_Write(DEE_ENCODER_ZERO_H, 0);     
+                Protocol = ModBusRTU;
+                DEE_Write(DEE_Encoder_Protocol,Protocol);       
             }
             
             // 不管符不符合時間，只要放開了就停止這次計時

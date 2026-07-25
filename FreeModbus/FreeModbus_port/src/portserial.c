@@ -71,9 +71,9 @@ xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity e
 BOOL
 xMBPortSerialPutByte( CHAR ucByte )
 {
-    debug_flag = 1;
-    debug_data = ucByte;
-    //UART1_Write(ucByte);
+    //debug_flag = 1;
+    //debug_data = ucByte;
+    UART1_Write(ucByte);
     return TRUE;
 }
 

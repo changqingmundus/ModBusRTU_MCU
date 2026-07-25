@@ -1,5 +1,5 @@
 #include "Free_Mode.h"
-#include "Protool_Config.h"
+#include "Protocol_Config.h"
 #include "encoder.h"
 #include <stdint.h>
 
@@ -26,6 +26,16 @@ void FreeMode_Process(void) {
   // 預留長度位置
   uint8_t len_index = index++;
 
+   // 多圈數據
+  if (Encoder_Config.MultiTurn_Bit > 16) {
+    tx[index++] = (Encoder_Config.MultiTurn_Data >> 16) & 0xFF;
+    data_len++;
+  }
+
+  tx[index++] = (Encoder_Config.MultiTurn_Data >> 8) & 0xFF;
+  tx[index++] = Encoder_Config.MultiTurn_Data & 0xFF;
+  data_len += 2;
+
   // 單圈數據
   if (Encoder_Config.SingleTurn_Bit > 16) {
     tx[index++] = (Encoder_Config.SingleTurn_Data >> 16) & 0xFF;
@@ -34,16 +44,6 @@ void FreeMode_Process(void) {
 
   tx[index++] = (Encoder_Config.SingleTurn_Data >> 8) & 0xFF;
   tx[index++] = Encoder_Config.SingleTurn_Data & 0xFF;
-  data_len += 2;
-
-  // 多圈數據
-  if (Encoder_Config.MultiTurn_Bit > 16) {
-    tx[index++] = (Encoder_Config.MultiTurn_Data >> 16) & 0xFF;
-    data_len++;
-  }
-
-  tx[index++] = (Encoder_Config.MultiTurn_Data >> 8) & 0xFF;
-  tx[index++] = Encoder_Config.MultiTurn_Data & 0xFF;
   data_len += 2;
 
   // 填入數據長度

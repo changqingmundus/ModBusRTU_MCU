@@ -1,6 +1,6 @@
 #include "encoder.h"
 #include "MB_User_Config.h"
-#include "Protool_Config.h"
+#include "Protocol_Config.h"
 #include "mb.h"
 
 volatile uint8_t BaudRate_Update_Flag = 0;

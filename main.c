@@ -20,7 +20,7 @@
 */
 #include "Free_Mode.h"
 #include "MB_User_Config.h"
-#include "Protool_Config.h"
+#include "Protocol_Config.h"
 #include "mb.h"
 #include "sccp1.h"
 #include "system.h"
@@ -39,7 +39,7 @@ int main(void)
   SET_SetInterruptHandler(ClearData_CN_Callback);
   Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
 
-  Protool_Init();
+  Protocol_Init();
   MB_User_Config_Init();
   Encoder_Init();
 

@@ -1,12 +1,13 @@
-#include "Protool_Config.h"
 #include "MB_User_Config.h"
+#include "Protocol_Config.h"
+
 
 eMBErrorCode Modbus_Status;
 uint8_t Protocol;
 uint16_t Update_Time;
 bool FreeMode_Enable;
 
-void Protool_Init(void)
+void Protocol_Init(void)
 {
     DEE_Read(DEE_Encoder_Protocol,&Protocol);
 
