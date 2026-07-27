@@ -60,6 +60,8 @@ void Encoder_Read_Data(void)
    {
       LED0_SetHigh();
    }
+   
+   LED1_SetLow();   //LED1指示EncoderReadData
 
    Encoder_Config.Raw_Data = ((uint64_t)Encoder_Config.MultiTurn_Data << (Encoder_Config.SingleTurn_Bit + 2 + Encoder_Config.CRC_Bit)) |
                              ((uint64_t)Encoder_Config.SingleTurn_Data << (2 + Encoder_Config.CRC_Bit)) |
