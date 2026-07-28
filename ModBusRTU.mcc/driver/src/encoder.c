@@ -26,7 +26,7 @@ void Encoder_Init(void)
       uint16_t Zero_LowData;
       uint16_t Zero_HighData;
       DEE_Read(DEE_ENCODER_ZERO_L, &Zero_LowData);
-      DEE_Read(DEE_ENCODER_ZERO_L, &Zero_HighData);
+      DEE_Read(DEE_ENCODER_ZERO_H, &Zero_HighData);
       Zero_SingleTurn_Data = ((uint32_t)Zero_HighData << 16) | Zero_LowData;
    }
    else

@@ -10,7 +10,7 @@ bool FreeMode_Enable;
 void Protocol_Init(void)
 {
     DEE_Read(DEE_Encoder_Protocol,&Protocol);
-
+    
     if (Protocol != FreeMode && Protocol != ModBusRTU)
     {
         Protocol = ModBusRTU;
