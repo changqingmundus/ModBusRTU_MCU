@@ -22,6 +22,8 @@ void FreeMode_Process(void) {
   tx[index++] = 0xCD;
 
   uint8_t data_len = 0;
+  uint32_t single_value;
+    single_value = Encoder_Get_SingleTurn_Position();
 
   // 預留長度位置
   uint8_t len_index = index++;
@@ -38,12 +40,12 @@ void FreeMode_Process(void) {
 
   // 單圈數據
   if (Encoder_Config.SingleTurn_Bit > 16) {
-    tx[index++] = (Encoder_Config.SingleTurn_Data >> 16) & 0xFF;
+    tx[index++] = (single_value >> 16) & 0xFF;
     data_len++;
   }
 
-  tx[index++] = (Encoder_Config.SingleTurn_Data >> 8) & 0xFF;
-  tx[index++] = Encoder_Config.SingleTurn_Data & 0xFF;
+  tx[index++] = (single_value >> 8) & 0xFF;
+  tx[index++] = single_value & 0xFF;
   data_len += 2;
 
   // 填入數據長度

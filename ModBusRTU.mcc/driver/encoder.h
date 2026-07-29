@@ -48,6 +48,7 @@ void Encoder_Init(void);
 void Encoder_SSI_Read(uint8_t bit_num, uint32_t *data);
 void Encoder_Read_Data(void);
 void Encoder_Clear_Data(void);
+uint32_t Encoder_Get_SingleTurn_Position(void);
 void Encoder_Save_to_DEE(uint16_t Addr_L, uint16_t Addr_H, uint32_t Data);
 
 #endif

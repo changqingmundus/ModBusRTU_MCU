@@ -94,6 +94,12 @@ void Encoder_Clear_Data(void)
    Zero_SingleTurn_Data = Encoder_Config.SingleTurn_Data;
 }
 
+uint32_t Encoder_Get_SingleTurn_Position(void)
+{
+    return (Encoder_Config.SingleTurn_Data - Zero_SingleTurn_Data) &
+           ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
+}
+
 void Encoder_Save_to_DEE(uint16_t Addr_L, uint16_t Addr_H, uint32_t Data)
 {
    DEE_Write(Addr_L, (uint16_t)(Data & 0xFFFF));

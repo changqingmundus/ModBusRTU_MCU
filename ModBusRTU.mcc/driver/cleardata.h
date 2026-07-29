@@ -13,4 +13,7 @@ extern volatile uint8_t is_counting;
 void ClearData_CN_Callback(void);
 void ClearData_Timer_Callback(void);
 
+void Encoder_PowerOn_Reset_Check(void);
+void Encoder_Factory_Reset(void);
+
 #endif // CLEARDATA_H

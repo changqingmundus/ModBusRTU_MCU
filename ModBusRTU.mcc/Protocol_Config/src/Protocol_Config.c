@@ -24,6 +24,7 @@ void Protocol_Init(void)
 
     else if (Protocol == FreeMode)
     {
+        eMBInit(MB_RTU, Slave_ID, 0, BaudRate, Parity);
         FreeMode_Init();
     }
 }

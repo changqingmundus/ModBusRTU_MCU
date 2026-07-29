@@ -15,8 +15,7 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
   {
     Encoder_Read_Data();
     uint32_t single_value;
-    single_value = (Encoder_Config.SingleTurn_Data - Zero_SingleTurn_Data) &
-                   ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
+    single_value = Encoder_Get_SingleTurn_Position();
     while (usNRegs--)
     {
 

@@ -38,7 +38,8 @@ int main(void)
   DEE_Init();
   SET_SetInterruptHandler(ClearData_CN_Callback);
   Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
-
+  
+  Encoder_PowerOn_Reset_Check();
   Protocol_Init();
   MB_User_Config_Init();
   Encoder_Init();
