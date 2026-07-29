@@ -24,7 +24,9 @@ void Protocol_Init(void)
 
     else if (Protocol == FreeMode)
     {
-        eMBInit(MB_RTU, Slave_ID, 0, BaudRate, Parity);
+        SCCP2_Timer_Stop();      //stop timer2
+        EXIT_CRITICAL_SECTION(); //enable global interrupt
+
         FreeMode_Init();
     }
 }
