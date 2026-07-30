@@ -29,6 +29,7 @@
 /*
     Main application
 */
+
 extern volatile uint8_t debug_flag;
 extern volatile uint8_t debug_data;
 
@@ -38,7 +39,7 @@ int main(void)
   DEE_Init();
   SET_SetInterruptHandler(ClearData_CN_Callback);
   Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
-  
+
   Encoder_PowerOn_Reset_Check();
   Protocol_Init();
   MB_User_Config_Init();
@@ -58,6 +59,15 @@ int main(void)
           debug_flag = 0;
           UART1_Write(debug_data);
         }
+
+        if (Speed_Timer_Count >= Speed_Sample_Time)
+        {
+          Speed_Timer_Count = 0;
+
+          Encoder_Read_Data();
+          Encoder_Update_Speed();
+        }
+
         if (BaudRate_Update_Flag)
         {
           if (UART1_IsTxDone())
@@ -77,6 +87,7 @@ int main(void)
       while (1)
       {
         FreeMode_Task();
+        LED1_SetHigh();
       }
     }
   }

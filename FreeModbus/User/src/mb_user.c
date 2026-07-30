@@ -14,81 +14,131 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
   if (eMode == MB_REG_READ)
   {
     Encoder_Read_Data();
-    uint32_t single_value;
-    single_value = Encoder_Get_SingleTurn_Position();
+
+    uint32_t Encoder_Value;
+
+    Encoder_Value = Encoder_Get_Position();
+
     while (usNRegs--)
     {
-
       switch (usAddress)
       {
-
-      case 0x0001: // 對應地址0x0000開始
+      case 0x0001:
       {
-        value = (single_value >> 16);
+        value = Encoder_Value &
+                ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
         break;
       }
 
-      // SingleTurn 低16位
       case 0x0002:
       {
-        value = single_value & 0xFFFF;
+        value = Encoder_Value >> Encoder_Config.SingleTurn_Bit;
         break;
       }
 
-      // Multiturn 高16位
-      case 0x0003:
-
-        value = (Encoder_Config.MultiTurn_Data >> 16);
-        break;
-
-      // Multiturn 低16位
-      case 0x0004:
-        value = Encoder_Config.MultiTurn_Data & 0xFFFF;
-        break;
-
-      // 從機地址
-      case 0x0005:
-
+      case 0x0003: // 从机号
+      {
         value = Slave_ID;
         break;
-
-      // 波特率
-      case 0x0006:
-
-        value = BaudRate;
-        break;
-
-      // 校驗
-      case 0x0007:
-
-        value = Parity;
-        break;
-
-      // zeroData
-      case 0x0008:
-
-        value = 0;
-        break;
-
-      case 0x000A:
-
-        pucRegBuffer[0] = Update_Time >> 8;
-        pucRegBuffer[1] = Update_Time & 0xff;
-
-        break;
-
-      default:
-
-        return MB_ENOREG;
       }
 
-      // Modbus寄存器高字節在前
-      *pucRegBuffer++ = value >> 8;
-      *pucRegBuffer++ = value & 0xff;
+      case 0x0004: // 波特率
+      {
+        value = BaudRate_Index;
+        break;
+      }
 
+      case 0x0005: // 校验位
+      {
+        value = Parity;
+        break;
+      }
+
+      case 0x0006: // 编码器位置零
+      {
+        value = 0;
+        break;
+      }
+
+      case 0x0007: // 递增方向
+      {
+        value = Direction_Config;
+        break;
+      }
+
+      case 0x0008: // 通信协议
+      {
+        value = Protocol;
+        break;
+      }
+
+      case 0x0009: // 上传时间
+      {
+        value = Update_Time;
+        break;
+      }
+
+      case 0x000A: // 编码器值高16
+
+      {
+        value = Encoder_Value >> 16;
+        break;
+      }
+
+      case 0x000B: // 编码器值低16
+
+      {
+        value = Encoder_Value & 0xffff;
+        break;
+      }
+
+      case 0x000C: // 旋转方向
+      {
+        value = Encoder_Direction;
+        break;
+      }
+
+      case 0x000D: // 转速 RPM
+      {
+        value = Encoder_RPM;
+        break;
+      }
+
+      case 0x0024: // 原点位置
+      {
+        value = Zero_SingleTurn_Data;
+        break;
+      }
+
+      case 0x0025: // 速度采样周期
+      {
+        value = Speed_Sample_Time;
+        break;
+      }
+
+      case 0x0401: // 编码器总值低16位
+      {
+        value = Encoder_Value & 0xffff;
+        break;
+      }
+
+      case 0x0402: // 编码器总值高16位
+      {
+        value = Encoder_Value >> 16;
+        break;
+      }
+
+      default:
+      {
+        return MB_ENOREG;
+      }
+      }
+      pucRegBuffer[0] = value >> 8;
+      pucRegBuffer[1] = value & 0xff;
+
+      pucRegBuffer += 2;
       usAddress++;
     }
-
     return MB_ENOERR;
   }
   else if (eMode == MB_REG_WRITE)
@@ -100,26 +150,15 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
 
       switch (usAddress)
       {
-
-      // 修改從機地址
-      case 0x0005:
-
-        if (value >= 1 && value <= 247)
-        {
-          Slave_ID = value;
-
-          DEE_Write(DEE_SLAVE_ID, Slave_ID);
-        }
-        else
-        {
-          return MB_EINVAL;
-        }
-
+      case 0x0003: // 0X0002開始修改地址
+      {
+        Slave_ID = value;
+        DEE_Write(DEE_SLAVE_ID, Slave_ID);
         break;
+      }
 
       // 修改波特率
-      case 0x0006:
-
+      case 0x0004:
         switch (value)
         {
         case 0x0001:
@@ -168,76 +207,93 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
         New_BaudRate = BaudRate;
 
         break;
-
-      // 修改校验方式
-      case 0x0007:
-
-        if (value <= 2)
-        {
-          Parity = value;
-
-          DEE_Write(DEE_PARITY, Parity);
-        }
-        else
-        {
-          return MB_EINVAL;
-        }
-
+      case 0x0005: // 校验
+      {
+        Parity = value;
+        DEE_Write(DEE_PARITY, Parity);
         break;
+      }
 
-      // 寫0xFF，重置零點
-      case 0x0008:
-
-        if (value == 0x00FF)
+      case 0x0006: // 清零
+      {
+        if (value == 0xFF)
         {
           Encoder_Clear_Data();
 
-          Encoder_Save_to_DEE(DEE_ENCODER_ZERO_L, DEE_ENCODER_ZERO_H, Zero_SingleTurn_Data);
+          Encoder_Save_to_DEE(
+              DEE_ENCODER_ZERO_L,
+              DEE_ENCODER_ZERO_H,
+              Encoder_Config.SingleTurn_Data);
         }
         break;
+      }
 
-        // 修改通信协议
-      case 0x0009:
-        if (value != ModBusRTU && value != FreeMode)
+      case 0x0007: // 递增方向
+      {
+        if (value == 0x01 || value == 0x02)
         {
-          return MB_EINVAL;
+          Direction_Config = value;
+          DEE_Write(DEE_Direction, Direction_Config);
         }
 
+        break;
+      }
+
+      case 0x0008: // 协议
+      {
         Protocol = value;
-
         DEE_Write(DEE_Encoder_Protocol, Protocol);
-
         break;
+      }
 
-        // 修改上传时间
-      case 0x000A:
-        if (value >= 1 && value <= 3000)
+      case 0x0009: // 上传时间
+      {
+        Update_Time = value;
+        DEE_Write(DEE_Update_Time, Update_Time);
+        break;
+      }
+
+      case 0x0024: // 原点位置
+      {
+        if (value == 1 || value == 2)
         {
-          Update_Time = value;
-          DEE_Write(DEE_Update_Time, Update_Time);
+          MultiTurn_Origin_Mode = value;
+
+          DEE_Write(DEE_MultiTurn_Origin_Mode,
+                    MultiTurn_Origin_Mode);
         }
-        else
+
+        break;
+      }
+
+      case 0x0025: // 速度采样周期 ms
+      {
+        if (value >= 10 && value <= 200)
         {
-          return MB_EINVAL;
+          Speed_Sample_Time = value;
+
+          DEE_Write(DEE_Speed_Sample_Time,
+                    Speed_Sample_Time);
         }
 
         break;
+      }
 
-      // Zero Offset 高16位
-      case 0x000B:
+      case 0x0033: // 写当前值低16
+      {
+        Encoder_Write_Low = value;
+        break;
+      }
 
-        Zero_SingleTurn_Data &= 0x0000FFFF;
-        Zero_SingleTurn_Data |= ((uint32_t)value << 16);
+      case 0x0034: // 写当前值高16
+      {
+        Encoder_Write_High = value;
+
+        Encoder_Set_Value(
+            ((uint32_t)Encoder_Write_High << 16) | Encoder_Write_Low);
 
         break;
-
-      // Zero Offset 低16位
-      case 0x000C:
-
-        Zero_SingleTurn_Data &= 0xFFFF0000;
-        Zero_SingleTurn_Data |= value;
-
-        break;
+      }
 
       default:
 
@@ -247,11 +303,9 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
       pucRegBuffer += 2;
       usAddress++;
     }
-
     return MB_ENOERR;
   }
-
-  return MB_ENOREG;
+  return MB_EINVAL;
 }
 
 eMBErrorCode eMBRegInputCB(UCHAR *pucRegBuffer,

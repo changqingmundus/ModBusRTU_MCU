@@ -37,6 +37,7 @@
 #include "../dmt.h"
 #include "../../timer/sccp1.h"
 #include "../../timer/sccp2.h"
+#include "../../timer/sccp3.h"
 #include "../../uart/uart1.h"
 #include "../interrupt.h"
 
@@ -48,6 +49,7 @@ void SYSTEM_Initialize(void)
     DMT_Initialize();
     SCCP1_Timer_Initialize();
     SCCP2_Timer_Initialize();
+    SCCP3_Timer_Initialize();
     UART1_Initialize();
     INTERRUPT_GlobalEnable();
     INTERRUPT_Initialize();
