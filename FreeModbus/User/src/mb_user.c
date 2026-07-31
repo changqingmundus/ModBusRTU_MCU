@@ -5,6 +5,7 @@
 
 volatile uint8_t BaudRate_Update_Flag = 0;
 volatile uint32_t New_BaudRate = 38400;
+volatile uint8_t Parity_Update_Flag = 0;
 
 eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
                              USHORT usNRegs, eMBRegisterMode eMode)
@@ -106,13 +107,13 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
 
       case 0x0024: // 原点位置
       {
-        value = Zero_SingleTurn_Data;
+        value = MultiTurn_Origin_Mode;
         break;
       }
 
       case 0x0025: // 速度采样周期
       {
-        value = Speed_Sample_Time;
+        value = Speed_Update_Period;
         break;
       }
 
@@ -145,72 +146,58 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
   {
     while (usNRegs--)
     {
-      value = ((uint16_t)pucRegBuffer[0] << 8) |
-              pucRegBuffer[1];
+      value = ((uint16_t)pucRegBuffer[0] << 8) | pucRegBuffer[1];
 
       switch (usAddress)
       {
       case 0x0003: // 0X0002開始修改地址
       {
-        Slave_ID = value;
-        DEE_Write(DEE_SLAVE_ID, Slave_ID);
+        if (value >= 1 && value <= 127)
+        {
+          Slave_ID = value;
+          ucMBAddress = Slave_ID;
+          DEE_Write(DEE_SLAVE_ID, Slave_ID);
+        }
+        else
+        {
+          return MB_EINVAL;
+        }
+
         break;
       }
 
       // 修改波特率
       case 0x0004:
-        switch (value)
+      {
+        if (value >= 0x01 && value <= 0x08)
         {
-        case 0x0001:
-          BaudRate = 4800;
-          break;
+          BaudRate_Index = value;
 
-        case 0x0002:
-          BaudRate = 9600;
-          break;
+          BaudRate = BaudRate_Get_Value(BaudRate_Index);
 
-        case 0x0003:
-          BaudRate = 19200;
-          break;
+          DEE_Write(DEE_BAUDRATE_INDEX, BaudRate_Index);
 
-        case 0x0004:
-          BaudRate = 38400;
-          break;
+          // 通知主程序立即修改UART
+          BaudRate_Update_Flag = 1;
+          New_BaudRate = BaudRate;
+        }
+        break;
+      }
 
-        case 0x0005:
-          BaudRate = 57600;
-          break;
+      case 0x0005: // 校验位
+      {
+        if (value >= 0x01 && value <= 0x03)
+        {
+          Parity = value;
 
-        case 0x0006:
-          BaudRate = 115200;
-          break;
-
-        case 0x0007:
-          BaudRate = 230400;
-          break;
-
-        case 0x0008:
-          BaudRate = 460800;
-          break;
-
-        default:
+          DEE_Write(DEE_PARITY, Parity);
+          Parity_Update_Flag = 1;
+        }
+        else
+        {
           return MB_EINVAL;
         }
 
-        // 保存索引
-        BaudRate_Index = value;
-
-        DEE_Write(DEE_BAUDRATE_INDEX, BaudRate_Index);
-
-        // 通知主程序修改UART
-        BaudRate_Update_Flag = 1;
-        New_BaudRate = BaudRate;
-
-        break;
-      case 0x0005: // 校验
-      {
-        Parity = value;
-        DEE_Write(DEE_PARITY, Parity);
         break;
       }
 
@@ -218,13 +205,18 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
       {
         if (value == 0xFF)
         {
-          Encoder_Clear_Data();
+          uint32_t current_position;
+
+          current_position = Encoder_Get_Total_Position();
 
           Encoder_Save_to_DEE(
               DEE_ENCODER_ZERO_L,
               DEE_ENCODER_ZERO_H,
-              Encoder_Config.SingleTurn_Data);
+              current_position);
+
+          Encoder_Clear_Data();
         }
+
         break;
       }
 
@@ -258,9 +250,7 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
         if (value == 1 || value == 2)
         {
           MultiTurn_Origin_Mode = value;
-
-          DEE_Write(DEE_MultiTurn_Origin_Mode,
-                    MultiTurn_Origin_Mode);
+          DEE_Write(DEE_MultiTurn_Origin_Mode, MultiTurn_Origin_Mode);
         }
 
         break;
@@ -268,12 +258,11 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
 
       case 0x0025: // 速度采样周期 ms
       {
-        if (value >= 10 && value <= 200)
+        if (value >= 1 && value <= 200)
         {
-          Speed_Sample_Time = value;
+          Speed_Update_Period = value;
 
-          DEE_Write(DEE_Speed_Sample_Time,
-                    Speed_Sample_Time);
+          DEE_Write(DEE_Speed_Update_Period, Speed_Update_Period);
         }
 
         break;

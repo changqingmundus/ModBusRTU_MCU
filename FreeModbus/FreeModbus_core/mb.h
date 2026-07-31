@@ -120,6 +120,7 @@ typedef enum
     MB_ETIMEDOUT                /*!< timeout error occurred. */
 } eMBErrorCode;
 
+extern UCHAR    ucMBAddress;   //user config
 
 /* ----------------------- Function prototypes ------------------------------*/
 /*! \ingroup modbus

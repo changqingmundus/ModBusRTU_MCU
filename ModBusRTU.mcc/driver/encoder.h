@@ -16,13 +16,13 @@
 #define DEE_ENCODER_ZERO_L 4              //DEE存放編碼器零點低位數據
 #define DEE_ENCODER_ZERO_H 5              //DEE存放編碼器零點高位數據
 
-#define DEE_Speed_Sample_Time 6
+#define DEE_Speed_Update_Period 6           //DEE存放編碼器速度采集周期
 
-#define DEE_POSITION_OFFSET_L   7
-#define DEE_POSITION_OFFSET_H   8
-#define DEE_Direction 9
+#define DEE_POSITION_OFFSET_L   7         //DEE存放編碼器全部值低16位
+#define DEE_POSITION_OFFSET_H   8         //DEE存放編碼器全部值高16位
+#define DEE_Direction 9                   //DEE存放編碼器旋轉方向
 
-#define DEE_MultiTurn_Origin_Mode 10
+#define DEE_MultiTurn_Origin_Mode 10      //DEE存放編碼器多圈原點數據
 
 
 #define MA_Clear() SCLK_MA_SetLow()     //設置SLO腳為低電平
@@ -64,7 +64,7 @@ extern uint32_t Encoder_RPM;
 extern uint8_t Encoder_Direction;
 
 extern volatile uint16_t Speed_Timer_Count;
-extern volatile uint16_t Speed_Sample_Time;
+extern volatile uint16_t Speed_Update_Period;
 
 void Delay_us(uint16_t us);
 

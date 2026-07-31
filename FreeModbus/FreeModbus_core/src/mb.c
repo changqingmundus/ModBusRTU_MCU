@@ -60,7 +60,8 @@
 
 /* ----------------------- Static variables ---------------------------------*/
 
-static UCHAR    ucMBAddress;
+UCHAR    ucMBAddress;   //user config
+//static UCHAR    ucMBAddress;
 static eMBMode  eMBCurrentMode;
 
 static enum

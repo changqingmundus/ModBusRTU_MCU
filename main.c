@@ -30,9 +30,6 @@
     Main application
 */
 
-extern volatile uint8_t debug_flag;
-extern volatile uint8_t debug_data;
-
 int main(void)
 {
   SYSTEM_Initialize();
@@ -41,8 +38,8 @@ int main(void)
   Timer1_TimeoutCallbackRegister(ClearData_Timer_Callback);
 
   Encoder_PowerOn_Reset_Check();
-  Protocol_Init();
   MB_User_Config_Init();
+  Protocol_Init();
   Encoder_Init();
 
   if (Protocol == ModBusRTU)
@@ -54,28 +51,7 @@ int main(void)
         // Encoder_Read_Data();
         eMBPoll();
         LED1_SetHigh();
-        if (debug_flag == 1)
-        {
-          debug_flag = 0;
-          UART1_Write(debug_data);
-        }
-
-        if (Speed_Timer_Count >= Speed_Sample_Time)
-        {
-          Speed_Timer_Count = 0;
-
-          Encoder_Read_Data();
-          Encoder_Update_Speed();
-        }
-
-        if (BaudRate_Update_Flag)
-        {
-          if (UART1_IsTxDone())
-          {
-            BaudRate_Update_Flag = 0;
-            UART1_BaudRateSet(New_BaudRate);
-          }
-        }
+        ModBusRTU_Update();
       }
     }
   }

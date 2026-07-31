@@ -11,13 +11,13 @@ static uint32_t Last_Position = 0;
 static uint8_t Speed_Init_Flag = 0;
 
 uint16_t Direction_Config = 1;
-uint16_t MultiTurn_Origin_Mode = 1;
+uint16_t MultiTurn_Origin_Mode = 2;
 
 uint32_t Encoder_RPM = 0;
 uint8_t Encoder_Direction = 0;
 
 volatile uint16_t Speed_Timer_Count = 0;
-volatile uint16_t Speed_Sample_Time = 10;
+volatile uint16_t Speed_Update_Period = 1;
 
 ENCODER_CONFIG Encoder_Config;
 
@@ -119,7 +119,7 @@ void Encoder_Init(void)
 
       Zero_SingleTurn_Data = 0;
    }
-   DEE_Read(DEE_Speed_Sample_Time, &Speed_Sample_Time);
+   DEE_Read(DEE_Speed_Update_Period, &Speed_Update_Period);
    Encoder_Load_Position_Offset();
    DEE_Read(DEE_Direction, &Direction_Config);
 
@@ -142,24 +142,23 @@ void Encoder_Init(void)
       DEE_Write(DEE_MultiTurn_Origin_Mode,
                 MultiTurn_Origin_Mode);
    }
-   if (Speed_Sample_Time < 10 || Speed_Sample_Time > 200)
+   if (Speed_Update_Period < 1 || Speed_Update_Period > 20)
    {
-      Speed_Sample_Time = 10;
+      Speed_Update_Period = 1;
 
-      DEE_Write(DEE_Speed_Sample_Time, Speed_Sample_Time);
+      DEE_Write(DEE_Speed_Update_Period, Speed_Update_Period);
    }
 }
 
 void Encoder_Load_Position_Offset(void)
 {
-   uint16_t low;
-   uint16_t high;
+   uint16_t lowposition;
+   uint16_t highposition;
 
-   DEE_Read(DEE_POSITION_OFFSET_L, &low);
-   DEE_Read(DEE_POSITION_OFFSET_H, &high);
+   DEE_Read(DEE_POSITION_OFFSET_L, &lowposition);
+   DEE_Read(DEE_POSITION_OFFSET_H, &highposition);
 
-   Position_Offset =
-       (int32_t)(((uint32_t)high << 16) | low);
+   Position_Offset = (int32_t)(((uint32_t)highposition << 16) | lowposition);
 }
 
 void Encoder_Read_Data(void)
@@ -274,7 +273,7 @@ void Encoder_Update_Speed(void)
 
    Encoder_RPM =
        ((uint64_t)llabs(diff) * 60000UL /
-        Speed_Sample_Time) /
+        (Speed_Update_Period * 10UL)) /
        single_resolution;
 
    Last_Position = current_position;
@@ -300,13 +299,24 @@ void Encoder_Set_Value(uint32_t set_value)
 
 void Encoder_Clear_Data(void)
 {
-   uint32_t current;
-
-   Encoder_Read_Data();
+   int64_t current;
+   int64_t target;
 
    current = Encoder_Get_Total_Position();
 
-   Position_Offset = -(int32_t)current;
+   if (MultiTurn_Origin_Mode == 1)
+   {
+      // 中间值
+      // target = ((int64_t)Encoder_Get_Max_Position()) / 2;
+      target = ((uint32_t)1 << Encoder_Config.MultiTurn_Bit) / 2;
+   }
+   else
+   {
+      // 0值
+      target = 0;
+   }
+
+   Position_Offset = target - current;
 
    Encoder_Save_to_DEE(
        DEE_POSITION_OFFSET_L,

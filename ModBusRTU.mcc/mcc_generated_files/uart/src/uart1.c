@@ -125,8 +125,8 @@ static bool volatile rxOverflowed;
  * when head == tail.  So full will result in head/tail being off by one due to
  * the extra byte.
  */
-#define UART1_CONFIG_TX_BYTEQ_LENGTH (32+1)  //user config
-#define UART1_CONFIG_RX_BYTEQ_LENGTH (32+1)  //user config
+#define UART1_CONFIG_TX_BYTEQ_LENGTH (8+1)
+#define UART1_CONFIG_RX_BYTEQ_LENGTH (8+1)
 
 /**
  @ingroup  uartdriver
@@ -159,8 +159,8 @@ void UART1_Initialize(void)
     U1STA = 0x80U;
     // URXISEL ; UTXBE ; UTXISEL TX_BUF_EMPTY; URXBE ; STPMD ; TXWRE ; 
     U1STAH = 0x2EU;
-    // BaudRate 38387.72; Frequency 40000000 Hz; BRG 1042; 
-    U1BRG = 0x412U;
+    // BaudRate 9599.23; Frequency 40000000 Hz; BRG 4167; 
+    U1BRG = 0x1047U;
     // BRG 0; 
     U1BRGH = 0x0U;
     
@@ -497,6 +497,7 @@ void __attribute__ ((weak)) UART1_ParityErrorCallback(void)
         */
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _U1TXInterrupt(void)
 {
+
     if(txHead == txTail)
     {
         if(NULL != UART1_TxCompleteHandler)
