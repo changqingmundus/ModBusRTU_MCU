@@ -52,7 +52,6 @@ void MB_User_Config_Init(void)
     Slave_ID = 1;
     BaudRate_Index = 1;
     Parity = 1;
-    BaudRate = BaudRate_Get_Value(BaudRate_Index);
 
     DEE_Write(DEE_MODBUS_MagicKey, MODBUS_MAGIC_KEY);
     DEE_Write(DEE_SLAVE_ID, Slave_ID);
@@ -85,6 +84,27 @@ void MB_User_Config_Init(void)
     Parity = 0x01;
     break;
   }
+
+  BaudRate = BaudRate_Get_Value(BaudRate_Index);
+  UART1_BaudRateSet(BaudRate);
+}
+
+void MB_Timer_Update(uint32_t baud)
+{
+  uint16_t t35;
+
+  if (baud > 19200)
+  {
+    // Modbus规范: >19200固定1.75ms
+    t35 = 35; // 35*50us=1.75ms
+  }
+  else
+  {
+    // 11bit字符时间 × 3.5
+    t35 = (uint16_t)((385000UL) / baud);
+  }
+
+  SCCP2_Timer_PeriodSet(t35);
 }
 
 void UART1_Parity_Set(uint8_t parity)

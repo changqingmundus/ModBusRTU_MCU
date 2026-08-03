@@ -13,8 +13,8 @@
 #define DEE_Encoder_SingleTurnBitSize 2   //DEE存放編碼器單圈位數配置
 #define DEE_Encoder_CRCBitSize 3          //DEE存放編碼器CRC位數配置
 
-#define DEE_ENCODER_ZERO_L 4              //DEE存放編碼器零點低位數據
-#define DEE_ENCODER_ZERO_H 5              //DEE存放編碼器零點高位數據
+//#define DEE_ENCODER_ZERO_L 4              //DEE存放編碼器零點低位數據
+//#define DEE_ENCODER_ZERO_H 5              //DEE存放編碼器零點高位數據
 
 #define DEE_Speed_Update_Period 6           //DEE存放編碼器速度采集周期
 

@@ -21,7 +21,6 @@
 
 /* ----------------------- AVR includes -------------------------------------*/
 
-
 /* ----------------------- Platform includes --------------------------------*/
 #include "port.h"
 #include <xc.h>
@@ -33,37 +32,41 @@
 
 /* ----------------------- Defines ------------------------------------------*/
 
-
 /* ----------------------- Static variables ---------------------------------*/
-//static USHORT   usTimerOCRADelta;
-//static USHORT   usTimerOCRBDelta;
-
+// static USHORT   usTimerOCRADelta;
+// static USHORT   usTimerOCRBDelta;
+volatile uint16_t usTimer50us;
 /* ----------------------- Start implementation -----------------------------*/
-BOOL
-xMBPortTimersInit( USHORT usTim1Timerout50us )
+BOOL xMBPortTimersInit(USHORT usTim1Timerout50us)
 {
-    /* Calculate overflow counter an OCR values for Timer1. */
+    /* Calculate overflow counter an OCR values for Timer2. */
 
-    vMBPortTimersDisable(  );
+    usTimer50us = usTim1Timerout50us;
+    vMBPortTimersDisable();
 
     return TRUE;
 }
 
-
 inline void
-vMBPortTimersEnable(  )
+vMBPortTimersEnable()
 {
+    uint32_t count;
+
+    count = (uint32_t)usTimer50us * 125U;
+
+    //SCCP2_Timer_PeriodSet(count - 1);
     SCCP2_Timer_Start();
 }
 
 inline void
-vMBPortTimersDisable(  )
+vMBPortTimersDisable()
 {
     /* Disable the timer. */
-   SCCP2_Timer_Stop();
+    SCCP2_Timer_Stop();
 }
 
 void SCCP2_TimeoutCallback(void)
 {
-    ( void )pxMBPortCBTimerExpired(  );
+    UART1_Write(0x55);
+    (void)pxMBPortCBTimerExpired();
 }

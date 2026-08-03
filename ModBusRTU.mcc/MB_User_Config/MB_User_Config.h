@@ -22,6 +22,8 @@ extern uint16_t Parity;
 extern uint32_t BaudRate;
 extern eMBParity MB_Parity;
 
+extern volatile uint16_t usTimer50us;
+
 extern volatile uint8_t BaudRate_Update_Flag;
 extern volatile uint32_t New_BaudRate;
 extern volatile uint8_t Parity_Update_Flag;
@@ -33,7 +35,7 @@ uint32_t BaudRate_Get_Value(uint16_t index);
 void MB_User_Config_Init(void);
 
 void ModBusRTU_Update(void);
-
+void MB_Timer_Update(uint32_t baud);
 void UART1_Parity_Set(uint8_t parity);
 
 

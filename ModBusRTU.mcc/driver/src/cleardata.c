@@ -1,9 +1,4 @@
 #include "cleardata.h"
-#include "encoder.h" 
-#include "sccp1.h"
-#include "dee.h"
-#include "delay.h"
-#include "Protocol_Config.h"
 
 volatile uint8_t high_time_sec = 0; // 記錄高電平持續的秒數
 volatile uint8_t is_counting = 0;   // 是否正在計時中
@@ -48,9 +43,9 @@ void ClearData_Timer_Callback(void) {
                 
                 // ======= 執行編碼器數據清零代碼 =======
                 Encoder_Clear_Data(); 
-                Encoder_Save_to_DEE(DEE_ENCODER_ZERO_L,
+                /*Encoder_Save_to_DEE(DEE_ENCODER_ZERO_L,
                                     DEE_ENCODER_ZERO_H,
-                                    Encoder_Config.SingleTurn_Data);
+                                    Encoder_Config.SingleTurn_Data);*/
                 // ===================================
             }
             else if (high_time_sec >= 10 && high_time_sec < 60 ) {
@@ -85,8 +80,11 @@ void Encoder_PowerOn_Reset_Check(void)
 
 void Encoder_Factory_Reset(void)
 {
-    DEE_Write(DEE_ENCODER_ZERO_L,0);
-    DEE_Write(DEE_ENCODER_ZERO_H,0);
+    DEE_Write(DEE_POSITION_OFFSET_L, 0);
+    DEE_Write(DEE_POSITION_OFFSET_H, 0);
+
+    //DEE_Write(DEE_ENCODER_ZERO_L,0);
+    //DEE_Write(DEE_ENCODER_ZERO_H,0);
 
     Protocol = ModBusRTU;
     DEE_Write(DEE_Encoder_Protocol,Protocol);

@@ -16,6 +16,8 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
   {
     Encoder_Read_Data();
 
+    LED1_SetLow(); // LED1指示EncoderReadData
+
     uint32_t Encoder_Value;
 
     Encoder_Value = Encoder_Get_Position();
@@ -166,20 +168,21 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
         break;
       }
 
-      // 修改波特率
-      case 0x0004:
+      case 0x0004: // 修改波特率
       {
         if (value >= 0x01 && value <= 0x08)
         {
           BaudRate_Index = value;
-
-          BaudRate = BaudRate_Get_Value(BaudRate_Index);
+          // UART1_Write(BaudRate_Index);
 
           DEE_Write(DEE_BAUDRATE_INDEX, BaudRate_Index);
 
+          BaudRate = BaudRate_Get_Value(BaudRate_Index);
           // 通知主程序立即修改UART
           BaudRate_Update_Flag = 1;
           New_BaudRate = BaudRate;
+
+          MB_Timer_Update(BaudRate);
         }
         break;
       }
@@ -205,18 +208,8 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
       {
         if (value == 0xFF)
         {
-          uint32_t current_position;
-
-          current_position = Encoder_Get_Total_Position();
-
-          Encoder_Save_to_DEE(
-              DEE_ENCODER_ZERO_L,
-              DEE_ENCODER_ZERO_H,
-              current_position);
-
           Encoder_Clear_Data();
         }
-
         break;
       }
 
