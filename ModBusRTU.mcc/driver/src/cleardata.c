@@ -1,4 +1,5 @@
 #include "cleardata.h"
+#include "MB_User_Config.h"
 
 volatile uint8_t high_time_sec = 0; // 記錄高電平持續的秒數
 volatile uint8_t is_counting = 0;   // 是否正在計時中
@@ -7,15 +8,18 @@ volatile uint8_t is_counting = 0;   // 是否正在計時中
  * @brief RA4 引腳上升沿中斷回調函式
  * @note  在 MCC 的 pin_manager.c 的 _CNInterrupt 中呼叫此函式
  */
-void ClearData_CN_Callback(void) {
-     DELAY_milliseconds(20);              //xms 消抖
-     uint8_t ClearDataFlag = ClearData(); // 讀取 RA4 的當前狀態，觸發上升沿檢測
+void ClearData_CN_Callback(void)
+{
+    DELAY_milliseconds(20);              // xms 消抖
+    uint8_t ClearDataFlag = ClearData(); // 讀取 RA4 的當前狀態，觸發上升沿檢測
 
-    if(ClearDataFlag == 1) {
-        if(is_counting == 0) {
+    if (ClearDataFlag == 1)
+    {
+        if (is_counting == 0)
+        {
             is_counting = 1;
             high_time_sec = 0;   // 秒數計數器清零
-            SCCP1_Timer_Start();  // 啟動定時器（每 1 秒進一次中斷）
+            SCCP1_Timer_Start(); // 啟動定時器（每 1 秒進一次中斷）
         }
     }
 }
@@ -24,34 +28,35 @@ void ClearData_CN_Callback(void) {
  * @brief SCCP1 定時器 1 秒溢出中斷回調函式
  * @note  在 MCC 的 sccp1.c 的 SCCP1_TimeoutHandler 中呼叫此函式
  */
-void ClearData_Timer_Callback(void) {
+void ClearData_Timer_Callback(void)
+{
     uint8_t ClearDataFlag = ClearData(); // 每秒檢查一次 RA4 的狀態
-    if(is_counting == 1) {
-        
+    if (is_counting == 1)
+    {
+
         // 檢查目前管腳狀態
-        if(ClearDataFlag == 1) {
+        if (ClearDataFlag == 1)
+        {
             high_time_sec++; // 高電平依然存在，秒數加 1
-            
-            if(high_time_sec > 60) {
-                SCCP1_Timer_Stop();  // 停止計時
+
+            if (high_time_sec > 60)
+            {
+                SCCP1_Timer_Stop(); // 停止計時
                 is_counting = 0;    // 重置狀態，不清零，直接結束
                 high_time_sec = 0;
             }
-        } 
-        else {
-            if(high_time_sec >= 2 && high_time_sec < 10) {
-                
+        }
+        else
+        {
+            if (high_time_sec >= 2 && high_time_sec < 10)
+            {
                 // ======= 執行編碼器數據清零代碼 =======
-                Encoder_Clear_Data(); 
-                /*Encoder_Save_to_DEE(DEE_ENCODER_ZERO_L,
-                                    DEE_ENCODER_ZERO_H,
-                                    Encoder_Config.SingleTurn_Data);*/
-                // ===================================
+                Encoder_Clear_Data();
             }
-            else if (high_time_sec >= 10 && high_time_sec < 60 ) {
-                Encoder_Factory_Reset();      
+            else if (high_time_sec >= 10 && high_time_sec < 60)
+            {
+                Encoder_Factory_Reset();
             }
-            
             // 不管符不符合時間，只要放開了就停止這次計時
             SCCP1_Timer_Stop();
             is_counting = 0;
@@ -67,13 +72,13 @@ void Encoder_PowerOn_Reset_Check(void)
     ClearDataFlag = ClearData();
 
     // 上电检测SET是否已经为高
-    if(ClearDataFlag == 1)
+    if (ClearDataFlag == 1)
     {
         DELAY_milliseconds(2000);
 
-        if(ClearData() == 1)
+        if (ClearData() == 1)
         {
-           Encoder_Factory_Reset();
+            Encoder_Factory_Reset();
         }
     }
 }
@@ -83,9 +88,14 @@ void Encoder_Factory_Reset(void)
     DEE_Write(DEE_POSITION_OFFSET_L, 0);
     DEE_Write(DEE_POSITION_OFFSET_H, 0);
 
-    //DEE_Write(DEE_ENCODER_ZERO_L,0);
-    //DEE_Write(DEE_ENCODER_ZERO_H,0);
+    Slave_ID = 1;
+    BaudRate_Index = 1;
+    Parity = 1;
+
+    DEE_Write(DEE_SLAVE_ID, Slave_ID);
+    DEE_Write(DEE_BAUDRATE_INDEX, BaudRate_Index);
+    DEE_Write(DEE_PARITY, Parity);
 
     Protocol = ModBusRTU;
-    DEE_Write(DEE_Encoder_Protocol,Protocol);
+    DEE_Write(DEE_Encoder_Protocol, Protocol);
 }

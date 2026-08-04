@@ -28,8 +28,7 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
       {
       case 0x0001:
       {
-        value = Encoder_Value &
-                ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
+        value = Encoder_Value & ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
         break;
       }
 

@@ -2,7 +2,7 @@
 #include "pins.h"
 #include "cleardata.h"
 
-uint32_t Position_Offset = 0;
+int32_t Position_Offset = 0;
 
 uint16_t Encoder_Write_Low = 0;
 uint16_t Encoder_Write_High = 0;
@@ -27,6 +27,7 @@ uint32_t Encoder_Get_Max_Position(void)
           1;
 }
 
+/*處理位置數據*/
 uint32_t Encoder_Get_Position(void)
 {
    int64_t position;
@@ -34,9 +35,7 @@ uint32_t Encoder_Get_Position(void)
 
    max_position = Encoder_Get_Max_Position();
 
-   position =
-       (int64_t)Encoder_Get_Total_Position() +
-       (int64_t)Position_Offset;
+   position = (int64_t)Encoder_Get_Total_Position() + (int64_t)Position_Offset;
 
    // 环绕处理
    while (position < 0)
@@ -52,32 +51,30 @@ uint32_t Encoder_Get_Position(void)
    // 逆向递增
    if (Direction_Config == 0x02)
    {
-      position =
-          max_position - position;
+      position = max_position - position;
    }
 
    return (uint32_t)position;
 }
 
+/*原始位置數據*/
 uint32_t Encoder_Get_Total_Position(void)
 {
    uint32_t position;
 
-   position =
-       ((uint32_t)Encoder_Config.MultiTurn_Data
-        << Encoder_Config.SingleTurn_Bit) |
-       Encoder_Config.SingleTurn_Data;
+   position = ((uint32_t)Encoder_Config.MultiTurn_Data << Encoder_Config.SingleTurn_Bit) |
+              Encoder_Config.SingleTurn_Data;
 
    return position;
 }
 
 uint32_t Encoder_Get_SingleTurn_Position(void)
 {
-    uint32_t total;
+   uint32_t total;
 
-    total = Encoder_Get_Total_Position();
+   total = Encoder_Get_Total_Position();
 
-    return total & ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
+   return total & ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
 }
 
 void Delay_us(uint16_t us)
@@ -101,7 +98,7 @@ void Encoder_Init(void)
    }
    else
    {
-      Encoder_Config.MultiTurn_Bit = 8;  // 配置默認多圈位數
+      Encoder_Config.MultiTurn_Bit = 8;   // 配置默認多圈位數
       Encoder_Config.SingleTurn_Bit = 12; // 配置默認單圈位數
       Encoder_Config.Warning_Bit = 1;
       Encoder_Config.Error_Bit = 1;
@@ -286,13 +283,15 @@ void Encoder_Clear_Data(void)
 
    if (MultiTurn_Origin_Mode == 1)
    {
-      // 中间值
-      target = ((int64_t)Encoder_Get_Max_Position()) / 2;
-      //target = ((uint32_t)1 << Encoder_Config.MultiTurn_Bit) / 2;
+      uint32_t multi_middle;
+      uint32_t single_middle;
+
+      multi_middle = ((uint32_t)1 << Encoder_Config.MultiTurn_Bit) / 2;
+      single_middle = ((uint32_t)1 << Encoder_Config.SingleTurn_Bit) / 2;
+      target = ((uint64_t)multi_middle << Encoder_Config.SingleTurn_Bit) + single_middle;
    }
    else
    {
-      // 0值
       target = 0;
    }
 
@@ -300,7 +299,7 @@ void Encoder_Clear_Data(void)
 
    Encoder_Save_to_DEE(DEE_POSITION_OFFSET_L,
                        DEE_POSITION_OFFSET_H,
-                      (uint32_t)Position_Offset);
+                       (uint32_t)Position_Offset);
 }
 
 void Encoder_Save_to_DEE(uint16_t Addr_L, uint16_t Addr_H, uint32_t Data)

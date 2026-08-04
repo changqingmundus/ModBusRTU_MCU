@@ -67,6 +67,5 @@ vMBPortTimersDisable()
 
 void SCCP2_TimeoutCallback(void)
 {
-    UART1_Write(0x55);
     (void)pxMBPortCBTimerExpired();
 }

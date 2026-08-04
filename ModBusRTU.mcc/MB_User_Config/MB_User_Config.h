@@ -8,10 +8,10 @@
 
 
 // Modbus User Config DEE Address
-#define DEE_MODBUS_MagicKey 11
-#define DEE_SLAVE_ID       12
-#define DEE_BAUDRATE_INDEX 13
-#define DEE_PARITY         14
+#define DEE_MODBUS_MagicKey 9
+#define DEE_SLAVE_ID       10
+#define DEE_BAUDRATE_INDEX 11
+#define DEE_PARITY         12
 
 #define MODBUS_MAGIC_KEY 0x510A
 
