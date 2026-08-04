@@ -1,12 +1,12 @@
 #include "MB_User_Config.h"
 #include "MB_FunFactory.h"
 
-uint16_t Slave_ID = 1;
-uint16_t BaudRate_Index = 0x01;
-uint16_t Parity = 0x01;
+uint16_t Slave_ID;
+uint16_t BaudRate_Index;
+uint16_t Parity;
 
 uint32_t BaudRate;
-eMBParity MB_Parity = MB_PAR_NONE;
+eMBParity MB_Parity;
 
 uint32_t BaudRate_Get_Value(uint16_t index)
 {
@@ -87,6 +87,8 @@ void MB_User_Config_Init(void)
 
   BaudRate = BaudRate_Get_Value(BaudRate_Index);
   UART1_BaudRateSet(BaudRate);
+
+  UART1_Parity_Set(Parity);
 }
 
 void MB_Timer_Update(uint32_t baud)
@@ -109,45 +111,28 @@ void MB_Timer_Update(uint32_t baud)
 
 void UART1_Parity_Set(uint8_t parity)
 {
-  uint16_t mode;
-
   U1MODEbits.UARTEN = 0;
-
-  mode = U1MODE;
-
-  // 清 PDSEL<1:0>
-  mode &= ~(0x06);
 
   switch (parity)
   {
   case 0x01: // None
-  {
-    // bit2:1 = 00
+    U1MODEbits.MOD = 0b0000;
     break;
-  }
 
   case 0x02: // Odd
-  {
-    // bit2:1 = 10
-    mode |= 0x04;
+    U1MODEbits.MOD = 0b0010;
     break;
-  }
 
   case 0x03: // Even
-  {
-    // bit2:1 = 01
-    mode |= 0x02;
+    U1MODEbits.MOD = 0b0011;
     break;
-  }
 
   default:
-  {
+    U1MODEbits.MOD = 0b0000;
     break;
   }
-  }
-
-  U1MODE = mode;
-
+  // 清錯誤狀態
+  U1STAbits.OERR = 0;
   U1MODEbits.UARTEN = 1;
 }
 

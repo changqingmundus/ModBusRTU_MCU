@@ -63,16 +63,16 @@ extern uint8_t Encoder_Direction;
 extern volatile uint16_t Speed_Timer_Count;
 extern volatile uint16_t Speed_Update_Period;
 
+uint32_t Encoder_Get_Position(void);
+uint32_t Encoder_Get_Total_Position(void);
+uint32_t Encoder_Get_Max_Position(void);
+
 void Delay_us(uint16_t us);
 
 void Encoder_Init(void);
 void Encoder_SSI_Read(uint8_t bit_num, uint32_t *data);
 void Encoder_Read_Data(void);
 void Encoder_Clear_Data(void);
-uint32_t Encoder_Get_SingleTurn_Position(void);
-uint32_t Encoder_Get_Position(void);
-uint32_t Encoder_Get_Total_Position(void);
-uint32_t Encoder_Get_Max_Position(void);
 
 void Encoder_Update_Speed(void);
 void Encoder_Set_Value(uint32_t set_value);

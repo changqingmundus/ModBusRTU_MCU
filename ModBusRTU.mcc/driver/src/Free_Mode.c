@@ -6,8 +6,10 @@
 static uint8_t tx[FreeMode_Data_Length];
 static uint8_t tx_len = 0;
 
-void FreeMode_Task(void) {
-  if (FreeMode_Enable) {
+void FreeMode_Task(void)
+{
+  if (FreeMode_Enable)
+  {
     Encoder_Read_Data();
     FreeMode_Process();
     FreeMode_Send();
@@ -15,37 +17,42 @@ void FreeMode_Task(void) {
   }
 }
 
-void FreeMode_Process(void) {
+void FreeMode_Process(void)
+{
   uint8_t index = 0;
 
   tx[index++] = 0xAB;
   tx[index++] = 0xCD;
 
   uint8_t data_len = 0;
-  uint32_t single_value;
-    single_value = Encoder_Get_SingleTurn_Position();
+  uint32_t position;
+  position = Encoder_Get_Position();
 
   // 預留長度位置
   uint8_t len_index = index++;
+  uint32_t multiturn;
 
-   // 多圈數據
-  if (Encoder_Config.MultiTurn_Bit > 16) {
-    tx[index++] = (Encoder_Config.MultiTurn_Data >> 16) & 0xFF;
+  multiturn = position >> Encoder_Config.SingleTurn_Bit;
+  if (Encoder_Config.MultiTurn_Bit > 16)
+  {
+    tx[index++] = (multiturn >> 16) & 0xFF;
     data_len++;
   }
-
-  tx[index++] = (Encoder_Config.MultiTurn_Data >> 8) & 0xFF;
-  tx[index++] = Encoder_Config.MultiTurn_Data & 0xFF;
+  tx[index++] = (multiturn >> 8) & 0xFF;
+  tx[index++] = multiturn & 0xFF;
   data_len += 2;
 
-  // 單圈數據
-  if (Encoder_Config.SingleTurn_Bit > 16) {
-    tx[index++] = (single_value >> 16) & 0xFF;
+  uint32_t singleturn;
+  singleturn = position &
+               ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
+
+  if (Encoder_Config.SingleTurn_Bit > 16)
+  {
+    tx[index++] = (singleturn >> 16) & 0xFF;
     data_len++;
   }
-
-  tx[index++] = (single_value >> 8) & 0xFF;
-  tx[index++] = single_value & 0xFF;
+  tx[index++] = (singleturn >> 8) & 0xFF;
+  tx[index++] = singleturn & 0xFF;
   data_len += 2;
 
   // 填入數據長度
@@ -55,7 +62,8 @@ void FreeMode_Process(void) {
   uint8_t sum = 0;
   uint8_t xor = 0;
 
-  for (uint8_t i = len_index; i < index; i++) {
+  for (uint8_t i = len_index; i < index; i++)
+  {
     sum += tx[i];
     xor ^= tx[i];
   }
@@ -69,10 +77,12 @@ void FreeMode_Process(void) {
 
 void FreeMode_Send(void)
 {
-    for(uint8_t i=0;i<tx_len;i++)
-    {
-        while(U1STAHbits.UTXBF);
-        U1TXREG = tx[i];
-    }
-    while(!U1STAbits.TRMT);
+  for (uint8_t i = 0; i < tx_len; i++)
+  {
+    while (U1STAHbits.UTXBF)
+      ;
+    U1TXREG = tx[i];
+  }
+  while (!U1STAbits.TRMT)
+    ;
 }

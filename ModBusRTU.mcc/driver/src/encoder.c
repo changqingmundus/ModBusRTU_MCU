@@ -2,7 +2,7 @@
 #include "pins.h"
 #include "cleardata.h"
 
-int32_t Position_Offset = 0;
+int32_t Position_Offset;
 
 uint16_t Encoder_Write_Low = 0;
 uint16_t Encoder_Write_High = 0;
@@ -68,15 +68,6 @@ uint32_t Encoder_Get_Total_Position(void)
    return position;
 }
 
-uint32_t Encoder_Get_SingleTurn_Position(void)
-{
-   uint32_t total;
-
-   total = Encoder_Get_Total_Position();
-
-   return total & ((1UL << Encoder_Config.SingleTurn_Bit) - 1);
-}
-
 void Delay_us(uint16_t us)
 {
    DELAY_microseconds(us);
@@ -103,6 +94,8 @@ void Encoder_Init(void)
       Encoder_Config.Warning_Bit = 1;
       Encoder_Config.Error_Bit = 1;
       Encoder_Config.CRC_Bit = 6; // 配置默認CRC位數
+
+      Position_Offset = 0;
    }
    DEE_Read(DEE_Speed_Update_Period, &Speed_Update_Period);
    Encoder_Load_Position_Offset();
@@ -131,8 +124,8 @@ void Encoder_Init(void)
 
 void Encoder_Load_Position_Offset(void)
 {
-   uint16_t lowposition;
-   uint16_t highposition;
+   uint16_t lowposition  = 0;
+   uint16_t highposition = 0;
 
    DEE_Read(DEE_POSITION_OFFSET_L, &lowposition);
    DEE_Read(DEE_POSITION_OFFSET_H, &highposition);
@@ -226,19 +219,13 @@ void Encoder_Update_Speed(void)
       diff += max_position;
    }
 
-   if (diff > 0) // 判斷方向
+   if (diff > 0)
    {
-      if (Direction_Config == 0x01)
-         Encoder_Direction = 1;
-      else
-         Encoder_Direction = 2;
+      Encoder_Direction = 1;
    }
    else if (diff < 0)
    {
-      if (Direction_Config == 0x01)
-         Encoder_Direction = 2;
-      else
-         Encoder_Direction = 1;
+      Encoder_Direction = 2;
    }
    else
    {
@@ -258,20 +245,14 @@ void Encoder_Update_Speed(void)
 
 void Encoder_Set_Value(uint32_t set_value)
 {
-   uint32_t current;
+   int64_t current;
 
    Encoder_Read_Data();
-
    current = Encoder_Get_Total_Position();
-
-   Position_Offset =
-       (int32_t)set_value -
-       (int32_t)current;
-
-   Encoder_Save_to_DEE(
-       DEE_POSITION_OFFSET_L,
-       DEE_POSITION_OFFSET_H,
-       (uint32_t)Position_Offset);
+   Position_Offset = (int32_t)((int64_t)set_value - current);
+   Encoder_Save_to_DEE(DEE_POSITION_OFFSET_L,
+                       DEE_POSITION_OFFSET_H,
+                      (uint32_t)Position_Offset);
 }
 
 void Encoder_Clear_Data(void)

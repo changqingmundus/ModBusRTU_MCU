@@ -34,7 +34,7 @@ void Protocol_Init(void)
 
 void ModBusRTU_Init(void)
 {
-    eMBInit(MB_RTU, Slave_ID, 0, BaudRate, Parity);
+    eMBInit(MB_RTU, Slave_ID, 0, BaudRate, MB_Parity);
     if(Modbus_Status  == MB_ENOERR)
     {
         Modbus_Status  = eMBEnable();
