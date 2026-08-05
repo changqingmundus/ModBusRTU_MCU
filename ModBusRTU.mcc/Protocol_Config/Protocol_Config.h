@@ -15,5 +15,5 @@ extern bool FreeMode_Enable;
 extern eMBErrorCode Modbus_Status;
 
 void Protocol_Init(void);
-void ModBus_RTU_Init(void);
+void ModBusRTU_Init(void);
 void FreeMode_Init(void);

@@ -1,5 +1,6 @@
 #include "MB_User_Config.h"
 #include "MB_FunFactory.h"
+#include "sccp2.h"
 
 uint16_t Slave_ID;
 uint16_t BaudRate_Index;
@@ -93,20 +94,24 @@ void MB_User_Config_Init(void)
 
 void MB_Timer_Update(uint32_t baud)
 {
-  uint16_t t35;
+  uint32_t usTimer50us;
+  uint32_t count;
 
   if (baud > 19200)
   {
-    // Modbus规范: >19200固定1.75ms
-    t35 = 35; // 35*50us=1.75ms
+    // 1.75ms
+    usTimer50us = 35;
   }
   else
   {
-    // 11bit字符时间 × 3.5
-    t35 = (uint16_t)((385000UL) / baud);
+    // 45 bit時間
+    // 單位50us
+    usTimer50us = (900000UL + baud - 1) / baud;
   }
 
-  SCCP2_Timer_PeriodSet(t35);
+  count = usTimer50us * 125UL;
+
+  SCCP2_Timer_PeriodSet(count - 1);
 }
 
 void UART1_Parity_Set(uint8_t parity)
@@ -138,6 +143,8 @@ void UART1_Parity_Set(uint8_t parity)
 
 void ModBusRTU_Update(void)
 {
+  Encoder_Read_Data();  //refresh core data
+
   if (debug_flag == 1)
   {
     debug_flag = 0;
@@ -147,8 +154,6 @@ void ModBusRTU_Update(void)
   if (Speed_Timer_Count >= Speed_Update_Period * 10)
   {
     Speed_Timer_Count = 0;
-
-    Encoder_Read_Data();
     Encoder_Update_Speed();
   }
 

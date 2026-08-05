@@ -1,6 +1,6 @@
 #include "MB_User_Config.h"
 #include "Protocol_Config.h"
-
+#include "sccp2.h"
 
 eMBErrorCode Modbus_Status;
 uint8_t Protocol;

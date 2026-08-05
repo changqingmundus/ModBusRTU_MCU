@@ -91,6 +91,8 @@ void            vMBPortTimersDisable( void );
 
 void            vMBPortTimersDelay( USHORT usTimeOutMS );
 
+void            SCCP2_Timer_Restart(void);    //user add
+
 /* ----------------------- Callback for the protocol stack ------------------*/
 
 /*!

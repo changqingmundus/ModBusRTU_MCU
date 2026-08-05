@@ -14,8 +14,6 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
 
   if (eMode == MB_REG_READ)
   {
-    Encoder_Read_Data();
-
     LED1_SetLow(); // LED1指示EncoderReadData
 
     uint32_t Encoder_Value;

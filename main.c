@@ -48,7 +48,6 @@ int main(void)
     {
       if (Modbus_Status == MB_ENOERR)
       {
-        //Encoder_Read_Data();
         eMBPoll();
         LED1_SetHigh();
         ModBusRTU_Update();
