@@ -86,13 +86,10 @@ void MB_User_Config_Init(void)
     break;
   }
 
-  BaudRate = BaudRate_Get_Value(BaudRate_Index);
-  UART1_BaudRateSet(BaudRate);
-
   UART1_Parity_Set(Parity);
 }
 
-void MB_Timer_Update(uint32_t baud)
+void MB_Timer_Update(uint32_t baud)  //T35 Timing Update
 {
   uint32_t usTimer50us;
   uint32_t count;
@@ -141,7 +138,7 @@ void UART1_Parity_Set(uint8_t parity)
   U1MODEbits.UARTEN = 1;
 }
 
-void ModBusRTU_Update(void)
+void ModBusRTU_Update(void)   //Flag Update
 {
   Encoder_Read_Data();  //refresh core data
 

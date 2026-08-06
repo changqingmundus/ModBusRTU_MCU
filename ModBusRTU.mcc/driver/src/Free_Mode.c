@@ -79,10 +79,8 @@ void FreeMode_Send(void)
 {
   for (uint8_t i = 0; i < tx_len; i++)
   {
-    while (U1STAHbits.UTXBF)
-      ;
+    while (U1STAHbits.UTXBF);
     U1TXREG = tx[i];
   }
-  while (!U1STAbits.TRMT)
-    ;
+  while (!U1STAbits.TRMT);
 }

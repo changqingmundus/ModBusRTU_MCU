@@ -170,10 +170,7 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
         if (value >= 0x01 && value <= 0x08)
         {
           BaudRate_Index = value;
-          // UART1_Write(BaudRate_Index);
-
           DEE_Write(DEE_BAUDRATE_INDEX, BaudRate_Index);
-
           BaudRate = BaudRate_Get_Value(BaudRate_Index);
           // 通知主程序立即修改UART
           BaudRate_Update_Flag = 1;

@@ -32,53 +32,51 @@
 
 #include <xc.h>
 #include "uart1.h"
+#include "MB_User_Config.h"
 
-//#define UART_UCSRB  UCSR0B
+// #define UART_UCSRB  UCSR0B
 volatile uint8_t debug_flag = 0;
 volatile uint8_t debug_data = 0;
 
-void
-vMBPortSerialEnable( BOOL xRxEnable, BOOL xTxEnable )
+void vMBPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
 {
-    if( xRxEnable )
+    if (xRxEnable)
     {
-        IEC0bits.U1RXIE = 1;  //開啟RX中斷
+        IEC0bits.U1RXIE = 1; // 開啟RX中斷
     }
     else
     {
-        IEC0bits.U1RXIE = 0;  //關閉RX中斷
+        IEC0bits.U1RXIE = 0; // 關閉RX中斷
     }
 
-    if( xTxEnable )
+    if (xTxEnable)
     {
-        IEC0bits.U1TXIE = 1;  //開啟TX中斷
+        IEC0bits.U1TXIE = 1; // 開啟TX中斷
     }
     else
     {
-        IEC0bits.U1TXIE = 0;  //關閉TX中斷
+        IEC0bits.U1TXIE = 0; // 關閉TX中斷
     }
 }
 
-BOOL
-xMBPortSerialInit( UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity eParity )
+BOOL xMBPortSerialInit(UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBParity eParity)
 {
     IEC0bits.U1TXIE = 0;
     IEC0bits.U1RXIE = 0;
-
+    BaudRate = BaudRate_Get_Value(BaudRate_Index);
+    UART1_BaudRateSet(BaudRate);
     return TRUE;
 }
 
-BOOL
-xMBPortSerialPutByte( CHAR ucByte )
+BOOL xMBPortSerialPutByte(CHAR ucByte)
 {
     debug_flag = 1;
     debug_data = ucByte;
-    //UART1_Write(ucByte);
+    // UART1_Write(ucByte);
     return TRUE;
 }
 
-BOOL
-xMBPortSerialGetByte( CHAR * pucByte )
+BOOL xMBPortSerialGetByte(CHAR *pucByte)
 {
     *pucByte = UART1_Read();
     return TRUE;
@@ -86,10 +84,49 @@ xMBPortSerialGetByte( CHAR * pucByte )
 
 void UART1_TxCompleteCallback(void)
 {
-    pxMBFrameCBTransmitterEmpty(  );
+    pxMBFrameCBTransmitterEmpty();
 }
 
 void UART1_RxCompleteCallback(void)
 {
-    pxMBFrameCBByteReceived(  );
+    pxMBFrameCBByteReceived();
+}
+
+/*UART1 Error Handling*/
+void UART1_OverrunErrorCallback(void)
+{
+    volatile uint8_t dummy;
+
+    U1MODEbits.UARTEN = 0;      //Close Uart1
+    while (!U1STAHbits.URXBE)
+    {
+        dummy = U1RXREG;
+        (void)dummy;
+    }
+    U1STAbits.OERR = 0;
+    U1MODEbits.UARTEN = 1;     //Open Uart1
+}
+
+void UART1_FramingErrorCallback(void)
+{
+    volatile uint8_t dummy;
+
+    while (!U1STAHbits.URXBE)
+    {
+        dummy = U1RXREG;
+        (void)dummy;
+    }
+    U1STAbits.FERR = 0;
+}
+
+void UART1_ParityErrorCallback(void)
+{
+    volatile uint8_t dummy;
+
+    while (!U1STAHbits.URXBE)
+    {
+        dummy = U1RXREG;
+        (void)dummy;
+    }
+    U1STAbits.PERR = 0;
 }
