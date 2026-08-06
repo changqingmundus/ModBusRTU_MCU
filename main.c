@@ -24,7 +24,6 @@
 #include "mb.h"
 #include "sccp1.h"
 #include "system.h"
-#include "uart1.h"
 
 /*
     Main application
