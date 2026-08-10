@@ -14,6 +14,8 @@ uint16_t MultiTurn_Origin_Mode = 1;
 
 uint32_t Encoder_RPM = 0;
 uint8_t Encoder_Direction = 0;
+static uint32_t rpm_buf[3];
+static uint8_t rpm_index = 0;
 
 volatile uint16_t Speed_Timer_Count = 0;
 volatile uint16_t Speed_Update_Period = 1;
@@ -66,6 +68,26 @@ uint32_t Encoder_Get_Total_Position(void)
               Encoder_Config.SingleTurn_Data;
 
    return position;
+}
+
+uint32_t Median3(uint32_t a, uint32_t b, uint32_t c)
+{
+   uint32_t max;
+   uint32_t min;
+
+   max = a;
+   if (b > max)
+      max = b;
+   if (c > max)
+      max = c;
+
+   min = a;
+   if (b < min)
+      min = b;
+   if (c < min)
+      min = c;
+
+   return a + b + c - max - min;
 }
 
 void Delay_us(uint16_t us)
@@ -124,7 +146,7 @@ void Encoder_Init(void)
 
 void Encoder_Load_Position_Offset(void)
 {
-   uint16_t lowposition  = 0;
+   uint16_t lowposition = 0;
    uint16_t highposition = 0;
 
    DEE_Read(DEE_POSITION_OFFSET_L, &lowposition);
@@ -184,6 +206,7 @@ void Encoder_Update_Speed(void)
    int64_t diff;
    uint64_t max_position;
    uint32_t single_resolution;
+   uint32_t rpm_raw;
 
    current_position = Encoder_Get_Total_Position();
 
@@ -202,7 +225,7 @@ void Encoder_Update_Speed(void)
    diff = (int64_t)current_position -
           (int64_t)Last_Position;
 
-   // 总位置范围
+   // 總位置範圍
    max_position =
        ((uint64_t)1 << (Encoder_Config.SingleTurn_Bit +
                         Encoder_Config.MultiTurn_Bit));
@@ -219,11 +242,12 @@ void Encoder_Update_Speed(void)
       diff += max_position;
    }
 
-   if (diff > 0)
+   // 旋轉方向
+   if (diff > POSITION_DEAD_BAND)
    {
       Encoder_Direction = 1;
    }
-   else if (diff < 0)
+   else if (diff < -POSITION_DEAD_BAND)
    {
       Encoder_Direction = 2;
    }
@@ -235,10 +259,24 @@ void Encoder_Update_Speed(void)
    single_resolution =
        (1UL << Encoder_Config.SingleTurn_Bit);
 
-   Encoder_RPM =
+   // 原始RPM計算
+   rpm_raw =
        ((uint64_t)llabs(diff) * 60000UL /
         (Speed_Update_Period * 10UL)) /
        single_resolution;
+
+   // 3點中值濾波
+   rpm_buf[rpm_index++] = rpm_raw;
+
+   if (rpm_index >= 3)
+   {
+      rpm_index = 0;
+   }
+
+   Encoder_RPM = Median3(
+       rpm_buf[0],
+       rpm_buf[1],
+       rpm_buf[2]);
 
    Last_Position = current_position;
 }
@@ -252,7 +290,7 @@ void Encoder_Set_Value(uint32_t set_value)
    Position_Offset = (int32_t)((int64_t)set_value - current);
    Encoder_Save_to_DEE(DEE_POSITION_OFFSET_L,
                        DEE_POSITION_OFFSET_H,
-                      (uint32_t)Position_Offset);
+                       (uint32_t)Position_Offset);
 }
 
 void Encoder_Clear_Data(void)

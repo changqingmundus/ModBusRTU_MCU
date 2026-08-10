@@ -22,12 +22,13 @@
 #define DEE_MultiTurn_Origin_Mode 8       //DEE存放編碼器多圈原點數據
 
 
-#define MA_Clear() SCLK_MA_SetLow()     //設置SLO腳為低電平
-#define MA_Set() SCLK_MA_SetHigh()      //設置SLO腳為高電平
+#define MA_Clear() SCLK_MA_SetLow()       //設置SLO腳為低電平
+#define MA_Set() SCLK_MA_SetHigh()        //設置SLO腳為高電平
 #define SLO_Get_Value() MISO_SLO_GetValue()  //讀取MISO腳的電平值
 
-#define FACTORY_MAGIC_KEY 0x500A        //編碼器出廠特徵碼
+#define FACTORY_MAGIC_KEY 0x500A          //編碼器出廠特徵碼
 
+#define POSITION_DEAD_BAND 3              //旋转方向滤波
 #define SPEED_SAMPLE_TIME_MS   10
 #define SPEED_SAMPLE_FACTOR (60000 / SPEED_SAMPLE_TIME_MS)
 
