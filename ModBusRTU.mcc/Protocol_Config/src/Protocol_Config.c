@@ -43,6 +43,8 @@ void ModBusRTU_Init(void)
 
 void FreeMode_Init(void)
 {
+    BaudRate_Get_Value(BaudRate_Index);
+    UART1_BaudRateSet(BaudRate);
     if(Update_Time < 1 || Update_Time > 3000)
     {
         Update_Time = 10;
