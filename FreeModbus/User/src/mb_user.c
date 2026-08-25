@@ -4,8 +4,10 @@
 #include "mb.h"
 
 volatile uint8_t BaudRate_Update_Flag = 0;
-volatile uint32_t New_BaudRate = 38400;
+volatile uint8_t Slave_ID_Update_Flag = 0;
 volatile uint8_t Parity_Update_Flag = 0;
+volatile uint32_t New_Slave_ID;
+volatile uint32_t New_BaudRate;
 
 eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
                              USHORT usNRegs, eMBRegisterMode eMode)
@@ -154,8 +156,11 @@ eMBErrorCode eMBRegHoldingCB(UCHAR *pucRegBuffer, USHORT usAddress,
         if (value >= 1 && value <= 127)
         {
           Slave_ID = value;
-          ucMBAddress = Slave_ID;
+          
           DEE_Write(DEE_SLAVE_ID, Slave_ID);
+
+          Slave_ID_Update_Flag = 1; // 通知主程序立即修改从机号
+          New_Slave_ID = Slave_ID;
         }
         else
         {

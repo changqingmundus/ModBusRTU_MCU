@@ -154,6 +154,15 @@ void ModBusRTU_Update(void)   //Flag Update
     Encoder_Update_Speed();
   }
 
+  if(Slave_ID_Update_Flag)
+  {
+    if (UART1_IsTxDone())
+    {
+      Slave_ID_Update_Flag = 0;
+      ucMBAddress = New_Slave_ID;
+    }
+  }
+
   if (BaudRate_Update_Flag)
   {
     if (UART1_IsTxDone())
