@@ -40,7 +40,8 @@ int main(void)
   MB_User_Config_Init();
   Protocol_Init();
   Encoder_Init();
-
+  MB_Reg_Init();
+  
   if (Protocol == ModBusRTU)
   {
     while (1)

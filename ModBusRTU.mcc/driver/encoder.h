@@ -61,12 +61,14 @@ extern uint16_t MultiTurn_Origin_Mode;
 extern uint32_t Encoder_RPM;
 extern uint8_t Encoder_Direction;
 
-extern volatile uint16_t Speed_Timer_Count;
-extern volatile uint16_t Speed_Update_Period;
+extern uint16_t Speed_Timer_Count;
+extern uint16_t Speed_Update_Period;
 
-uint32_t Encoder_Get_Position(void);
-uint32_t Encoder_Get_Total_Position(void);
-uint32_t Encoder_Get_Max_Position(void);
+uint8_t Encoder_Update_Direction(int64_t diff);
+
+uint64_t Encoder_Get_Position(void);
+uint64_t Encoder_Get_Total_Position(void);
+uint64_t Encoder_Get_Max_Position(void);
 
 void Delay_us(uint16_t us);
 

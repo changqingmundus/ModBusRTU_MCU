@@ -24,3 +24,5 @@
 /*Protocol_Config.h*/
 #define DEE_Encoder_Protocol  13  //通信模式存儲地址
 #define DEE_Update_Time       14  //上傳時間存儲地址
+
+#define DEE_MB_Reg_Mode       15  //寄存器表选择保存地址

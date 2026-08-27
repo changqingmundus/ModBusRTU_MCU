@@ -1,8 +1,8 @@
 #include "cleardata.h"
 #include "MB_User_Config.h"
 
-volatile uint8_t high_time_sec = 0; // 記錄高電平持續的秒數
-volatile uint8_t is_counting = 0;   // 是否正在計時中
+uint8_t high_time_sec = 0; // 記錄高電平持續的秒數
+uint8_t is_counting = 0;   // 是否正在計時中
 
 /**
  * @brief RA4 引腳上升沿中斷回調函式

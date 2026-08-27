@@ -6,7 +6,7 @@ int32_t Position_Offset;
 
 uint16_t Encoder_Write_Low = 0;
 uint16_t Encoder_Write_High = 0;
-static uint32_t Last_Position = 0;
+volatile static uint64_t Last_Position = 0;
 static uint8_t Speed_Init_Flag = 0;
 
 uint16_t Direction_Config = 1;
@@ -14,60 +14,113 @@ uint16_t MultiTurn_Origin_Mode = 1;
 
 uint32_t Encoder_RPM = 0;
 uint8_t Encoder_Direction = 0;
+static uint8_t Dir_Last = 0;
+static uint8_t Dir_Count = 0;
 static uint32_t rpm_buf[3];
 static uint8_t rpm_index = 0;
 
-volatile uint16_t Speed_Timer_Count = 0;
-volatile uint16_t Speed_Update_Period = 1;
+uint16_t Speed_Timer_Count = 0;
+uint16_t Speed_Update_Period = 1;
 
 ENCODER_CONFIG Encoder_Config;
 
-uint32_t Encoder_Get_Max_Position(void)
+uint64_t Encoder_Get_Max_Position(void)
 {
-   return ((1UL << Encoder_Config.SingleTurn_Bit) *
-           (1UL << Encoder_Config.MultiTurn_Bit)) -
-          1;
+   uint64_t single_max;
+   uint64_t multi_max;
+
+   single_max = ((uint64_t)1 << Encoder_Config.SingleTurn_Bit);
+   multi_max = ((uint64_t)1 << Encoder_Config.MultiTurn_Bit);
+
+   return single_max * multi_max - 1;
 }
 
 /*處理位置數據*/
-uint32_t Encoder_Get_Position(void)
+uint64_t Encoder_Get_Position(void)
 {
    int64_t position;
-   uint32_t max_position;
+   uint64_t max_position;
 
    max_position = Encoder_Get_Max_Position();
 
-   position = (int64_t)Encoder_Get_Total_Position() + (int64_t)Position_Offset;
+   position = (int64_t)Encoder_Get_Total_Position() +
+              (int64_t)Position_Offset;
 
-   // 环绕处理
    while (position < 0)
    {
-      position += ((int64_t)max_position + 1);
+      position += max_position + 1;
    }
 
    while (position > max_position)
    {
-      position -= ((int64_t)max_position + 1);
+      position -= max_position + 1;
    }
 
-   // 逆向递增
    if (Direction_Config == 0x02)
    {
       position = max_position - position;
    }
 
-   return (uint32_t)position;
+   return (uint64_t)position;
 }
 
 /*原始位置數據*/
-uint32_t Encoder_Get_Total_Position(void)
+uint64_t Encoder_Get_Total_Position(void)
 {
-   uint32_t position;
+   uint32_t multi1;
+   uint32_t multi2;
+   uint32_t single;
 
-   position = ((uint32_t)Encoder_Config.MultiTurn_Data << Encoder_Config.SingleTurn_Bit) |
-              Encoder_Config.SingleTurn_Data;
+   do
+   {
+      multi1 = Encoder_Config.MultiTurn_Data;
 
-   return position;
+      single = Encoder_Config.SingleTurn_Data;
+
+      multi2 = Encoder_Config.MultiTurn_Data;
+
+   } while (multi1 != multi2);
+
+   return ((uint64_t)multi1 << Encoder_Config.SingleTurn_Bit) | single;
+}
+
+uint8_t Encoder_Update_Direction(int64_t diff)
+{
+   uint8_t dir;
+
+   if (diff > POSITION_DEAD_BAND)
+   {
+      dir = 1; // CW
+   }
+   else if (diff < -POSITION_DEAD_BAND)
+   {
+      dir = 2; // CCW
+   }
+   else
+   {
+      dir = 0; // STOP
+   }
+
+   if (dir == Dir_Last)
+   {
+      if (Dir_Count < 3)
+      {
+         Dir_Count++;
+      }
+   }
+   else
+   {
+      Dir_Count = 0;
+   }
+
+   if (Dir_Count >= 3)
+   {
+      Encoder_Direction = dir;
+   }
+
+   Dir_Last = dir;
+
+   return Encoder_Direction;
 }
 
 uint32_t Median3(uint32_t a, uint32_t b, uint32_t c)
@@ -202,14 +255,16 @@ void Encoder_SSI_Read(uint8_t bit_num, uint32_t *data)
 
 void Encoder_Update_Speed(void)
 {
-   uint32_t current_position;
+   uint64_t current_position;
    int64_t diff;
-   uint64_t max_position;
-   uint32_t single_resolution;
+   uint64_t delta;
    uint32_t rpm_raw;
+   uint64_t single_resolution;
 
+   // 一次读取位置
    current_position = Encoder_Get_Total_Position();
 
+   // 第一次初始化
    if (Speed_Init_Flag == 0)
    {
       Last_Position = current_position;
@@ -217,55 +272,55 @@ void Encoder_Update_Speed(void)
       Speed_Init_Flag = 1;
 
       Encoder_RPM = 0;
+
       Encoder_Direction = 0;
 
       return;
    }
 
-   diff = (int64_t)current_position -
-          (int64_t)Last_Position;
+   /*
+       计算位置差
+   */
+   diff = (int64_t)current_position - (int64_t)Last_Position;
 
-   // 總位置範圍
-   max_position =
-       ((uint64_t)1 << (Encoder_Config.SingleTurn_Bit +
-                        Encoder_Config.MultiTurn_Bit));
-
-   // 正方向跨零
-   if (diff > (int64_t)(max_position / 2))
+   /*
+       单圈编码器
+       需要处理跨零
+   */
+   if (Encoder_Config.MultiTurn_Bit == 0)
    {
-      diff -= max_position;
+      uint64_t range;
+      range = 1ULL << Encoder_Config.SingleTurn_Bit;
+
+      if (diff > (int64_t)(range / 2))
+      {
+         diff -= range;
+      }
+      else if (diff < -(int64_t)(range / 2))
+      {
+         diff += range;
+      }
    }
 
-   // 反方向跨零
-   else if (diff < -(int64_t)(max_position / 2))
-   {
-      diff += max_position;
-   }
+   /*
+       更新方向
+   */
+   Encoder_Update_Direction(diff);
 
-   // 旋轉方向
-   if (diff > POSITION_DEAD_BAND)
-   {
-      Encoder_Direction = 1;
-   }
-   else if (diff < -POSITION_DEAD_BAND)
-   {
-      Encoder_Direction = 2;
-   }
-   else
-   {
-      Encoder_Direction = 0;
-   }
+   /*
+       计算RPM
+   */
+   delta = (diff >= 0) ? diff : -diff;
 
-   single_resolution =
-       (1UL << Encoder_Config.SingleTurn_Bit);
+   single_resolution = 1ULL << Encoder_Config.SingleTurn_Bit;
 
-   // 原始RPM計算
-   rpm_raw =
-       ((uint64_t)llabs(diff) * 60000UL /
-        (Speed_Update_Period * 10UL)) /
-       single_resolution;
+   rpm_raw = (uint32_t)((delta * 60000ULL) /
+                        (Speed_Update_Period * 10ULL) /
+                        single_resolution);
 
-   // 3點中值濾波
+   /*
+       3点中值滤波
+   */
    rpm_buf[rpm_index++] = rpm_raw;
 
    if (rpm_index >= 3)
@@ -273,11 +328,13 @@ void Encoder_Update_Speed(void)
       rpm_index = 0;
    }
 
-   Encoder_RPM = Median3(
-       rpm_buf[0],
-       rpm_buf[1],
-       rpm_buf[2]);
+   Encoder_RPM = Median3(rpm_buf[0],
+                         rpm_buf[1],
+                         rpm_buf[2]);
 
+   /*
+       保存位置
+   */
    Last_Position = current_position;
 }
 
@@ -303,11 +360,11 @@ void Encoder_Clear_Data(void)
    if (MultiTurn_Origin_Mode == 1)
    {
       uint32_t multi_middle;
-      uint32_t single_middle;
+      uint32_t single_zero;
 
       multi_middle = ((uint32_t)1 << Encoder_Config.MultiTurn_Bit) / 2;
-      single_middle = ((uint32_t)1 << Encoder_Config.SingleTurn_Bit) / 2;
-      target = ((uint64_t)multi_middle << Encoder_Config.SingleTurn_Bit) + single_middle;
+      single_zero = 0;
+      target = ((uint64_t)multi_middle << Encoder_Config.SingleTurn_Bit) | single_zero;
    }
    else
    {

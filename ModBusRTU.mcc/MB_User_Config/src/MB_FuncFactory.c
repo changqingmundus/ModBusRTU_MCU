@@ -64,6 +64,19 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
             Factory_CRCBit = value;
             break;
 
+        case FACTORY_MB_REG_MODE:
+        {
+            if (value <= MB_REG_FORCE32)
+            {
+                MB_Reg_Mode = value;
+            }
+            else
+            {
+                return MB_EX_ILLEGAL_DATA_VALUE;
+            }
+            break;
+        }
+
         case FACTORY_SAVE:
 
             if (value == FACTORY_Save_KEY)
@@ -94,4 +107,6 @@ void Factory_Config_Save(void)
     DEE_Write(DEE_Encoder_SingleTurnBitSize, Factory_SingleTurnBit);
     DEE_Write(DEE_Encoder_CRCBitSize, Factory_CRCBit);
     DEE_Write(DEE_Encoder_MagicKey, FACTORY_MAGIC_KEY);
+
+    DEE_Write(DEE_MB_Reg_Mode, MB_Reg_Mode);
 }

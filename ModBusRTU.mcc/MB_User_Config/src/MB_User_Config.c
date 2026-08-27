@@ -44,7 +44,6 @@ uint32_t BaudRate_Get_Value(uint16_t index)
 
 void MB_User_Config_Init(void)
 {
-
   uint16_t MagicKey;
   DEE_Read(DEE_MODBUS_MagicKey, &MagicKey);
 
@@ -54,16 +53,22 @@ void MB_User_Config_Init(void)
     BaudRate_Index = 1;
     Parity = 1;
 
+    MB_Reg_Mode = MB_REG_AUTO;
+
     DEE_Write(DEE_MODBUS_MagicKey, MODBUS_MAGIC_KEY);
     DEE_Write(DEE_SLAVE_ID, Slave_ID);
     DEE_Write(DEE_BAUDRATE_INDEX, BaudRate_Index);
     DEE_Write(DEE_PARITY, Parity);
+
+    DEE_Write(DEE_MB_Reg_Mode, MB_Reg_Mode);
   }
   else
   {
     DEE_Read(DEE_SLAVE_ID, &Slave_ID);
     DEE_Read(DEE_BAUDRATE_INDEX, &BaudRate_Index);
     DEE_Read(DEE_PARITY, &Parity);
+
+    DEE_Read(DEE_MB_Reg_Mode, &MB_Reg_Mode);
   }
 
   switch (Parity)
@@ -89,7 +94,7 @@ void MB_User_Config_Init(void)
   UART1_Parity_Set(Parity);
 }
 
-void MB_Timer_Update(uint32_t baud)  //T35 Timing Update
+void MB_Timer_Update(uint32_t baud) // T35 Timing Update
 {
   uint32_t usTimer50us;
   uint32_t count;
@@ -138,9 +143,9 @@ void UART1_Parity_Set(uint8_t parity)
   U1MODEbits.UARTEN = 1;
 }
 
-void ModBusRTU_Update(void)   //Flag Update
+void ModBusRTU_Update(void) // Flag Update
 {
-  Encoder_Read_Data();  //refresh core data
+  Encoder_Read_Data(); // refresh core data
 
   if (debug_flag == 1)
   {
@@ -154,7 +159,7 @@ void ModBusRTU_Update(void)   //Flag Update
     Encoder_Update_Speed();
   }
 
-  if(Slave_ID_Update_Flag)
+  if (Slave_ID_Update_Flag)
   {
     if (UART1_IsTxDone())
     {
