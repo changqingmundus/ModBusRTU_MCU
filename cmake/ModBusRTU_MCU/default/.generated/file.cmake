@@ -41,7 +41,6 @@ set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src/Free_Mode.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src/cleardata.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src/encoder.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver/src/sensorconfig.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/dee/src/dee.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/flash/src/flash.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/system/src/clock.c"
@@ -57,6 +56,8 @@ set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/timer/src/sccp2.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/timer/src/sccp3.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/uart/src/uart1.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/MU_Series/src/mu_1sf_driver.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/PZ_Series/src/pz_1sf_driver.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../main.c")
 set_source_files_properties(${ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile} PROPERTIES LANGUAGE C)
 set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_link)

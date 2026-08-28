@@ -10,6 +10,10 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/MB_User_Config/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/Protocol_Config
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/Protocol_Config/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/MU_Series
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/MU_Series/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/PZ_Series
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/PZ_Series/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_core
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_port
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/User
