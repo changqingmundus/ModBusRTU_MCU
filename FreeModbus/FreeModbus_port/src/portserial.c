@@ -35,8 +35,6 @@
 #include "MB_User_Config.h"
 
 // #define UART_UCSRB  UCSR0B
-volatile uint8_t debug_flag = 0;
-volatile uint8_t debug_data = 0;
 
 void vMBPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
 {
@@ -51,11 +49,11 @@ void vMBPortSerialEnable(BOOL xRxEnable, BOOL xTxEnable)
 
     if (xTxEnable)
     {
-        IEC0bits.U1TXIE = 1; // 開啟TX中斷
+        UART1_TransmitInterruptEnable(); // 開啟TX中斷
     }
     else
     {
-        IEC0bits.U1TXIE = 0; // 關閉TX中斷
+        UART1_TransmitInterruptDisable(); // 關閉TX中斷
     }
 }
 
@@ -70,9 +68,7 @@ BOOL xMBPortSerialInit(UCHAR ucPORT, ULONG ulBaudRate, UCHAR ucDataBits, eMBPari
 
 BOOL xMBPortSerialPutByte(CHAR ucByte)
 {
-    debug_flag = 1;
-    debug_data = ucByte;
-    // UART1_Write(ucByte);
+    UART1_Write(ucByte);
     return TRUE;
 }
 

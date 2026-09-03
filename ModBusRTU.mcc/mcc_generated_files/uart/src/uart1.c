@@ -66,8 +66,8 @@ const struct UART_INTERFACE UART1_Drv = {
     .IsTxDone = &UART1_IsTxDone,
     .TransmitEnable = &UART1_TransmitEnable,
     .TransmitDisable = &UART1_TransmitDisable,
-    .TransmitInterruptEnable = NULL,
-    .TransmitInterruptDisable = NULL,
+    .TransmitInterruptEnable = &UART1_TransmitInterruptEnable,
+    .TransmitInterruptDisable = &UART1_TransmitInterruptDisable,
     .AutoBaudSet = &UART1_AutoBaudSet,
     .AutoBaudQuery = &UART1_AutoBaudQuery,
     .AutoBaudEventEnableGet = &UART1_AutoBaudEventEnableGet,
@@ -87,6 +87,7 @@ const struct UART_INTERFACE UART1_Drv = {
 // Section: Private Variable Definitions
 
 static volatile bool softwareBufferEmpty = true;
+static bool txInterruptUsed = true;
 static union
 {
     struct
@@ -102,39 +103,6 @@ static union
 } uartError;
 
 // Section: Data Type Definitions
-
-/**
- @ingroup  uartdriver
- @static   UART Driver Queue Status
- @brief    Defines the object required for the status of the queue
-*/
-static uint8_t * volatile rxTail;
-static uint8_t * volatile rxHead;
-static uint8_t * volatile txTail;
-static uint8_t * volatile txHead;
-static bool volatile rxOverflowed;
-
-/**
- @ingroup  uartdriver
- @brief    Defines the length of the Transmit and Receive Buffers
-*/
-
-/* We add one extra byte than requested so that we don't have to have a separate
- * bit to determine the difference between buffer full and buffer empty, but
- * still be able to hold the amount of data requested by the user.  Empty is
- * when head == tail.  So full will result in head/tail being off by one due to
- * the extra byte.
- */
-#define UART1_CONFIG_TX_BYTEQ_LENGTH (8+1)
-#define UART1_CONFIG_RX_BYTEQ_LENGTH (8+1)
-
-/**
- @ingroup  uartdriver
- @static   UART Driver Queue
- @brief    Defines the Transmit and Receive Buffers
-*/
-static uint8_t txQueue[UART1_CONFIG_TX_BYTEQ_LENGTH];
-static uint8_t rxQueue[UART1_CONFIG_RX_BYTEQ_LENGTH];
 
 static void (*UART1_RxCompleteHandler)(void);
 static void (*UART1_TxCompleteHandler)(void);
@@ -164,13 +132,6 @@ void UART1_Initialize(void)
     // BRG 0; 
     U1BRGH = 0x0U;
     
-    txHead = txQueue;
-    txTail = txQueue;
-    rxHead = rxQueue;
-    rxTail = rxQueue;
-   
-    rxOverflowed = false;
-    
     UART1_RxCompleteCallbackRegister(&UART1_RxCompleteCallback);
     UART1_TxCompleteCallbackRegister(&UART1_TxCompleteCallback);
     UART1_TxCollisionCallbackRegister(&UART1_TxCollisionCallback);
@@ -193,7 +154,7 @@ void UART1_Initialize(void)
     // UART Event interrupt
     IEC11bits.U1EVTIE = 1;
     // UART Error interrupt
-    IEC3bits.U1EIE    = 1;
+    IEC3bits.U1EIE = 1;
     
     //Make sure to set LAT bit corresponding to TxPin as high before UART initialization
     U1MODEbits.UARTEN = 1;   // enabling UART ON bit
@@ -230,71 +191,40 @@ void UART1_Deinitialize(void)
 uint8_t UART1_Read(void)
 {
     uint8_t data = 0;
-
-    if(rxHead != rxTail)
-	{
-		data = *rxHead;
-
-		rxHead++;
-
-		if (rxHead == &rxQueue[UART1_CONFIG_RX_BYTEQ_LENGTH])
-		{
-			rxHead = rxQueue;
-		}
-	}
+    data = U1RXREG;
+    if(!UART1_IsRxReady())
+    {
+        IFS0bits.U1RXIF = 0;
+    }
     return data;
 }
 
 void UART1_Write(uint8_t byte)
 {
-    while(UART1_IsTxReady() == 0)
-    {
+    while(UART1_IsTxReady() == 0){
+         // Nothing to Process
     }
-
-    *txTail = byte;
-
-    txTail++;
-    
-    if (txTail == &txQueue[UART1_CONFIG_TX_BYTEQ_LENGTH])
+    U1TXREG = byte;
+    if(txInterruptUsed)
     {
-        txTail = txQueue;
+        IEC0bits.U1TXIE = 1;
     }
-
-    IEC0bits.U1TXIE = 1;
-    softwareBufferEmpty = false;
 }
 
 bool UART1_IsRxReady(void)
 {    
-    return !(rxHead == rxTail);
+    return (bool)(!U1STAHbits.URXBE);
 }
 
 bool UART1_IsTxReady(void)
 {
-    uint16_t size;
-    uint8_t *snapshot_txHead = (uint8_t*)txHead;
-    
-    if (txTail < snapshot_txHead)
-    {
-        size = (snapshot_txHead - txTail - 1);
-    }
-    else
-    {
-        size = ( UART1_CONFIG_TX_BYTEQ_LENGTH - (txTail - snapshot_txHead) - (uint16_t)1 );
-    }
-    
-    return (size != (uint16_t)0);
+    return (bool)((!U1STAHbits.UTXBF) && U1MODEbits.UTXEN);
 }
 
 bool UART1_IsTxDone(void)
 {
     bool status = false;
-    
-    if(txTail == txHead)
-    {
-        status = (bool)(U1STAbits.TRMT && U1STAHbits.UTXBE);
-    }
-    
+    status = (bool)(U1STAbits.TRMT && U1STAHbits.UTXBE);
     return status;
 }
 
@@ -308,6 +238,20 @@ void UART1_TransmitDisable(void)
     U1MODEbits.UTXEN = 0;
 }
 
+void UART1_TransmitInterruptEnable(void)
+{
+    IEC0bits.U1TXIE = 1;
+    txInterruptUsed = true;
+}
+
+void UART1_TransmitInterruptDisable(void)
+{
+    while(!UART1_IsTxDone()){
+         // Nothing to Process
+    }
+    IEC0bits.U1TXIE = 0;
+    txInterruptUsed = false;
+}
 
 void UART1_AutoBaudSet(bool enable)
 {
@@ -497,36 +441,12 @@ void __attribute__ ((weak)) UART1_ParityErrorCallback(void)
         */
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _U1TXInterrupt(void)
 {
-
-    if(txHead == txTail)
-    {
-        if(NULL != UART1_TxCompleteHandler)
-            {
-                (*UART1_TxCompleteHandler)();
-            }
-        IEC0bits.U1TXIE = 0;
-        softwareBufferEmpty = true;
-    }
-    else
-    {
-
-        while(!(U1STAHbits.UTXBF == 1))
+    if(NULL != UART1_TxCompleteHandler)
         {
-            U1TXREG = *txHead;
-            txHead++;
-
-            if(txHead == &txQueue[UART1_CONFIG_TX_BYTEQ_LENGTH])
-            {
-                txHead = txQueue;
-            }
-
-            // Are we empty?
-            if(txHead == txTail)
-            {
-                break;
-            }
+            (*UART1_TxCompleteHandler)();
         }
-    }
+    //IEC0bits.U1TXIE = 0;
+    /*FreeModeBus Config*/  //!!!RED Important: This is to avoid the Tx interrupt from being disabled in FreeModeBus Config, as it will be used for ModbusRTU. 
 }
 
         /* cppcheck-suppress misra-c2012-8.4
@@ -539,36 +459,6 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _U1TXInterrupt(void)
         */
 void __attribute__ ( ( interrupt, no_auto_psv ) ) _U1RXInterrupt(void)
 {
-    size_t rxQueueSize ;
-    uint8_t *rxTailPtr = NULL;
-    
-    IFS0bits.U1RXIF = 0;
-    
-    while(!(U1STAHbits.URXBE == 1))
-    {
-        *rxTail = U1RXREG;
-
-        rxQueueSize = UART1_CONFIG_RX_BYTEQ_LENGTH - 1;
-        rxTailPtr = rxTail;
-        rxTailPtr++;
-        // Will the increment not result in a wrap and not result in a pure collision?
-        // This is most often condition so check first
-        if ((rxTail != &rxQueue[rxQueueSize]) && (rxTailPtr != rxHead))
-        {
-            rxTail++;
-        } 
-        else if ( (rxTail == &rxQueue[rxQueueSize]) &&
-                  (rxHead !=  rxQueue) )
-        {
-            // Pure wrap no collision
-            rxTail = rxQueue;
-        } 
-        else // must be collision
-        {
-            rxOverflowed = true;
-        }
-    }
-	
     if(NULL != UART1_RxCompleteHandler)
     {
         (*UART1_RxCompleteHandler)();
@@ -624,7 +514,7 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _U1EInterrupt(void)
     
     if (U1STAbits.FERR == 1)
     {
-        uartError.status = (uint16_t)(uartError.status | (uint16_t)UART_ERROR_FRAMING_MASK);
+         uartError.status = (uint16_t)(uartError.status | (uint16_t)UART_ERROR_FRAMING_MASK);
         if(NULL != UART1_FramingErrorHandler)
         {
             (*UART1_FramingErrorHandler)();

@@ -147,12 +147,6 @@ void ModBusRTU_Update(void) // Flag Update
 {
   Encoder_Read_Data(); // refresh core data
 
-  if (debug_flag == 1)
-  {
-    debug_flag = 0;
-    UART1_Write(debug_data);
-  }
-
   if (Speed_Timer_Count >= Speed_Update_Period * 10)
   {
     Speed_Timer_Count = 0;

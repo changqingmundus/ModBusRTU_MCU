@@ -45,7 +45,7 @@ Address     Description          Range
 
 0x000C      Speed                  RPM         (FunctionCode:03H)
 
-0x0023      Zero Position          1~2         (FunctionCode:03H,06H,10H)
+0x0023      Zero Position Reference  1~2       (FunctionCode:03H,06H,10H)
             /*after setzero*/
             0x01:Middle Position Reference 
             0x02:zero   Position Reference 
@@ -117,12 +117,12 @@ Address       Description              Range
 
 0x0010        Speed                       RPM                  (FunctionCode:03H)
 
-0x0024        Zero Position Reference  0x01 ~ 0x02             (FunctionCode:03H,06H,10H)
+0x0023        Zero Position Reference  0x01 ~ 0x02             (FunctionCode:03H,06H,10H)
              0x01: Middle Position Reference
              0x02: Zero Position Reference
 
 
-0x0025        Speed Update Period      1 ~ 200 (x10ms)         (FunctionCode:03H,06H,10H)
+0x0024        Speed Update Period      1 ~ 200 (x10ms)         (FunctionCode:03H,06H,10H)
 
 0x0032        Write Position Byte[0~1]    16-bit               (FunctionCode:10H)
 0x0033        Write Position Byte[2~3]    16-bit               (FunctionCode:10H)

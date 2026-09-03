@@ -62,6 +62,7 @@ set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile
 set_source_files_properties(${ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile} PROPERTIES LANGUAGE C)
 set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_link)
 set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_bin2hex)
+set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_objcopy_lss)
 set(ModBusRTU_MCU_default_image_name "default.elf")
 set(ModBusRTU_MCU_default_image_base_name "default")
 

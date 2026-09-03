@@ -115,6 +115,18 @@ extern const struct UART_INTERFACE UART1_Drv;
 
 /**
  * @ingroup  uartdriver
+ * @brief    This macro defines the Custom Name for \ref UART1_TransmitInterruptEnable API
+ */
+#define UART1_Drv_TransmitInterruptEnable UART1_TransmitInterruptEnable
+
+/**
+ * @ingroup  uartdriver
+ * @brief    This macro defines the Custom Name for \ref UART1_TransmitInterruptDisable API
+ */
+#define UART1_Drv_TransmitInterruptDisable UART1_TransmitInterruptDisable
+
+/**
+ * @ingroup  uartdriver
  * @brief    This macro defines the Custom Name for \ref UART1_AutoBaudSet API
  */
 #define UART1_Drv_AutoBaudSet UART1_AutoBaudSet
@@ -160,6 +172,7 @@ extern const struct UART_INTERFACE UART1_Drv;
  * @brief    This macro defines the Custom Name for \ref UART1_BaudRateGet API
  */
 #define UART1_Drv_BaudRateGet UART1_BaudRateGet
+
 
 /**
  * @ingroup  uartdriver
@@ -287,6 +300,23 @@ void UART1_TransmitEnable(void);
  */
 void UART1_TransmitDisable(void);
 
+/**
+ * @ingroup  uartdriver
+ * @brief    Enables UART1 transmit interrupt 
+ * @param    none
+ * @return   none
+ */
+void UART1_TransmitInterruptEnable(void);
+
+/**
+ * @ingroup  uartdriver
+ * @brief    Disables UART1 transmit interrupt
+ * @note     Do not disable the interrupt when transmission in progress
+ * @note     Software bufferes are not used when transmit interrupt is disabled
+ * @param    none
+ * @return   none
+ */
+void UART1_TransmitInterruptDisable(void);
 
 /**
  * @ingroup  uartdriver

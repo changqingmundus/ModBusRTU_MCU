@@ -30,9 +30,6 @@ extern volatile uint8_t Slave_ID_Update_Flag;
 extern volatile uint32_t New_Slave_ID;
 extern volatile uint32_t New_BaudRate;
 
-extern volatile uint8_t debug_flag;
-extern volatile uint8_t debug_data;
-
 uint32_t BaudRate_Get_Value(uint16_t index);
 void MB_User_Config_Init(void);
 

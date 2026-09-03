@@ -238,12 +238,13 @@ void Encoder_Read_Data(void)
 void Encoder_SSI_Read(uint8_t bit_num, uint32_t *data)
 {
    uint32_t Data_Temp = 0;
+   uint8_t bit;
    for (int i = 0; i < bit_num; i++)
    {
       MA_Set();
       Delay_us(1);
-      SLO_Get_Value();
-      Data_Temp = (Data_Temp <<= 1) | SLO_Get_Value();
+      bit = SLO_Get_Value();
+      Data_Temp = (Data_Temp <<= 1) | bit;
       MA_Clear();
       Delay_us(1);
    }
@@ -260,9 +261,13 @@ void Encoder_Update_Speed(void)
    uint64_t delta;
    uint32_t rpm_raw;
    uint64_t single_resolution;
+   uint64_t range;
+
+   uint16_t Speed_Sample_Period_ms =
+       (uint32_t)Speed_Update_Period * 10U;
 
    // 一次读取位置
-   current_position = Encoder_Get_Total_Position();
+   current_position = Encoder_Config.SingleTurn_Data;
 
    // 第一次初始化
    if (Speed_Init_Flag == 0)
@@ -287,19 +292,16 @@ void Encoder_Update_Speed(void)
        单圈编码器
        需要处理跨零
    */
-   if (Encoder_Config.MultiTurn_Bit == 0)
-   {
-      uint64_t range;
-      range = 1ULL << Encoder_Config.SingleTurn_Bit;
 
-      if (diff > (int64_t)(range / 2))
-      {
-         diff -= range;
-      }
-      else if (diff < -(int64_t)(range / 2))
-      {
-         diff += range;
-      }
+   range = 1ULL << Encoder_Config.SingleTurn_Bit;
+
+   if (diff > (int64_t)(range / 2))
+   {
+      diff -= range;
+   }
+   else if (diff < -(int64_t)(range / 2))
+   {
+      diff += range;
    }
 
    /*
@@ -314,9 +316,8 @@ void Encoder_Update_Speed(void)
 
    single_resolution = 1ULL << Encoder_Config.SingleTurn_Bit;
 
-   rpm_raw = (uint32_t)((delta * 60000ULL) /
-                        (Speed_Update_Period * 10ULL) /
-                        single_resolution);
+   rpm_raw = (uint32_t)(((uint64_t)delta * 60000ULL) /
+                        ((uint64_t)Speed_Sample_Period_ms * single_resolution));
 
    /*
        3点中值滤波
