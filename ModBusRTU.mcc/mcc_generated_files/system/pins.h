@@ -198,6 +198,57 @@
 
 /**
  * @ingroup  pinsdriver
+ * @brief    Sets the RB10 GPIO Pin which has a custom name of NCS_NPRES to High
+ * @pre      The RB10 must be set as Output Pin             
+ * @param    none
+ * @return   none  
+ */
+#define NCS_NPRES_SetHigh()          (_LATB10 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Sets the RB10 GPIO Pin which has a custom name of NCS_NPRES to Low
+ * @pre      The RB10 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define NCS_NPRES_SetLow()           (_LATB10 = 0)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Toggles the RB10 GPIO Pin which has a custom name of NCS_NPRES
+ * @pre      The RB10 must be set as Output Pin
+ * @param    none
+ * @return   none  
+ */
+#define NCS_NPRES_Toggle()           (_LATB10 ^= 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Reads the value of the RB10 GPIO Pin which has a custom name of NCS_NPRES
+ * @param    none
+ * @return   none  
+ */
+#define NCS_NPRES_GetValue()         _RB10
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RB10 GPIO Pin which has a custom name of NCS_NPRES as Input
+ * @param    none
+ * @return   none  
+ */
+#define NCS_NPRES_SetDigitalInput()  (_TRISB10 = 1)
+
+/**
+ * @ingroup  pinsdriver
+ * @brief    Configures the RB10 GPIO Pin which has a custom name of NCS_NPRES as Output
+ * @param    none
+ * @return   none  
+ */
+#define NCS_NPRES_SetDigitalOutput() (_TRISB10 = 0)
+
+/**
+ * @ingroup  pinsdriver
  * @brief    Sets the RB11 GPIO Pin which has a custom name of SCLK_MA to High
  * @pre      The RB11 must be set as Output Pin             
  * @param    none

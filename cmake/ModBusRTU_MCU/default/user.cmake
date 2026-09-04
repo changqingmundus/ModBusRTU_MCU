@@ -2,6 +2,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/dee
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/uart
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/spi_host
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/system
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/timer
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/driver
