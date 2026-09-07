@@ -80,9 +80,9 @@ struct SPI1_HOST_CONFIG
 static const struct SPI1_HOST_CONFIG config[] = {  
                                         { 
                                             /*Configuration setting for HOST_CONFIG.
-                                            SPI Mode : Mode 1, Sampled at : Middle, Data Width : 8 bits, Clock Frequency : 1000 kHz*/
+                                            SPI Mode : Mode 2, Sampled at : Middle, Data Width : 8 bits, Clock Frequency : 1000 kHz*/
                                             0x13U,//SPI1BRGL
-                                            0x21U,//SPI1CON1L
+                                            0x161U,//SPI1CON1L
                                         },
                                     };
 
@@ -102,8 +102,8 @@ void SPI1_Initialize (void)
     SPI1URDTL = 0x0U;
     // SPIURDTH 0; 
     SPI1URDTH = 0x0U;
-    // SPIEN disabled; DISSDO disabled; MCLKEN FOSC/2; CKP Idle:Low, Active:High; SSEN disabled; MSTEN Host; MODE16 disabled; SMP Middle; DISSCK disabled; SPIFE Frame Sync pulse precedes; CKE Idle to Active; MODE32 disabled; SPISIDL disabled; ENHBUF enabled; DISSDI disabled; 
-    SPI1CON1L = 0xA1U;
+    // SPIEN disabled; DISSDO disabled; MCLKEN FOSC/2; CKP Idle:High, Active:Low; SSEN disabled; MSTEN Host; MODE16 disabled; SMP Middle; DISSCK disabled; SPIFE Frame Sync pulse precedes; CKE Active to Idle; MODE32 disabled; SPISIDL disabled; ENHBUF enabled; DISSDI disabled; 
+    SPI1CON1L = 0x161U;
 }
 
 void SPI1_Deinitialize (void)

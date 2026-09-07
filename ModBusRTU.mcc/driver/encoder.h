@@ -70,10 +70,11 @@ uint64_t Encoder_Get_Position(void);
 uint64_t Encoder_Get_Total_Position(void);
 uint64_t Encoder_Get_Max_Position(void);
 
+bool Encoder_SSI_Read(uint8_t bit_num, uint8_t *rx_data);
+
 void Delay_us(uint16_t us);
 
 void Encoder_Init(void);
-void Encoder_SSI_Read(uint8_t bit_num, uint32_t *data);
 void Encoder_Read_Data(void);
 void Encoder_Clear_Data(void);
 

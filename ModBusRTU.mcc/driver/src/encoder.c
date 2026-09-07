@@ -144,6 +144,23 @@ uint32_t Median3(uint32_t a, uint32_t b, uint32_t c)
    return a + b + c - max - min;
 }
 
+bool Encoder_SSI_Read(uint8_t bit_num, uint8_t *rx_data)
+{
+   if (rx_data == NULL)
+   {
+      return false;
+   }
+
+   uint16_t total_bits = bit_num + 1U;
+
+   // SPI按8 bit传输，向上取整
+   uint16_t byte_num = (total_bits + 7U) / 8U;
+
+   SPI1_BufferRead(rx_data, byte_num);
+
+   return true;
+}
+
 void Delay_us(uint16_t us)
 {
    DELAY_microseconds(us);
@@ -197,7 +214,7 @@ void Encoder_Init(void)
       DEE_Write(DEE_Speed_Update_Period, Speed_Update_Period);
    }
 
-   SPI1_Open(0);   //open ssi port
+   SPI1_Open(0); // open ssi port
 }
 
 void Encoder_Load_Position_Offset(void)
@@ -214,8 +231,6 @@ void Encoder_Load_Position_Offset(void)
 void Encoder_Read_Data(void)
 {
    uint16_t data_bits;
-   uint16_t total_bits;
-   uint16_t byte_num;
 
    uint8_t rx_data[8] = {0};
    uint64_t spi_data = 0;
@@ -235,28 +250,24 @@ void Encoder_Read_Data(void)
        2U +
        Encoder_Config.CRC_Bit;
 
-   /*
-    * 第一个clock为启动/同步，
-    * 从第二个上升沿开始才是有效数据
-    */
-   total_bits = data_bits + 1U;
+   /* SSI前面的启动clock */
+   uint16_t total_bits = data_bits + 1U;
 
-   // SPI按8 bit传输，向上取整
-   byte_num = (total_bits + 7U) / 8U;
-
-   // 一次性产生完整SSI时钟并读取数据
-   SPI1_BufferRead(rx_data, byte_num);
+   /* SPI按8bit传输 */
+   uint16_t byte_num = (total_bits + 7U) / 8U;
+    
+   Encoder_SSI_Read(data_bits, rx_data);
 
    // 把SPI收到的byte拼成一个64bit数据
-   for (uint16_t i = 0; i < byte_num; i++)
+   for (uint16_t i = 0; i < (data_bits + 1U + 7U) / 8U; i++)
    {
       spi_data = (spi_data << 8) | rx_data[i];
    }
 
    /*
-    * 丢掉第一个无效bit
+    * 丢掉无效bit
     */
-   spi_data >>= 1U;
+   spi_data >>= (byte_num * 8U - total_bits);
 
    /*
     * 保存完整SSI数据
@@ -287,10 +298,8 @@ void Encoder_Read_Data(void)
 
    // MultiTurn
    Encoder_Config.MultiTurn_Data =
-       spi_data >>
-       (Encoder_Config.CRC_Bit +
-        2U +
-        Encoder_Config.SingleTurn_Bit);
+       spi_data >> (Encoder_Config.CRC_Bit + 2U +
+                    Encoder_Config.SingleTurn_Bit);
 
    if (Encoder_Config.Warning_Data || Encoder_Config.Error_Data == 0)
    {
@@ -300,26 +309,6 @@ void Encoder_Read_Data(void)
    {
       LED0_SetHigh();
    }
-}
-
-void Encoder_SSI_Read(uint8_t bit_num, uint32_t *data)
-{
-   if (data == NULL)
-   {
-      return false;
-   }
-
-   // 需要的时钟数：
-   // 1 个额外的启动/同步 clock
-   // + bit_num 个有效数据 bit
-   uint16_t total_bits = bit_num + 1U;
-
-   // SPI 按 8 bit 读取，所以向上取整
-   uint16_t byte_num = (total_bits + 7U) / 8U;
-
-   SPI1_BufferRead(data, byte_num);
-
-   return true;
 }
 
 void Encoder_Update_Speed(void)
