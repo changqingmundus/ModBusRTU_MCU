@@ -78,6 +78,18 @@ void Encoder_Init(void);
 void Encoder_Read_Data(void);
 void Encoder_Clear_Data(void);
 
+void Biss_ID(uint8_t addr);
+void Biss_Address(uint8_t addr);
+void Biss_CRC_Update(uint8_t bit);
+void Biss_SendBit_WithCRC(uint8_t bit);
+void Biss_CRC(void);
+void Biss_CDM0(void);
+void Biss_CDM1(void);
+void Biss_Short_CDM0(void);
+void Biss_Short_CDM1(void);
+void Biss_Enable_Short_Frame(void);
+void Biss_SendFrame(uint8_t cts, uint8_t bissid, uint8_t bissaddr, uint8_t *receivedata);
+
 void Encoder_Update_Speed(void);
 void Encoder_Set_Value(uint32_t set_value);
 void Encoder_Load_Position_Offset(void);

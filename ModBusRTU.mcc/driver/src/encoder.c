@@ -1,7 +1,6 @@
 #include "encoder.h"
 #include "pins.h"
 #include "spi1.h"
-#include "cleardata.h"
 
 int32_t Position_Offset;
 
@@ -22,6 +21,8 @@ static uint8_t rpm_index = 0;
 
 uint16_t Speed_Timer_Count = 0;
 uint16_t Speed_Update_Period = 1;
+
+static uint8_t biss_crc_reg = 0; // 4 位 CRC 寄存器
 
 ENCODER_CONFIG Encoder_Config;
 
@@ -255,7 +256,7 @@ void Encoder_Read_Data(void)
 
    /* SPI按8bit传输 */
    uint16_t byte_num = (total_bits + 7U) / 8U;
-    
+
    Encoder_SSI_Read(data_bits, rx_data);
 
    // 把SPI收到的byte拼成一个64bit数据
@@ -445,4 +446,186 @@ void Encoder_Save_to_DEE(uint16_t Addr_L, uint16_t Addr_H, uint32_t Data)
 void SCCP3_TimeoutCallback(void)
 {
    Speed_Timer_Count++;
+}
+
+
+void Biss_ID(uint8_t addr)
+{
+   addr &= 0x07; // 只取低 3 位
+
+   for (int i = 2; i >= 0; i--)
+   {
+      uint8_t bit = (addr >> i) & 0x01;
+      if (bit)
+         Biss_Short_CDM1();
+      else
+         Biss_Short_CDM0();
+
+      Biss_CRC_Update(bit); // 更新 CRC
+   }
+}
+
+void Biss_Address(uint8_t addr)
+{
+   addr &= 0x7F; // 只取低 7 位
+
+   for (int i = 6; i >= 0; i--)
+   {
+      uint8_t bit = (addr >> i) & 0x01;
+      if (bit)
+         Biss_Short_CDM1();
+      else
+         Biss_Short_CDM0();
+
+      Biss_CRC_Update(bit); // 更新 CRC
+   }
+}
+
+void Biss_CRC_Update(uint8_t bit)
+{
+   uint8_t msb = (biss_crc_reg >> 3) & 0x01; // 当前 CRC 最高位
+   uint8_t feedback = bit ^ msb;             // 异或
+
+   biss_crc_reg = (biss_crc_reg << 1) & 0x0F; // 左移，保留 4 位
+   if (feedback)
+      biss_crc_reg ^= 0x03; // 多项式 0x13 去掉最高位后为 0x03
+}
+
+void Biss_SendBit_WithCRC(uint8_t bit)
+{
+   if (bit)
+      Biss_Short_CDM1();
+   else
+      Biss_Short_CDM0();
+
+   Biss_CRC_Update(bit);
+}
+
+void Biss_CRC(void)
+{
+   uint8_t crc = (~biss_crc_reg) & 0x0F; // 取反
+   for (int i = 3; i >= 0; i--)          // 先发高位
+   {
+      if (crc & (1 << i))
+         Biss_Short_CDM1();
+      else
+         Biss_Short_CDM0();
+   }
+}
+
+void Biss_CDM0(void)
+{
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(20);
+}
+
+void Biss_CDM1(void)
+{
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(20);
+   MA_Set();
+}
+
+void Biss_Short_CDM0(void)
+{
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(20);
+}
+
+void Biss_Short_CDM1(void)
+{
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(20);
+   MA_Set();
+}
+
+void Biss_Enable_Short_Frame(void)
+{
+   SPI1_Close();
+   Biss_CDM0();
+   Biss_CDM0();
+}
+
+void Biss_SendFrame(uint8_t cts, uint8_t bissid, uint8_t bissaddr, uint8_t *receivedata)
+{
+   uint8_t Data_Temp = 0;
+   uint8_t BissData;
+   // 1. 发送起始位
+   Biss_Short_CDM1(); // S
+
+   BissData = SLO_Get_Value(); // 获取 SLO 值
+   Data_Temp = (Data_Temp <<= 1) | BissData;
+
+   // 2. 发送 CTS 位并更新 CRC
+   if (cts & 0x01)
+      Biss_Short_CDM1();
+   else
+      Biss_Short_CDM0();
+   Biss_CRC_Update(cts & 0x01);
+
+   // 3. 发送 ID（内部会自动更新 CRC）
+   Biss_ID(bissid);
+
+   // 4. 发送地址（内部会自动更新 CRC）
+   Biss_Address(bissaddr);
+
+   // 5. 发送 CRC（自动取反）
+   Biss_CRC();
+
+   if (receivedata != 0)
+   {
+      *receivedata = Data_Temp;
+   }
 }

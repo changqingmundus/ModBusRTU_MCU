@@ -39,7 +39,7 @@ void FreeMode_Process(void)
   tx[index++] = 0xAB;
   tx[index++] = 0xCD;
 
-  uint8_t data_len = 0;
+  uint8_t data_len = 1;
   uint64_t position;
   position = Encoder_Get_Position();
 
