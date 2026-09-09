@@ -43,19 +43,29 @@ add_library(ModBusRTU_MCU_default_default_XC16_bin2hex OBJECT ${ModBusRTU_MCU_de
 
 endif()
 
+# Handle files with suffix elf, for group default-XC16
+if(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_objcopy_lss)
+add_library(ModBusRTU_MCU_default_default_XC16_objcopy_lss OBJECT ${ModBusRTU_MCU_default_default_XC16_FILE_TYPE_objcopy_lss})
+    ModBusRTU_MCU_default_default_XC16_objcopy_lss_rule(ModBusRTU_MCU_default_default_XC16_objcopy_lss)
+    list(APPEND ModBusRTU_MCU_default_library_list "$<TARGET_OBJECTS:ModBusRTU_MCU_default_default_XC16_objcopy_lss>")
+
+endif()
+
 
 # Main target for this project
-add_executable(ModBusRTU_MCU_default_image_7gsMsF5d ${ModBusRTU_MCU_default_library_list})
+add_executable(ModBusRTU_MCU_default_image_ic_cEg9l ${ModBusRTU_MCU_default_library_list})
 
-set_target_properties(ModBusRTU_MCU_default_image_7gsMsF5d PROPERTIES
+set_target_properties(ModBusRTU_MCU_default_image_ic_cEg9l PROPERTIES
     OUTPUT_NAME "default"
     SUFFIX ".elf"
     RUNTIME_OUTPUT_DIRECTORY "${ModBusRTU_MCU_default_output_dir}")
-target_link_libraries(ModBusRTU_MCU_default_image_7gsMsF5d PRIVATE ${ModBusRTU_MCU_default_default_XC16_FILE_TYPE_link})
-
+target_link_libraries(ModBusRTU_MCU_default_image_ic_cEg9l PRIVATE ${ModBusRTU_MCU_default_default_XC16_FILE_TYPE_link})
 # Add the link options from the rule file.
-ModBusRTU_MCU_default_link_rule( ModBusRTU_MCU_default_image_7gsMsF5d)
+ModBusRTU_MCU_default_link_rule( ModBusRTU_MCU_default_image_ic_cEg9l)
 
 # Call bin2hex function from the rule file
-ModBusRTU_MCU_default_bin2hex_rule(ModBusRTU_MCU_default_image_7gsMsF5d)
+ModBusRTU_MCU_default_bin2hex_rule(ModBusRTU_MCU_default_image_ic_cEg9l)
+
+#Add objcopy steps
+ModBusRTU_MCU_default_objcopy_lss_rule(ModBusRTU_MCU_default_image_ic_cEg9l)
 

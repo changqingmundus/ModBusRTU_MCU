@@ -419,72 +419,41 @@ static uint8_t get_start_bit_number(uint8_t bit_pos, uint8_t bit_len) {
 
 void mu_spi_transfer(uint8_t *data_tx, uint8_t *data_rx, uint16_t datasize)
 {
-    // ---- 从 data_tx 提取控制字段 ----
-    uint8_t cts, id, addr;
-    if (data_tx != NULL) {
-        // 假设 data_tx[0] 的 bit7 为 CTS，bit6~4 为 ID，bit3~0 为 ADDR 高 4 位
-        // data_tx[1] 的 bit2~0 为 ADDR 低 3 位（如果有）
-        cts = (data_tx[0] >> 7) & 0x01;
-        id  = (data_tx[0] >> 4) & 0x07;
-        uint8_t addr_high = data_tx[0] & 0x0F;
-        uint8_t addr_low  = 0;
-        if (data_tx[1] != NULL) {
-            addr_low = data_tx[1] & 0x07;
-        }
-        addr = (addr_high << 3) | addr_low;   // 7 位地址
-    } else {
-        // 默认值
-        cts = 0; id = 0; addr = 0;
-    }
+	if (data_tx == NULL || datasize == 0)
+		return;
 
-    // ---- 1. 发送起始位 ----
-    // 起始位通常是一个特殊的脉冲，这里用 CDM1 简化，实际需按协议实现
-    Biss_Short_CDM1();  // S
+	uint8_t opcode = data_tx[0];
+	uint8_t addr = (datasize > 1) ? (data_tx[1] & 0x7F) : 0;
 
-	//read bit from SlO
-	uint8_t bit = SLO_Get_Value();
-    // ---- 3. 发送 CTS ----
-    Biss_SendBit_WithCRC(cts);
+	// 读操作：凑齐 datasize 字节数据
+	if (opcode == MU_OPCODE_READ_REGISTER)
+	{
+		uint8_t cts = 1;
+		uint8_t id = 0;
 
-    // ---- 4. 发送 ID（3 位） ----
-    for (int i = 2; i >= 0; i--)
-        Biss_SendBit_WithCRC((id >> i) & 0x01);
+		if (data_rx == NULL)
+			return;
+			
+		Biss_ReadByte(cts, id, addr); // 开启第一帧CDM
+		Biss_ReadByte(cts, id, addr);
+		data_rx[0] = Data_Temp;
+	}
+	// 写操作：发送写头 + 数据帧，无接收
+	else if (opcode == MU_OPCODE_WRITE_REGISTER)
+	{
+		// 地址在 data_tx[1]，写入数据从 data_tx[2] 开始，长度 = datasize - 2
+		uint8_t cts = 0;
+		uint8_t id = 0;
 
-    // ---- 5. 发送 ADDR（7 位） ----
-    for (int i = 6; i >= 0; i--)
-        Biss_SendBit_WithCRC((addr >> i) & 0x01);
+		// 1. 发送写命令头
+		Biss_WriteByteHeader(cts, id, addr);
 
-    // ---- 6. 发送 CRC（4 位） ----
-    Biss_CRC();
-
-    // ---- 7. 接收数据（datasize 位） ----
-    uint8_t byte_buffer = 0;
-    uint8_t bit_count = 0;
-    uint16_t rx_index = 0;
-    uint16_t total_bits = datasize;   // datasize 表示位数
-
-    for (uint16_t i = 0; i < total_bits; i++) {
-        
-        byte_buffer = (byte_buffer << 1) | bit;
-        bit_count++;
-
-        if (bit_count == 8) {
-            if (data_rx != NULL && rx_index < (total_bits / 8 + 1))
-                data_rx[rx_index++] = byte_buffer;
-            byte_buffer = 0;
-            bit_count = 0;
-        }
-    }
-
-    // 处理不足 8 位的剩余位（左对齐）
-    if (bit_count > 0) {
-        byte_buffer <<= (8 - bit_count);
-        if (data_rx != NULL)
-            data_rx[rx_index] = byte_buffer;
-    }
+		// 2. 发送数据帧（datasize-2 个字节）
+		Biss_WriteByte(&data_tx[2], datasize - 2);
+	}
 }
 
 void mu_wait_us(uint16_t time_us)
 {
-
+	Delay_us(time_us); // 调用底层延时函数，单位为微秒
 }

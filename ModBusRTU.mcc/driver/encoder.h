@@ -64,6 +64,8 @@ extern uint8_t Encoder_Direction;
 extern uint16_t Speed_Timer_Count;
 extern uint16_t Speed_Update_Period;
 
+extern uint16_t Data_Temp;
+
 uint8_t Encoder_Update_Direction(int64_t diff);
 
 uint64_t Encoder_Get_Position(void);
@@ -88,7 +90,9 @@ void Biss_CDM1(void);
 void Biss_Short_CDM0(void);
 void Biss_Short_CDM1(void);
 void Biss_Enable_Short_Frame(void);
-void Biss_SendFrame(uint8_t cts, uint8_t bissid, uint8_t bissaddr, uint8_t *receivedata);
+void Biss_ReadByte(uint8_t cts, uint8_t bissid, uint8_t bissaddr);
+void Biss_WriteByteHeader(uint8_t cts, uint8_t bissid, uint8_t bissaddr);
+void Biss_WriteByte(uint8_t *write_data, uint8_t data_len);
 
 void Encoder_Update_Speed(void);
 void Encoder_Set_Value(uint32_t set_value);

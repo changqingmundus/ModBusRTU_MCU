@@ -1,5 +1,7 @@
 #include "MB_FunFactory.h"
 #include "encoder.h"
+#include "mu_1sf_driver.h"
+#include "pz_1sf_driver.h"
 
 uint8_t Factory_SingleTurnBit = 0;
 uint8_t Factory_MultiTurnBit = 0;
@@ -103,6 +105,8 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
 }
 void Factory_Config_Save(void)
 {
+    mu_write_param(&MU_GF_M, Factory_MultiTurnBit);
+
     DEE_Write(DEE_Encoder_MultiTurnBitSize, Factory_MultiTurnBit);
     DEE_Write(DEE_Encoder_SingleTurnBitSize, Factory_SingleTurnBit);
     DEE_Write(DEE_Encoder_CRCBitSize, Factory_CRCBit);

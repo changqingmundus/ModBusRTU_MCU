@@ -1,7 +1,7 @@
 {
     "hashFileVersion": "1.1.0",
-    "projectFileHash": "d32664dc22418aa7d9c953312b27c128c4159b66d6a8615134e3827dbbd31fa9",
-    "cmakeFilesHash": "44371cf25e5aa579b563a436b0bc882f7cbba5042e489cd3a7e4fbf5d5207958",
-    "cmakerVersion": "4.3.0",
+    "projectFileHash": "912eb87ab6d98bec1893aaf142d563ba7aeaba5dffade3b47f6f852bb5c5a95e",
+    "cmakeFilesHash": "a3bfb48b0fd210d9049cfcdd46edd25842e8d37076ff46cd81fa31134007fcdd",
+    "cmakerVersion": "5.0.2",
     "workspacePath": "d:/project/modbusrtu_mcu"
 }
