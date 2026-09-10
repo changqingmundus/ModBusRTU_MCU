@@ -15,11 +15,13 @@
 
 #define DEE_Speed_Update_Period 4         //DEE存放編碼器速度采集周期
 
-#define DEE_POSITION_OFFSET_L   5         //DEE存放編碼器全部值低16位
-#define DEE_POSITION_OFFSET_H   6         //DEE存放編碼器全部值高16位
-#define DEE_Direction 7                   //DEE存放編碼器旋轉方向
+#define DEE_POSITION_OFFSET_L   5         //DEE存放編碼器全部值16位
+#define DEE_POSITION_OFFSET_H   6         //DEE存放編碼器全部值32位
+#define DEE_POSITION_OFFSET_LL 7          //DEE存放編碼器全部值48位
+#define DEE_POSITION_OFFSET_HH 8         //DEE存放編碼器全部值64位
+#define DEE_Direction 9                   //DEE存放編碼器旋轉方向
 
-#define DEE_MultiTurn_Origin_Mode 8       //DEE存放編碼器多圈原點數據
+#define DEE_MultiTurn_Origin_Mode 10       //DEE存放編碼器多圈原點數據
 
 
 #define MA_Clear() SCLK_MA_SetLow()       //設置SLO腳為低電平

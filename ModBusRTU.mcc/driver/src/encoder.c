@@ -2,7 +2,7 @@
 #include "pins.h"
 #include "spi1.h"
 
-int32_t Position_Offset;
+int64_t Position_Offset;
 
 uint16_t Encoder_Write_Low = 0;
 uint16_t Encoder_Write_High = 0;
@@ -224,13 +224,16 @@ void Encoder_Load_Position_Offset(void)
 {
    uint16_t lowposition = 0;
    uint16_t highposition = 0;
+   uint16_t llowposition = 0;
+   uint16_t hhighposition = 0;
 
    DEE_Read(DEE_POSITION_OFFSET_L, &lowposition);
    DEE_Read(DEE_POSITION_OFFSET_H, &highposition);
+   DEE_Read(DEE_POSITION_OFFSET_LL, &llowposition);
+   DEE_Read(DEE_POSITION_OFFSET_HH, &hhighposition);
 
-   Position_Offset = (int32_t)(((uint32_t)highposition << 16) | lowposition);
+   Position_Offset = (int64_t)(((uint64_t)hhighposition << 48) | ((uint64_t)llowposition << 32) | ((uint64_t)highposition << 16) | lowposition);
 }
-
 void Encoder_Read_Data(void)
 {
    uint16_t data_bits;
@@ -434,9 +437,15 @@ void Encoder_Clear_Data(void)
 
    Position_Offset = target - current;
 
+   /* 保存低32位 */
    Encoder_Save_to_DEE(DEE_POSITION_OFFSET_L,
                        DEE_POSITION_OFFSET_H,
-                       (uint32_t)Position_Offset);
+                       (uint32_t)(Position_Offset & 0xFFFFFFFFULL));
+
+   /* 保存高32位 */
+   Encoder_Save_to_DEE(DEE_POSITION_OFFSET_LL,
+                       DEE_POSITION_OFFSET_HH,
+                       (uint32_t)(Position_Offset >> 32));
 }
 
 void Encoder_Save_to_DEE(uint16_t Addr_L, uint16_t Addr_H, uint32_t Data)
