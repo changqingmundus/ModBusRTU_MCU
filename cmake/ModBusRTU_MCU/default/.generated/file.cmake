@@ -58,6 +58,7 @@ set(ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/timer/src/sccp3.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/mcc_generated_files/uart/src/uart1.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/MU_Series/src/mu_1sf_driver.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/PVL_MT_Series/src/pvl.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/PZ_Series/src/pz_1sf_driver.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../../main.c")
 set_source_files_properties(${ModBusRTU_MCU_default_default_XC16_FILE_TYPE_compile} PROPERTIES LANGUAGE C)

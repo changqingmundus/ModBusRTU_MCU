@@ -15,6 +15,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/MU_Series/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/PZ_Series
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/PZ_Series/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/PVL_MT_Series
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../ModBusRTU.mcc/sensorconfig/PVL_MT_Series/src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_core
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/FreeModbus_port
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../FreeModbus/User

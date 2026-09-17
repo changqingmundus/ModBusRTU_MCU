@@ -2,6 +2,7 @@
 #include "pins.h"
 #include "spi1.h"
 #include "mu_1sf_driver.h"
+#include "pvl.h"
 
 int64_t Position_Offset;
 
@@ -838,18 +839,45 @@ void Enable_GPIO(void)
 
 void MU_OutputBit_Config(uint8_t single_turn_bits, uint8_t multi_turn_bits)
 {
-    uint8_t out_lsb;
-    uint8_t out_msb;
+   uint8_t out_lsb;
+   uint8_t out_msb;
 
-    // 单圈位数 → OUT_LSB
-    out_lsb = 19 - single_turn_bits;
+   // 单圈位数 → OUT_LSB
+   out_lsb = 19 - single_turn_bits;
 
-    // 多圈位数 → OUT_MSB
-    out_msb = multi_turn_bits + 5;
+   // 多圈位数 → OUT_MSB
+   out_msb = multi_turn_bits + 5;
 
-    mu_write_param(&MU_OUT_LSB, out_lsb);
-    Delay_us(40);
+   mu_write_param(&MU_OUT_LSB, out_lsb);
+   Delay_us(40);
 
-    mu_write_param(&MU_OUT_MSB, out_msb);
-    Delay_us(40);
+   mu_write_param(&MU_OUT_MSB, out_msb);
+   Delay_us(40);
+
+   // iC-PVL 多圈位数
+   IC_PVL_Config.MT_BW = multi_turn_bits - 9;
+}
+
+uint8_t MU_Config_I2C_RAM(void)
+{
+   uint8_t pvl_data[13];
+
+   /* 生成 PVL 配置数据 */
+   IC_PVL_ConfigToBytes(pvl_data);
+   /* 写入 iC-MU USER_EXCHANGE_REGISTERS 0x60~0x6C */
+   for (uint8_t i = 0; i < 13; i++)
+   {
+      mu_write_register(0x60 + i, pvl_data[i]);
+   }
+
+   /* I2C configuration */
+   mu_write_param(&MU_I2C_DEV_START, 0x40);
+   mu_write_param(&MU_I2C_RAM_START, 0x60);
+   mu_write_param(&MU_I2C_RAM_END, 0x6C);
+   mu_write_param(&MU_I2C_DEVID, 0xA0);
+
+   mu_read_param(&MU_STATUS1);
+   mu_write_command(CMD_MU_I2C_COM);
+
+   return 0;
 }

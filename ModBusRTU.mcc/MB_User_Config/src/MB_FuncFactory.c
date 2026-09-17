@@ -199,6 +199,19 @@ uint8_t Sensor_MU_Config(void)
         return 1;
     }
 
+    /*
+     * If multiturn is enabled, write PVL configuration
+     * to the external EEPROM through iC-MU I2C.
+     */
+    if (Factory_MultiTurnBit != 0)
+    {
+        if (MU_Config_I2C_RAM() != 0)
+        {
+            SPI1_Open(0);
+            return 1;
+        }
+    }
+
     mu_read_param(&MU_STATUS1);         // read status1 to update the output bit configuration
     mu_write_command(CMD_MU_WRITE_ALL); // write all parameters to EEPROM
     status1 = mu_read_param(&MU_STATUS1);

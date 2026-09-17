@@ -393,10 +393,14 @@
 
 #define IC_PVL_FIELD_GET(reg, mask, pos) (((reg) & (mask)) >> (pos))
 
-#define IC_PVL_FIELD_SET(reg, mask, pos, value)                                \
+#define IC_PVL_FIELD_SET(reg, mask, pos, value) \
   (((reg) & ~(mask)) | (((value) << (pos)) & (mask)))
 
-typedef struct {
+#define PVL_DEFAULT_MT_BITS 12
+#define PVL_DEFAULT_MT_BW (PVL_DEFAULT_MT_BITS - 9)
+
+typedef struct
+{
   uint8_t EN_PAR;
   uint8_t EN_ERR;
   uint8_t DIR;
