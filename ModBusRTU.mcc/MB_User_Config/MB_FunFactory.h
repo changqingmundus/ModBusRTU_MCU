@@ -17,13 +17,15 @@
 
 #define FACTORY_SAVE          0x0005
 
+#define MU_STATUS1_CRC_ERR    0x80
+
 extern uint8_t Factory_SingleTurnBit;
 extern uint8_t Factory_MultiTurnBit;
 extern uint8_t Factory_CRCBit;
 extern uint16_t Factory_MagicKey;
 
 eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen);
-void Factory_Config_Save(void);
-
+void Factory_Config_SaveDEE(void);
+uint8_t Sensor_MU_Config(void);
 
 #endif

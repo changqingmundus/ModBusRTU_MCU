@@ -1,6 +1,7 @@
 #include "encoder.h"
 #include "pins.h"
 #include "spi1.h"
+#include "mu_1sf_driver.h"
 
 int64_t Position_Offset;
 
@@ -27,6 +28,8 @@ uint8_t BissData;
 static uint8_t biss_crc_reg = 0; // 4 位 CRC 寄存器
 
 ENCODER_CONFIG Encoder_Config;
+
+static void Biss_SendCDM(uint8_t bit, BissFrameMode_t mode);
 
 uint64_t Encoder_Get_Max_Position(void)
 {
@@ -234,6 +237,7 @@ void Encoder_Load_Position_Offset(void)
 
    Position_Offset = (int64_t)(((uint64_t)hhighposition << 48) | ((uint64_t)llowposition << 32) | ((uint64_t)highposition << 16) | lowposition);
 }
+
 void Encoder_Read_Data(void)
 {
    uint16_t data_bits;
@@ -459,35 +463,79 @@ void SCCP3_TimeoutCallback(void)
    Speed_Timer_Count++;
 }
 
-void Biss_ID(uint8_t addr)
+/*Biss-C Communication*/
+static void Biss_ID(uint8_t addr, BissFrameMode_t mode)
 {
-   addr &= 0x07; // 只取低 3 位
+   addr &= 0x07;
 
    for (int i = 2; i >= 0; i--)
    {
       uint8_t bit = (addr >> i) & 0x01;
-      if (bit)
-         Biss_Short_CDM1();
-      else
-         Biss_Short_CDM0();
 
-      Biss_CRC_Update(bit); // 更新 CRC
+      Biss_SendCDM(bit, mode);
+      Biss_CRC_Update(bit);
    }
 }
 
-void Biss_Address(uint8_t addr)
+static void Biss_Address(uint8_t addr, BissFrameMode_t mode)
 {
-   addr &= 0x7F; // 只取低 7 位
+   addr &= 0x7F;
 
    for (int i = 6; i >= 0; i--)
    {
       uint8_t bit = (addr >> i) & 0x01;
+
+      Biss_SendCDM(bit, mode);
+      Biss_CRC_Update(bit);
+   }
+}
+
+static void Biss_SendCDM(uint8_t bit, BissFrameMode_t mode)
+{
+   if (mode == BISS_FRAME_MIN)
+   {
+      if (bit)
+         Biss_CDM1();
+      else
+         Biss_CDM0();
+   }
+   else if (mode == BISS_FRAME_SHORT)
+   {
       if (bit)
          Biss_Short_CDM1();
       else
          Biss_Short_CDM0();
+   }
+   else if (mode == BISS_FRAME_LONG)
+   {
+      if (bit)
+         Biss_Long_CDM1();
+      else
+         Biss_Long_CDM0();
+   }
+}
 
-      Biss_CRC_Update(bit); // 更新 CRC
+/*CRC Send*/
+void Biss_CRC(void) // For Simplified Frame
+{
+   uint8_t crc = (~biss_crc_reg) & 0x0F;
+
+   for (int i = 3; i >= 0; i--)
+   {
+      if (crc & (1 << i))
+         Biss_CDM1();
+      else
+         Biss_CDM0();
+   }
+}
+
+static void Biss_SendCRC(BissFrameMode_t mode)
+{
+   uint8_t crc = (~biss_crc_reg) & 0x0F;
+
+   for (int i = 3; i >= 0; i--)
+   {
+      Biss_SendCDM((crc >> i) & 0x01, mode);
    }
 }
 
@@ -501,37 +549,16 @@ void Biss_CRC_Update(uint8_t bit)
       biss_crc_reg ^= 0x03; // 多项式 0x13 去掉最高位后为 0x03
 }
 
-void Biss_SendBit_WithCRC(uint8_t bit)
-{
-   if (bit)
-      Biss_Short_CDM1();
-   else
-      Biss_Short_CDM0();
-
-   Biss_CRC_Update(bit);
-}
-
-void Biss_CRC(void)
-{
-   uint8_t crc = (~biss_crc_reg) & 0x0F; // 取反
-   for (int i = 3; i >= 0; i--)          // 先发高位
-   {
-      if (crc & (1 << i))
-         Biss_Short_CDM1();
-      else
-         Biss_Short_CDM0();
-   }
-}
-
+/*Biss-C SendCDM With ReceiveCDS */
 void Biss_CDM0(void)
 {
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // LAT
    Delay_us(1);
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // ACK
    Delay_us(20);
 }
 
@@ -539,11 +566,11 @@ void Biss_CDM1(void)
 {
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // LAT
    Delay_us(1);
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // ACK
    Delay_us(1);
    MA_Clear();
    Delay_us(20);
@@ -554,27 +581,27 @@ void Biss_Short_CDM0(void)
 {
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // LAT
    Delay_us(1);
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // ACK
    Delay_us(1);
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // STR
    Delay_us(1);
    MA_Clear();
    Delay_us(1);
-   MA_Set();
-   Delay_us(1);
+   MA_Set(); // CDS
 
+   Delay_us(1);
    BissData = SLO_Get_Value(); // 获取 SLO 值
    Data_Temp = (Data_Temp << 1) | BissData;
 
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // STP
    Delay_us(20);
 }
 
@@ -582,119 +609,247 @@ void Biss_Short_CDM1(void)
 {
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // LAT
    Delay_us(1);
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // ACK
    Delay_us(1);
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // STR
    Delay_us(1);
    MA_Clear();
    Delay_us(1);
-   MA_Set();
-   Delay_us(1);
+   MA_Set(); // CDS
 
+   Delay_us(1);
    BissData = SLO_Get_Value(); // 获取 SLO 值
    Data_Temp = (Data_Temp << 1) | BissData;
 
    MA_Clear();
    Delay_us(1);
-   MA_Set();
+   MA_Set(); // STP
    Delay_us(1);
    MA_Clear();
    Delay_us(20);
    MA_Set();
 }
 
+void Biss_Long_CDM0(void)
+{
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // LAT
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // ACK
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // STR
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // CDS
+
+   Delay_us(1);
+   BissData = SLO_Get_Value(); // 获取 SLO 值
+   Data_Temp = (Data_Temp << 1) | BissData;
+
+   for (int i = 0; i < 45; i++) // Process data
+   {
+      MA_Clear();
+      Delay_us(1);
+      MA_Set();
+      Delay_us(1);
+   }
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // STP
+   Delay_us(20);
+}
+
+void Biss_Long_CDM1(void)
+{
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // LAT
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // ACK
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // STR
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // CDS
+
+   Delay_us(1);
+   BissData = SLO_Get_Value(); // 获取 SLO 值
+   Data_Temp = (Data_Temp << 1) | BissData;
+
+   for (int i = 0; i < 45; i++) // Process data
+   {
+      MA_Clear();
+      Delay_us(1);
+      MA_Set();
+      Delay_us(1);
+   }
+   MA_Clear();
+   Delay_us(1);
+   MA_Set(); // STP
+   Delay_us(1);
+   MA_Clear();
+   Delay_us(20);
+   MA_Set();
+}
+
+/*Biss-C Simplify BiSS frame Communication*/
 void Biss_Enable_Short_Frame(void)
 {
-   SPI1_Close();
-   Biss_CDM0();
-   Biss_CDM0();
-}
-
-void Biss_ReadByte(uint8_t cts, uint8_t bissid, uint8_t bissaddr)
-{
    biss_crc_reg = 0;
 
-   // 1. 发送起始位
-   Biss_Short_CDM1(); // S
+   Biss_CDM1(); // S
+   Biss_CDM0(); // CTS
+   Biss_CRC_Update(0x00);
+   for (int i = 0; i < 8; i++) // 发送8位ID
+   {
+      Biss_CDM0();
+      Biss_CRC_Update(0x00);
+   }
 
-   // 2. 发送 CTS 位并更新 CRC
-   if (cts & 0x01)
-      Biss_Short_CDM1();
-   else
-      Biss_Short_CDM0();
+   Biss_CDM0(); // CMD = 00
+   Biss_CRC_Update(0x00);
+   Biss_CDM0();
+   Biss_CRC_Update(0x00);
+
+   Biss_CRC(); // 发送4位CRC
+}
+
+/*Biss-C ReadByte Without Process Data*/
+void Biss_ReadByte(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr, uint8_t *data)
+{
+   /* 14bit CDM = 0 */
+   for (int i = 0; i < 14; i++)
+   {
+      Biss_SendCDM(0, mode);
+   }
+
+   biss_crc_reg = 0;
+
+   Biss_SendCDM(1, mode); // S
+
+   Biss_SendCDM(cts & 0x01, mode); // CTS
    Biss_CRC_Update(cts & 0x01);
 
-   // 3. 发送 ID（内部会自动更新 CRC）
-   Biss_ID(bissid);
+   Biss_ID(bissid, mode);        // ID
+   Biss_Address(bissaddr, mode); // Address
+   Biss_SendCRC(mode);           // CRC
 
-   // 4. 发送地址（内部会自动更新 CRC）
-   Biss_Address(bissaddr);
+   Biss_SendCDM(1, mode); // R
+   Biss_SendCDM(0, mode); // W
 
-   // 5. 发送 CRC（自动取反）
-   Biss_CRC();
+   Biss_SendCDM(1, mode); // S
 
-   Biss_Short_CDM1(); // R
-   Biss_Short_CDM0(); // W
+   Data_Temp = 0;
+
+   for (int i = 0; i < 15; i++)
+   {
+      Biss_SendCDM(0, mode);
+   }
+
+   *data = (uint8_t)((Data_Temp >> 6) & 0xFF);
 }
 
-void Biss_WriteByteHeader(uint8_t cts, uint8_t bissid, uint8_t bissaddr)
+void Biss_WriteByteHeader(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr)
 {
    biss_crc_reg = 0;
 
    // 1. 发送起始位
-   Biss_Short_CDM1(); // S
+   Biss_SendCDM(1, mode); // S
 
    // 2. 发送 CTS 位并更新 CRC
-   if (cts & 0x01)
-      Biss_Short_CDM1();
-   else
-      Biss_Short_CDM0();
-   Biss_CRC_Update(cts & 0x01);
+   uint8_t bit = cts & 0x01;
+   Biss_SendCDM(bit, mode);
+   Biss_CRC_Update(bit);
 
-   // 3. 发送 ID（内部会自动更新 CRC）
-   Biss_ID(bissid);
+   // 3. 发送 ID（内部自动更新 CRC）
+   Biss_ID(bissid, mode);
 
-   // 4. 发送地址（内部会自动更新 CRC）
-   Biss_Address(bissaddr);
+   // 4. 发送地址（内部自动更新 CRC）
+   Biss_Address(bissaddr, mode);
 
-   // 5. 发送 CRC（自动取反）
-   Biss_CRC();
+   // 5. 发送 CRC
+   Biss_SendCRC(mode);
 
-   Biss_Short_CDM0(); // R
-   Biss_Short_CDM1(); // W
+   // 6. 发送 R/W
+   Biss_SendCDM(0, mode); // R
+   Biss_SendCDM(1, mode); // W
 }
 
-void Biss_WriteByte(uint8_t *write_data, uint8_t data_len)
+void Biss_WriteByte(BissFrameMode_t mode, uint8_t *write_data, uint8_t data_len)
 {
    biss_crc_reg = 0;
 
    // 1. 发送起始位
-   Biss_Short_CDM1(); // S
+   Biss_SendCDM(1, mode); // S
 
-   // 2. 发送数据位并更新 CRC
-   for (int i = 0; i < data_len; i++)
+   // 2. 发送数据并更新 CRC
+   for (uint8_t i = 0; i < data_len; i++)
    {
       uint8_t byte = write_data[i];
-      for (int j = 7; j >= 0; j--)
+
+      for (int8_t j = 7; j >= 0; j--)
       {
          uint8_t bit = (byte >> j) & 0x01;
-         if (bit)
-            Biss_Short_CDM1();
-         else
-            Biss_Short_CDM0();
 
+         Biss_SendCDM(bit, mode);
          Biss_CRC_Update(bit);
       }
    }
 
-   // 3. 发送 CRC（自动取反）
-   Biss_CRC();
+   // 3. 发送 CRC
+   Biss_SendCRC(mode);
 
-   Biss_Short_CDM0(); // P
+   // 4. P
+   Biss_SendCDM(0, mode); // P
+}
+
+/*Change PinMode From SPI to GPIO*/
+void Enable_GPIO(void)
+{
+   SPI1_Close();
+
+   __builtin_write_RPCON(0x0000);
+   RPOR5bits.RP43R = 0x0000;
+   RPINR20bits.SDI1R = 0x00;
+   __builtin_write_RPCON(0x0800);
+
+   TRISBbits.TRISB11 = 0;
+   LATBbits.LATB11 = 1;
+
+   TRISBbits.TRISB13 = 1;
+}
+
+void MU_OutputBit_Config(uint8_t single_turn_bits, uint8_t multi_turn_bits)
+{
+    uint8_t out_lsb;
+    uint8_t out_msb;
+
+    // 单圈位数 → OUT_LSB
+    out_lsb = 19 - single_turn_bits;
+
+    // 多圈位数 → OUT_MSB
+    out_msb = multi_turn_bits + 5;
+
+    mu_write_param(&MU_OUT_LSB, out_lsb);
+    Delay_us(40);
+
+    mu_write_param(&MU_OUT_MSB, out_msb);
+    Delay_us(40);
 }
