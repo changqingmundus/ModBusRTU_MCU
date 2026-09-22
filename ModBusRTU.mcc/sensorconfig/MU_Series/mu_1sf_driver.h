@@ -271,7 +271,7 @@ void mu_write_param(const struct mu_param *param, uint64_t param_val);
 /**
  * @}
  */
-
+extern uint8_t mu_read_data;
 #ifdef __cplusplus
 }
 #endif

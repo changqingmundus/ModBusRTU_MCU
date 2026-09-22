@@ -312,7 +312,8 @@ void Encoder_Read_Data(void)
        spi_data >> (Encoder_Config.CRC_Bit + 2U +
                     Encoder_Config.SingleTurn_Bit);
 
-   if (Encoder_Config.Warning_Data || Encoder_Config.Error_Data == 0)
+   // if (Encoder_Config.Warning_Data || Encoder_Config.Error_Data == 1)
+   if (Encoder_Config.Error_Data == 1)
    {
       LED0_SetLow();
    }
@@ -841,42 +842,86 @@ void MU_OutputBit_Config(uint8_t single_turn_bits, uint8_t multi_turn_bits)
 {
    uint8_t out_lsb;
    uint8_t out_msb;
+   uint8_t mode_mt;
 
    // 单圈位数 → OUT_LSB
    out_lsb = 19 - single_turn_bits;
 
    // 多圈位数 → OUT_MSB
    out_msb = multi_turn_bits + 5;
+   mode_mt = MU_Get_ModeMT(multi_turn_bits);
 
-   mu_write_param(&MU_OUT_LSB, out_lsb);
-   Delay_us(40);
+   mu_write_param(&MU_OUT_LSB, out_lsb);  //for singleturn
+   mu_write_param(&MU_OUT_MSB, out_msb);  //for multiturn
+   mu_write_param(&MU_MODE_MT, mode_mt);  //for external multiturn
+}
 
-   mu_write_param(&MU_OUT_MSB, out_msb);
-   Delay_us(40);
+static uint8_t MU_Get_ModeMT(uint8_t multi_turn_bits)
+{
+   switch (multi_turn_bits)
+   {
+   case 12:
+      return 0x0D;
 
-   // iC-PVL 多圈位数
-   IC_PVL_Config.MT_BW = multi_turn_bits - 9;
+   case 16:
+      return 0x0E;
+
+   case 18:
+      return 0x0F;
+
+   default:
+      return 0x00; // 无外部多圈
+   }
 }
 
 uint8_t MU_Config_I2C_RAM(void)
 {
    uint8_t pvl_data[13];
+   uint8_t read_back;
+   uint8_t retry;
+   uint8_t i;
 
    /* 生成 PVL 配置数据 */
    IC_PVL_ConfigToBytes(pvl_data);
+
    /* 写入 iC-MU USER_EXCHANGE_REGISTERS 0x60~0x6C */
-   for (uint8_t i = 0; i < 13; i++)
+   for (i = 0; i < 13; i++)
    {
-      mu_write_register(0x60 + i, pvl_data[i]);
+      retry = 0;
+
+      while (retry < 3)
+      {
+         /* 写入 */
+         mu_write_register(0x60 + i, pvl_data[i]);
+
+         /* 读回 */
+         mu_read_data = 0;
+         mu_read_register(0x60 + i);
+         read_back = mu_read_data;
+
+         /* 写入正确 */
+         if (read_back == pvl_data[i])
+         {
+            break;
+         }
+
+         /* 不一致，重试 */
+         retry++;
+      }
+
+      /* 连续 3 次都失败 */
+      if (retry >= 3)
+      {
+         return 1;
+      }
    }
 
    /* I2C configuration */
-   mu_write_param(&MU_I2C_DEV_START, 0x40);
+   mu_write_param(&MU_I2C_DEVID, 0xA0);
    mu_write_param(&MU_I2C_RAM_START, 0x60);
    mu_write_param(&MU_I2C_RAM_END, 0x6C);
-   mu_write_param(&MU_I2C_DEVID, 0xA0);
+   mu_write_param(&MU_I2C_DEV_START, 0x40);
 
-   mu_read_param(&MU_STATUS1);
    mu_write_command(CMD_MU_I2C_COM);
 
    return 0;

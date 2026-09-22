@@ -127,6 +127,8 @@ void Biss_WriteByte(BissFrameMode_t mode, uint8_t *write_data, uint8_t data_len)
 
 uint8_t MU_Config_I2C_RAM(void);
 
+static uint8_t MU_Get_ModeMT(uint8_t multi_turn_bits);
+
 void Encoder_Update_Speed(void);
 void Encoder_Set_Value(uint32_t set_value);
 void Encoder_Load_Position_Offset(void);

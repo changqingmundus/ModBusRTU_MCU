@@ -225,6 +225,7 @@ void mu_sdad_status(uint8_t *svalid_vector, uint8_t vector_size)
  * @param addr is the address of the register to be read.
  * @retval None
  */
+uint8_t mu_read_data;
 void mu_read_register(uint8_t addr)
 {
 	bufsize = 2;
@@ -232,6 +233,7 @@ void mu_read_register(uint8_t addr)
 	buf_tx[1] = addr;
 
 	mu_spi_transfer(buf_tx, buf_rx, bufsize);
+	mu_read_data = buf_rx[0];
 }
 
 /**

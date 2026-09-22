@@ -10,7 +10,7 @@ IC_PVL_Config_t IC_PVL_Config =
         .INT_MODE = 0,
 
         .OS = 0,
-        .MT_BW = 3,
+        .MT_BW = 9,
 
         .PCR = 0x1F,
 
@@ -31,11 +31,11 @@ IC_PVL_Config_t IC_PVL_Config =
         .HYS = 0,
         .ABQUAD = 1,
 
-        .CRC_CFG = 0x8B,
+        .CRC_CFG = 0x00, // Auto calculated
 
-        .MT_PREL = 1000,
+        .MT_PREL = 0x00,
 
-        .CRC_CTR = 0x56};
+        .CRC_CTR = 0xFF};
 
 /* ============================================================
  * Convert IC_PVL_Config to iC-PVL EEPROM data
@@ -91,6 +91,7 @@ void IC_PVL_ConfigToBytes(uint8_t *data)
     data[5] = IC_PVL_FIELD_SET(data[5], IC_PVL_ABQUAD_Msk, IC_PVL_ABQUAD_Pos, IC_PVL_Config.ABQUAD);
 
     /* 0x06 */
+    IC_PVL_Config.CRC_CFG = IC_PVL_CalcCRC6(data);
     data[6] = IC_PVL_Config.CRC_CFG;
 
     /* 0x07 ~ 0x0B : 40-bit MT_PREL */
@@ -104,6 +105,35 @@ void IC_PVL_ConfigToBytes(uint8_t *data)
 
     /* 0x0C */
     data[12] = IC_PVL_Config.CRC_CTR;
+}
+
+static uint8_t IC_PVL_CalcCRC6(const uint8_t *data)
+{
+    uint8_t crc = 0;
+    uint8_t data_stream;
+    uint8_t i;
+    uint8_t j;
+
+    for (i = 0; i < 6; i++)
+    {
+        data_stream = data[i];
+
+        for (j = 0; j < 8; j++)
+        {
+            if ((crc & 0x80) != (data_stream & 0x80))
+            {
+                crc = (uint8_t)((crc << 1) ^ 0x2F);
+            }
+            else
+            {
+                crc = (uint8_t)(crc << 1);
+            }
+
+            data_stream <<= 1;
+        }
+    }
+
+    return (uint8_t)~crc;
 }
 
 void PVL_OutputBit_Config(uint8_t multi_turn_bits)

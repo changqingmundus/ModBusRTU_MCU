@@ -440,6 +440,9 @@ typedef struct
 
 extern IC_PVL_Config_t IC_PVL_Config;
 
+static uint8_t IC_PVL_CalcCRC6(const uint8_t *data);
+
 void IC_PVL_ConfigToBytes(uint8_t *data);
+void PVL_OutputBit_Config(uint8_t multi_turn_bits);
 
 #endif /* PVL_H */

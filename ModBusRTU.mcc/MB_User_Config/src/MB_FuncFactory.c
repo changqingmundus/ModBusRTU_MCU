@@ -2,6 +2,7 @@
 #include "encoder.h"
 #include "mu_1sf_driver.h"
 #include "pz_1sf_driver.h"
+#include "pvl.h"
 #include "spi1.h"
 
 uint8_t Factory_SingleTurnBit = 0;
@@ -131,7 +132,6 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
             if (value == FACTORY_Save_KEY)
             {
                 Factory_Config_SaveDEE();
-                Sensor_MU_Config();
                 if (Sensor_MU_Config() != 0)
                 {
                     return MB_EX_SLAVE_DEVICE_FAILURE;
@@ -185,11 +185,28 @@ uint8_t Sensor_MU_Config(void)
 
     Enable_GPIO();
 
+    /*
+     * If multiturn is enabled, write PVL configuration
+     * to the external EEPROM through iC-MU I2C.
+     */
+    if (Factory_MultiTurnBit != 0)
+    {
+        PVL_OutputBit_Config(Factory_MultiTurnBit);
+
+        if (MU_Config_I2C_RAM() != 0)
+        {
+            SPI1_Open(0);
+            return 1;
+        }
+    }
+
     MU_OutputBit_Config(Factory_SingleTurnBit, Factory_MultiTurnBit);
 
     // Read back parameters to verify configuration
     out_lsb = mu_read_param(&MU_OUT_LSB);
+    Delay_us(40);
     out_msb = mu_read_param(&MU_OUT_MSB);
+    Delay_us(40);
 
     // Verify configuration
     if (out_lsb != (19 - Factory_SingleTurnBit) ||
@@ -197,19 +214,6 @@ uint8_t Sensor_MU_Config(void)
     {
         SPI1_Open(0);
         return 1;
-    }
-
-    /*
-     * If multiturn is enabled, write PVL configuration
-     * to the external EEPROM through iC-MU I2C.
-     */
-    if (Factory_MultiTurnBit != 0)
-    {
-        if (MU_Config_I2C_RAM() != 0)
-        {
-            SPI1_Open(0);
-            return 1;
-        }
     }
 
     mu_read_param(&MU_STATUS1);         // read status1 to update the output bit configuration
