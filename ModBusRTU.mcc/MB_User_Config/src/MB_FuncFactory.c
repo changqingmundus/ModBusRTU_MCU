@@ -185,28 +185,11 @@ uint8_t Sensor_MU_Config(void)
 
     Enable_GPIO();
 
-    /*
-     * If multiturn is enabled, write PVL configuration
-     * to the external EEPROM through iC-MU I2C.
-     */
-    if (Factory_MultiTurnBit != 0)
-    {
-        PVL_OutputBit_Config(Factory_MultiTurnBit);
-
-        if (MU_Config_I2C_RAM() != 0)
-        {
-            SPI1_Open(0);
-            return 1;
-        }
-    }
-
     MU_OutputBit_Config(Factory_SingleTurnBit, Factory_MultiTurnBit);
 
     // Read back parameters to verify configuration
     out_lsb = mu_read_param(&MU_OUT_LSB);
-    Delay_us(40);
     out_msb = mu_read_param(&MU_OUT_MSB);
-    Delay_us(40);
 
     // Verify configuration
     if (out_lsb != (19 - Factory_SingleTurnBit) ||
@@ -216,7 +199,22 @@ uint8_t Sensor_MU_Config(void)
         return 1;
     }
 
-    mu_read_param(&MU_STATUS1);         // read status1 to update the output bit configuration
+    /*
+     * If multiturn is enabled, write PVL configuration
+     * to the external EEPROM through iC-MU I2C.
+     */
+    if (Sensor_MT_Config(SENSOR_MT_PVL) != 0)
+    {
+        SPI1_Open(0);
+        return 1;
+    }
+
+    mu_read_param(&MU_STATUS1); // read status1 to update the output bit configuration
+    mu_write_command(CMD_MU_I2C_COM);
+
+    Sensor_SetMUProtocol(SENSOR_PROTOCOL_EXTSSI); // change to extssi mode
+
+    mu_read_param(&MU_STATUS1);
     mu_write_command(CMD_MU_WRITE_ALL); // write all parameters to EEPROM
     status1 = mu_read_param(&MU_STATUS1);
 
@@ -226,5 +224,50 @@ uint8_t Sensor_MU_Config(void)
     }
 
     SPI1_Open(0);
+    return 0;
+}
+
+uint8_t Sensor_MT_Config(SensorMT_Type_t type)
+{
+    switch (type)
+    {
+    case SENSOR_MT_PVL:
+
+        if (Factory_MultiTurnBit != 0)
+        {
+
+            PVL_OutputBit_Config(Factory_MultiTurnBit); // Configure PVL output bits
+
+            if (MU_Load_PVL_Config() != 0) // Load PVL configuration to MU USER_EXCHANGE_REGISTERS
+            {
+                return 1;
+            }
+
+            MU_I2C_Transfer(0xA0, 0x60, 0x6C, 0x40); // Write PVL configuration to EEPROM 0x40 ~ 0x4C
+
+            /*if (MU_WriteRegister_Verify(0x6D, 0x05) != 0) // Send SCLR command to iC-PVL
+            {
+                return 1;
+            }
+            MU_I2C_Transfer(0xC0, 0x6D, 0x6D, 0x11);
+
+            if (MU_WriteRegister_Verify(0x6D, 0x03) != 0) // Send REBOOT command to iC-PVL
+            {
+                return 1;
+            }
+            MU_I2C_Transfer(0xC0, 0x6D, 0x6D, 0x11);
+
+            if (PVL_Check_Status() != 0) // Check PVL status after reboot
+            {
+                return 1;
+            }*/
+        }
+
+        break;
+
+    default:
+        return 1;
+    }
+
     return 0;
 }

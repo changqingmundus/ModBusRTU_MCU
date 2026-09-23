@@ -57,6 +57,17 @@ typedef enum
     BISS_FRAME_LONG     // Long Frame       / 带过程数据
 } BissFrameMode_t;
 
+typedef enum
+{
+    SENSOR_PROTOCOL_SPI = 0x01,
+    SENSOR_PROTOCOL_BISS = 0x02,
+    SENSOR_PROTOCOL_ABZ = 0x03,
+    SENSOR_PROTOCOL_SSI = 0x04,
+    SENSOR_PROTOCOL_SSI_ERRL = 0x05,
+    SENSOR_PROTOCOL_SSI_ERRH = 0x06,
+    SENSOR_PROTOCOL_EXTSSI = 0x07
+} SensorProtocol_t;
+
 extern ENCODER_CONFIG Encoder_Config; // 聲明為全局變量
 extern uint32_t Zero_SingleTurn_Data; // 當前單圈數據值
 
@@ -125,9 +136,11 @@ void Biss_ReadByte(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bi
 void Biss_WriteByteHeader(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr);
 void Biss_WriteByte(BissFrameMode_t mode, uint8_t *write_data, uint8_t data_len);
 
-uint8_t MU_Config_I2C_RAM(void);
-
-static uint8_t MU_Get_ModeMT(uint8_t multi_turn_bits);
+uint8_t Sensor_SetMUProtocol(SensorProtocol_t protocol);
+uint8_t MU_Load_PVL_Config(void);
+uint8_t PVL_Check_Status(void);
+uint8_t MU_WriteRegister_Verify(uint8_t addr, uint8_t data);
+void MU_I2C_Transfer(uint8_t devid, uint8_t ram_start, uint8_t ram_end, uint8_t dev_start);
 
 void Encoder_Update_Speed(void);
 void Encoder_Set_Value(uint32_t set_value);

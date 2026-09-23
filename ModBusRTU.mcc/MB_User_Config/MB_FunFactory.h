@@ -19,6 +19,12 @@
 
 #define MU_STATUS1_CRC_ERR    0x80
 
+typedef enum
+{
+    SENSOR_MT_PVL = 0,
+    /* SENSOR_MT_xxx, */
+} SensorMT_Type_t;
+
 extern uint8_t Factory_SingleTurnBit;
 extern uint8_t Factory_MultiTurnBit;
 extern uint8_t Factory_CRCBit;
@@ -27,5 +33,6 @@ extern uint16_t Factory_MagicKey;
 eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen);
 void Factory_Config_SaveDEE(void);
 uint8_t Sensor_MU_Config(void);
+uint8_t Sensor_MT_Config(SensorMT_Type_t type);
 
 #endif

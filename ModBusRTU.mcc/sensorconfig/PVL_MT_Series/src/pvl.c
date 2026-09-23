@@ -37,6 +37,8 @@ IC_PVL_Config_t IC_PVL_Config =
 
         .CRC_CTR = 0xFF};
 
+static uint8_t IC_PVL_CalcCRC6(const uint8_t *data);
+
 /* ============================================================
  * Convert IC_PVL_Config to iC-PVL EEPROM data
  *

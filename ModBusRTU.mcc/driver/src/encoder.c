@@ -31,6 +31,7 @@ static uint8_t biss_crc_reg = 0; // 4 位 CRC 寄存器
 ENCODER_CONFIG Encoder_Config;
 
 static void Biss_SendCDM(uint8_t bit, BissFrameMode_t mode);
+static uint8_t MU_Get_ModeMT(uint8_t multi_turn_bits);
 
 uint64_t Encoder_Get_Max_Position(void)
 {
@@ -842,24 +843,31 @@ void MU_OutputBit_Config(uint8_t single_turn_bits, uint8_t multi_turn_bits)
 {
    uint8_t out_lsb;
    uint8_t out_msb;
+   uint8_t out_zero;
    uint8_t mode_mt;
 
-   // 单圈位数 → OUT_LSB
    out_lsb = 19 - single_turn_bits;
-
-   // 多圈位数 → OUT_MSB
    out_msb = multi_turn_bits + 5;
+   out_zero = 0x00;
+
    mode_mt = MU_Get_ModeMT(multi_turn_bits);
 
-   mu_write_param(&MU_OUT_LSB, out_lsb);  //for singleturn
-   mu_write_param(&MU_OUT_MSB, out_msb);  //for multiturn
-   mu_write_param(&MU_MODE_MT, mode_mt);  //for external multiturn
+   mu_write_param(&MU_OUT_LSB, out_lsb);   // for singleturn
+   mu_write_param(&MU_OUT_MSB, out_msb);   // for multiturn
+   mu_write_param(&MU_OUT_ZERO, out_zero); // for outzero
+   mu_write_param(&MU_MODE_MT, mode_mt);   // for external multiturn
 }
 
 static uint8_t MU_Get_ModeMT(uint8_t multi_turn_bits)
 {
    switch (multi_turn_bits)
    {
+   case 4:
+      return 0x0B;
+
+   case 8:
+      return 0x0C;
+
    case 12:
       return 0x0D;
 
@@ -874,55 +882,111 @@ static uint8_t MU_Get_ModeMT(uint8_t multi_turn_bits)
    }
 }
 
-uint8_t MU_Config_I2C_RAM(void)
+uint8_t Sensor_SetMUProtocol(SensorProtocol_t protocol)
+{
+   if (protocol > SENSOR_PROTOCOL_EXTSSI)
+   {
+      return 1;
+   }
+
+   mu_write_param(&MU_MODEA, protocol);
+
+   return 0;
+}
+
+uint8_t MU_Load_PVL_Config(void)
 {
    uint8_t pvl_data[13];
-   uint8_t read_back;
-   uint8_t retry;
-   uint8_t i;
 
-   /* 生成 PVL 配置数据 */
    IC_PVL_ConfigToBytes(pvl_data);
 
-   /* 写入 iC-MU USER_EXCHANGE_REGISTERS 0x60~0x6C */
-   for (i = 0; i < 13; i++)
+   for (uint8_t i = 0; i < 13; i++)
    {
-      retry = 0;
-
-      while (retry < 3)
-      {
-         /* 写入 */
-         mu_write_register(0x60 + i, pvl_data[i]);
-
-         /* 读回 */
-         mu_read_data = 0;
-         mu_read_register(0x60 + i);
-         read_back = mu_read_data;
-
-         /* 写入正确 */
-         if (read_back == pvl_data[i])
-         {
-            break;
-         }
-
-         /* 不一致，重试 */
-         retry++;
-      }
-
-      /* 连续 3 次都失败 */
-      if (retry >= 3)
+      if (MU_WriteRegister_Verify(0x60 + i, pvl_data[i]) != 0)
       {
          return 1;
       }
    }
 
-   /* I2C configuration */
-   mu_write_param(&MU_I2C_DEVID, 0xA0);
-   mu_write_param(&MU_I2C_RAM_START, 0x60);
-   mu_write_param(&MU_I2C_RAM_END, 0x6C);
-   mu_write_param(&MU_I2C_DEV_START, 0x40);
+   return 0;
+}
 
-   mu_write_command(CMD_MU_I2C_COM);
+uint8_t MU_WriteRegister_Verify(uint8_t addr, uint8_t data)
+{
+   uint8_t read_back;
+   uint8_t retry = 0;
+
+   while (retry < 3)
+   {
+      mu_write_register(addr, data);
+
+      mu_read_data = 0;
+      mu_read_register(addr);
+      read_back = mu_read_data;
+
+      if (read_back == data)
+      {
+         return 0;
+      }
+
+      retry++;
+   }
+
+   return 1;
+}
+
+uint8_t PVL_Check_Status(void)
+{
+   uint8_t status;
+   uint8_t ext_status;
+
+   /* Read PVL Status Register 0x10 -> MU RAM 0x6E */
+   MU_I2C_Transfer(0xC1, 0x6E, 0x6E, 0x10);
+
+   /* Read PVL Extended Status Register 0x12 -> MU RAM 0x6F */
+   MU_I2C_Transfer(0xC1, 0x6F, 0x6F, 0x12);
+
+   /* Read status */
+   mu_read_data = 0;
+   mu_read_register(0x6E);
+   status = mu_read_data;
+
+   /* Read extended status */
+   mu_read_data = 0;
+   mu_read_register(0x6F);
+   ext_status = mu_read_data;
+
+   /*
+    * 0x10:
+    * bit7 PRESET : don't care
+    * bit6 PDR    : don't care
+    * bit5~0      : must be 0
+    */
+   if ((status & 0x3F) != 0)
+   {
+      return 1;
+   }
+
+   /*
+    * 0x12:
+    * bit5 ACTIVE_ST : don't care
+    * bit7~6, bit4~0 : must be 0
+    */
+   if ((ext_status & 0xDF) != 0)
+   {
+      return 1;
+   }
 
    return 0;
+}
+
+void MU_I2C_Transfer(uint8_t devid, uint8_t ram_start, uint8_t ram_end, uint8_t dev_start)
+{
+   /* I2C configuration */
+   mu_write_param(&MU_I2C_DEVID, devid);
+   mu_write_param(&MU_I2C_RAM_START, ram_start);
+   mu_write_param(&MU_I2C_RAM_END, ram_end);
+   mu_write_param(&MU_I2C_DEV_START, dev_start);
+
+   mu_write_command(CMD_MU_I2C_COM);
 }
