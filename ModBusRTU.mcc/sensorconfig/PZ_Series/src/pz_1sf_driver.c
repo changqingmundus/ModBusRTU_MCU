@@ -15,6 +15,7 @@
  */
 
 #include "pz_1sf_driver.h"
+#include "encoder.h"
 
 /* iC-PZ opcodes */
 enum PZ_OPCODES {
@@ -547,5 +548,31 @@ void pz_write_param(const struct pz_param *param, uint32_t param_val) {
 
 void pz_spi_transfer(uint8_t *data_tx, uint8_t *data_rx, uint16_t datasize)
 {
+if (data_tx == NULL || datasize == 0)
+		return;
 
+	uint8_t opcode = data_tx[0];
+	uint8_t addr = (datasize > 1) ? (data_tx[1] & 0x7F) : 0;
+
+	// 读操作：凑齐 datasize 字节数据
+	if (opcode == PZ_OPCODE_READ_REGISTERS)
+	{
+		uint8_t cts = 1;
+		uint8_t id = 0;
+
+		if (data_rx == NULL)
+			return;
+
+		Biss_ReadByte(BISS_FRAME_SHORT, cts, id, addr, data_rx);
+	}
+	// 写操作：发送写头 + 数据帧，无接收
+	else if (opcode == PZ_OPCODE_WRITE_REGISTERS)
+	{
+		// 地址在 data_tx[1]，写入数据从 data_tx[2] 开始，长度 = datasize - 2
+		uint8_t cts = 1;
+		uint8_t id = 0;
+
+		Biss_WriteByteHeader(BISS_FRAME_SHORT, cts, id, addr);
+		Biss_WriteByte(BISS_FRAME_SHORT, &data_tx[2], datasize - 2);  //no delay
+	}
 }

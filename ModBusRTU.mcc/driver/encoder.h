@@ -23,6 +23,9 @@
 
 #define DEE_MultiTurn_Origin_Mode 10 // DEE存放編碼器多圈原點數據
 
+#define DEE_SENSOR_TYPE 18 // 寄存器保存芯片模式
+#define DEE_SENSOR_CHIP 19 // 寄存器保存芯片型号
+
 #define MA_Clear() SCLK_MA_SetLow()         // 設置SLO腳為低電平
 #define MA_Set() SCLK_MA_SetHigh()          // 設置SLO腳為高電平
 #define SLO_Get_Value() MISO_SLO_GetValue() // 讀取MISO腳的電平值
@@ -32,6 +35,25 @@
 #define POSITION_DEAD_BAND 3 // 旋转方向滤波
 #define SPEED_SAMPLE_TIME_MS 10
 #define SPEED_SAMPLE_FACTOR (60000 / SPEED_SAMPLE_TIME_MS)
+
+typedef enum
+{
+    SENSOR_TYPE_SINGLE_TURN = 0x01,
+    SENSOR_TYPE_MULTI_TURN = 0x02
+} SensorType_t;
+
+typedef enum
+{
+    /* No Chip */
+    SENSOR_CHIP_NONE = 0x00,
+
+    /*SingleTurn Chip*/
+    SENSOR_CHIP_MU = 0x01,
+    SENSOR_CHIP_PZ = 0x02,
+
+    /*MuultiTurn Chip*/
+    SENSOR_CHIP_PVL = 0x10
+} SensorChip_t;
 
 typedef struct
 {
@@ -49,13 +71,14 @@ typedef struct
     uint32_t CRC_Data;        // 編碼器CRC數據
 } ENCODER_CONFIG;
 
-/**/
+/*send the frame*/
 typedef enum
 {
     BISS_FRAME_MIN = 0, // Simplified Frame / 精简Biss帧
     BISS_FRAME_SHORT,   // Short Frame      / 无过程数据
-    BISS_FRAME_LONG     // Long Frame       / 带过程数据
-} BissFrameMode_t;
+    BISS_FRAME_LONG,    // Long Frame       / 带过程数据
+    SSI_FRAME           // SSI Frame
+} EncoderFrameMode_t;
 
 typedef enum
 {
@@ -67,6 +90,8 @@ typedef enum
     SENSOR_PROTOCOL_SSI_ERRH = 0x06,
     SENSOR_PROTOCOL_EXTSSI = 0x07
 } SensorProtocol_t;
+
+extern SensorChip_t Sensor_Chip;
 
 extern ENCODER_CONFIG Encoder_Config; // 聲明為全局變量
 extern uint32_t Zero_SingleTurn_Data; // 當前單圈數據值
@@ -114,12 +139,17 @@ void Biss_Short_CDM1(void);
 void Biss_Long_CDM0(void);
 void Biss_Long_CDM1(void);
 
+void SSI_CDM0(void);
+void SSI_CDM1(void);
+
 /**
  * @brief This function enables short frame mode for multiple BiSS slaves in a daisy-chain configuration.
  *
  * @retval None
  */
 void Biss_Enable_Short_Frame(void); // for multi biss slavers
+
+void Change_To_Biss(void);
 
 /**
  * @brief This function can be used to read one byte from a BiSS register.
@@ -131,10 +161,10 @@ void Biss_Enable_Short_Frame(void); // for multi biss slavers
  * @param data_rx  Pointer to the buffer where the received data is written.
  * @retval None
  */
-void Biss_ReadByte(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr, uint8_t *data);
+void Biss_ReadByte(EncoderFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr, uint8_t *data);
 
-void Biss_WriteByteHeader(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr);
-void Biss_WriteByte(BissFrameMode_t mode, uint8_t *write_data, uint8_t data_len);
+void Biss_WriteByteHeader(EncoderFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr);
+void Biss_WriteByte(EncoderFrameMode_t mode, uint8_t *write_data, uint8_t data_len);
 
 uint8_t Sensor_SetMUProtocol(SensorProtocol_t protocol);
 uint8_t MU_Load_PVL_Config(void);

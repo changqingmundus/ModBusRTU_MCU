@@ -30,7 +30,7 @@ static uint8_t biss_crc_reg = 0; // 4 位 CRC 寄存器
 
 ENCODER_CONFIG Encoder_Config;
 
-static void Biss_SendCDM(uint8_t bit, BissFrameMode_t mode);
+static void Biss_SendCDM(uint8_t bit, EncoderFrameMode_t mode);
 static uint8_t MU_Get_ModeMT(uint8_t multi_turn_bits);
 
 uint64_t Encoder_Get_Max_Position(void)
@@ -314,7 +314,7 @@ void Encoder_Read_Data(void)
                     Encoder_Config.SingleTurn_Bit);
 
    // if (Encoder_Config.Warning_Data || Encoder_Config.Error_Data == 1)
-   if (Encoder_Config.Error_Data == 1)
+   if (Encoder_Config.Error_Data == 0)
    {
       LED0_SetLow();
    }
@@ -467,7 +467,7 @@ void SCCP3_TimeoutCallback(void)
 }
 
 /*Biss-C Communication*/
-static void Biss_ID(uint8_t addr, BissFrameMode_t mode)
+static void Biss_ID(uint8_t addr, EncoderFrameMode_t mode)
 {
    addr &= 0x07;
 
@@ -480,7 +480,7 @@ static void Biss_ID(uint8_t addr, BissFrameMode_t mode)
    }
 }
 
-static void Biss_Address(uint8_t addr, BissFrameMode_t mode)
+static void Biss_Address(uint8_t addr, EncoderFrameMode_t mode)
 {
    addr &= 0x7F;
 
@@ -493,7 +493,7 @@ static void Biss_Address(uint8_t addr, BissFrameMode_t mode)
    }
 }
 
-static void Biss_SendCDM(uint8_t bit, BissFrameMode_t mode)
+static void Biss_SendCDM(uint8_t bit, EncoderFrameMode_t mode)
 {
    if (mode == BISS_FRAME_MIN)
    {
@@ -516,6 +516,13 @@ static void Biss_SendCDM(uint8_t bit, BissFrameMode_t mode)
       else
          Biss_Long_CDM0();
    }
+   else if (mode == SSI_FRAME)
+   {
+      if (bit)
+         SSI_CDM1();
+      else
+         SSI_CDM0();
+   }
 }
 
 /*CRC Send*/
@@ -532,7 +539,7 @@ void Biss_CRC(void) // For Simplified Frame
    }
 }
 
-static void Biss_SendCRC(BissFrameMode_t mode)
+static void Biss_SendCRC(EncoderFrameMode_t mode)
 {
    uint8_t crc = (~biss_crc_reg) & 0x0F;
 
@@ -712,6 +719,45 @@ void Biss_Long_CDM1(void)
    MA_Set();
 }
 
+void SSI_CDM0(void)
+{
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+
+   for (int i = 0; i < 60; i++) // Process data
+   {
+      MA_Clear();
+      Delay_us(1);
+      MA_Set();
+      Delay_us(1);
+   }
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(20);
+}
+
+void SSI_CDM1(void)
+{
+   MA_Clear();
+   Delay_us(1);
+   MA_Set();
+   Delay_us(1);
+
+   for (int i = 0; i < 60; i++) // Process data
+   {
+      MA_Clear();
+      Delay_us(1);
+      MA_Set();
+      Delay_us(1);
+   }
+   MA_Clear();
+   Delay_us(20);
+   MA_Set();
+}
+
 /*Biss-C Simplify BiSS frame Communication*/
 void Biss_Enable_Short_Frame(void)
 {
@@ -735,7 +781,7 @@ void Biss_Enable_Short_Frame(void)
 }
 
 /*Biss-C ReadByte Without Process Data*/
-void Biss_ReadByte(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr, uint8_t *data)
+void Biss_ReadByte(EncoderFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr, uint8_t *data)
 {
    /* 14bit CDM = 0 */
    for (int i = 0; i < 14; i++)
@@ -769,7 +815,7 @@ void Biss_ReadByte(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bi
    *data = (uint8_t)((Data_Temp >> 6) & 0xFF);
 }
 
-void Biss_WriteByteHeader(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr)
+void Biss_WriteByteHeader(EncoderFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr)
 {
    biss_crc_reg = 0;
 
@@ -795,7 +841,7 @@ void Biss_WriteByteHeader(BissFrameMode_t mode, uint8_t cts, uint8_t bissid, uin
    Biss_SendCDM(1, mode); // W
 }
 
-void Biss_WriteByte(BissFrameMode_t mode, uint8_t *write_data, uint8_t data_len)
+void Biss_WriteByte(EncoderFrameMode_t mode, uint8_t *write_data, uint8_t data_len)
 {
    biss_crc_reg = 0;
 
@@ -837,6 +883,26 @@ void Enable_GPIO(void)
    LATBbits.LATB11 = 1;
 
    TRISBbits.TRISB13 = 1;
+}
+
+void Change_To_Biss(void)
+{
+   uint8_t cts = 1;
+   uint8_t id = 0;
+   uint8_t data_rx;
+   uint8_t mode_reg;
+
+   // Read MODEA / MODEB register
+   Biss_ReadByte(SSI_FRAME, cts, id, 0x0B, &data_rx);
+
+   mode_reg = data_rx;
+
+   // MODEA(2:0) = 0x2 -> BiSS
+   mode_reg = (mode_reg & 0xF8) | 0x02;
+
+   // Write back 0x0B
+   Biss_WriteByteHeader(SSI_FRAME, cts, id, 0x0B);
+   Biss_WriteByte(SSI_FRAME, &mode_reg, 1);
 }
 
 void MU_OutputBit_Config(uint8_t single_turn_bits, uint8_t multi_turn_bits)

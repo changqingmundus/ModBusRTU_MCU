@@ -10,10 +10,10 @@
 #define DEE_POSITION_OFFSET_L   5         //DEE存放編碼器全部值16位
 #define DEE_POSITION_OFFSET_H   6         //DEE存放編碼器全部值32位
 #define DEE_POSITION_OFFSET_LL 7          //DEE存放編碼器全部值48位
-#define DEE_POSITION_OFFSET_HH 8         //DEE存放編碼器全部值64位
+#define DEE_POSITION_OFFSET_HH 8          //DEE存放編碼器全部值64位
 #define DEE_Direction 9                   //DEE存放編碼器旋轉方向
-
-#define DEE_MultiTurn_Origin_Mode 10       //DEE存放編碼器多圈原點數據
+ 
+#define DEE_MultiTurn_Origin_Mode 10      //DEE存放編碼器多圈原點數據
 
 
 /*MB_User_Config.h*/
@@ -25,7 +25,10 @@
 
 
 /*Protocol_Config.h*/
-#define DEE_Encoder_Protocol  15  //通信模式存儲地址
-#define DEE_Update_Time       16  //上傳時間存儲地址
+#define DEE_Encoder_Protocol  15         //通信模式存儲地址
+#define DEE_Update_Time       16         //上傳時間存儲地址
 
-#define DEE_MB_Reg_Mode       17  //寄存器表选择保存地址
+#define DEE_MB_Reg_Mode       17         //寄存器表选择保存地址
+
+#define DEE_SENSOR_TYPE 18               //寄存器保存芯片模式
+#define DEE_SENSOR_CHIP 19               //寄存器保存芯片型号

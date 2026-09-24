@@ -3,27 +3,27 @@
 
 #include "mb.h"
 #include "stdint.h"
+#include "encoder.h"
 
 #define MB_FUNC_FACTORY       0x66
 
 #define FACTORY_Save_KEY      0x505A   //config code
 
+/* Factory configuration protocol values */
+#define SENSOR_ST_CHIP_MU      0x01
+#define SENSOR_ST_CHIP_PZ      0x02
 
-#define FACTORY_SINGLE_BIT    0x0001
-#define FACTORY_MULTI_BIT     0x0002
-#define FACTORY_CRC_BIT       0x0003
-
-#define FACTORY_MB_REG_MODE   0x0004
-
-#define FACTORY_SAVE          0x0005
+#define SENSOR_MT_CHIP_NONE    0x00
+#define SENSOR_MT_CHIP_PVL     0x01
 
 #define MU_STATUS1_CRC_ERR    0x80
 
-typedef enum
+struct factory_param
 {
-    SENSOR_MT_PVL = 0,
-    /* SENSOR_MT_xxx, */
-} SensorMT_Type_t;
+    uint16_t addr;
+    uint8_t  pos;
+    uint8_t  len;
+};
 
 extern uint8_t Factory_SingleTurnBit;
 extern uint8_t Factory_MultiTurnBit;
@@ -32,7 +32,12 @@ extern uint16_t Factory_MagicKey;
 
 eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen);
 void Factory_Config_SaveDEE(void);
+
+uint8_t Sensor_Config_Validate(void);
+
+uint8_t Sensor_Config_Save(void);
 uint8_t Sensor_MU_Config(void);
-uint8_t Sensor_MT_Config(SensorMT_Type_t type);
+uint8_t Sensor_PZ_Config(void);
+uint8_t Sensor_MT_Config(SensorChip_t chip);
 
 #endif
