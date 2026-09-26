@@ -166,7 +166,7 @@ void Biss_ReadByte(EncoderFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t
 void Biss_WriteByteHeader(EncoderFrameMode_t mode, uint8_t cts, uint8_t bissid, uint8_t bissaddr);
 void Biss_WriteByte(EncoderFrameMode_t mode, uint8_t *write_data, uint8_t data_len);
 
-uint8_t Sensor_SetMUProtocol(SensorProtocol_t protocol);
+uint8_t Sensor_SetProtocol(SensorProtocol_t protocol);
 uint8_t MU_Load_PVL_Config(void);
 uint8_t PVL_Check_Status(void);
 uint8_t MU_WriteRegister_Verify(uint8_t addr, uint8_t data);
