@@ -24,9 +24,6 @@ uint8_t Factory_CRCBit = 0;
 static uint16_t Factory_GetField(uint16_t value, const struct factory_param *param);
 
 SensorType_t Sensor_Type;
-SensorChip_t Sensor_ST_Chip;
-SensorChip_t Sensor_MT_Chip;
-SensorChip_t Sensor_Chip;
 
 eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
 {
@@ -103,6 +100,7 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
 
         switch (address)
         {
+
         /* =================================================
          * SENSOR CONFIG
          *
@@ -112,50 +110,13 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
          * ================================================= */
         case FACTORY_SENSOR_CONFIG:
         {
-            USHORT sensor_type;
-            USHORT st_chip;
-            USHORT mt_chip;
-
-            sensor_type = Factory_GetField(value, &FACTORY_SENSOR_TYPE);
-
-            st_chip = Factory_GetField(value, &FACTORY_ST_CHIP);
-            mt_chip = Factory_GetField(value, &FACTORY_MT_CHIP);
-
-            if (sensor_type != SENSOR_TYPE_SINGLE_TURN && // Sensor Type
-                sensor_type != SENSOR_TYPE_MULTI_TURN)
-            {
-                return MB_EX_ILLEGAL_DATA_VALUE;
-            }
-            Sensor_Type = (SensorType_t)sensor_type;
-
-            if (st_chip == SENSOR_ST_CHIP_MU) // Sensor ST Chip
-            {
-                Sensor_ST_Chip = SENSOR_CHIP_MU;
-            }
-            else if (st_chip == SENSOR_ST_CHIP_PZ)
-            {
-                Sensor_ST_Chip = SENSOR_CHIP_PZ;
-            }
-            else
-            {
-                return MB_EX_ILLEGAL_DATA_VALUE;
-            }
-
-            if (mt_chip == SENSOR_MT_CHIP_PVL) // Sensor MT Chip
-            {
-                Sensor_MT_Chip = SENSOR_CHIP_PVL;
-            }
-            else if (mt_chip == SENSOR_MT_CHIP_NONE)
-            {
-                Sensor_MT_Chip = SENSOR_CHIP_NONE;
-            }
-            else
-            {
-                return MB_EX_ILLEGAL_DATA_VALUE;
-            }
+            Sensor_Type = Factory_GetField(value, &FACTORY_SENSOR_TYPE);
+            Sensor_Chip_ST = Factory_GetField(value, &FACTORY_ST_CHIP);
+            Sensor_Chip_MT = Factory_GetField(value, &FACTORY_MT_CHIP);
 
             break;
         }
+        
         /* =================================================
          * OUTPUT CONFIG
          *
@@ -166,54 +127,16 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
          * ================================================= */
         case FACTORY_OUTPUT_CONFIG:
         {
-            USHORT mb_reg_mode;
-            USHORT crc_code;
-            USHORT single_turn_bit;
-            USHORT multi_turn_bit;
-
-            mb_reg_mode = Factory_GetField(value, &FACTORY_MB_REG_MODE);
-            crc_code = Factory_GetField(value, &FACTORY_CRC_BIT);
-            single_turn_bit = Factory_GetField(value, &FACTORY_SINGLE_TURN_BIT);
-            multi_turn_bit = Factory_GetField(value, &FACTORY_MULTI_TURN_BIT);
-
-            /*
-             * Modbus register mode
-             */
-            if (mb_reg_mode > MB_REG_FORCE32)
-            {
-                // return MB_EX_ILLEGAL_DATA_VALUE;
-            }
-
-            if (crc_code != 0x01 &&
-                crc_code != 0x02)
-            {
-                // return MB_EX_ILLEGAL_DATA_VALUE;
-            }
-
-            if (single_turn_bit > 32 ||
-                multi_turn_bit > 32)
-            {
-                return MB_EX_ILLEGAL_DATA_VALUE;
-            }
-
-            MB_Reg_Mode = mb_reg_mode;
-
-            if (crc_code == 0x01)
-            {
-                Factory_CRCBit = 6;
-            }
-            else
-            {
-                Factory_CRCBit = 16;
-            }
-
-            Factory_SingleTurnBit = single_turn_bit;
-            Factory_MultiTurnBit = multi_turn_bit;
+            MB_Reg_Mode = Factory_GetField(value, &FACTORY_MB_REG_MODE);
+            Factory_CRCBit = Factory_GetField(value, &FACTORY_CRC_BIT);
+            Factory_SingleTurnBit = Factory_GetField(value, &FACTORY_SINGLE_TURN_BIT);
+            Factory_MultiTurnBit = Factory_GetField(value, &FACTORY_MULTI_TURN_BIT);
 
             break;
         }
 
         case FACTORY_SAVE:
+        {
             if (value != FACTORY_Save_KEY)
             {
                 return MB_EX_ILLEGAL_DATA_VALUE;
@@ -235,7 +158,7 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
             Factory_Config_SaveDEE();
 
             break;
-
+        }
         default:
 
             return MB_EX_ILLEGAL_DATA_ADDRESS;
@@ -290,7 +213,7 @@ uint8_t Sensor_Config_Validate(void)
             return 1;
         }
 
-        if (Sensor_MT_Chip != SENSOR_CHIP_NONE)
+        if (Sensor_Chip_ST != SENSOR_CHIP_NONE)
         {
             return 1;
         }
@@ -303,7 +226,7 @@ uint8_t Sensor_Config_Validate(void)
             return 1;
         }
 
-        if (Sensor_MT_Chip == SENSOR_CHIP_NONE)
+        if (Sensor_Chip_ST == SENSOR_CHIP_NONE)
         {
             return 1;
         }
@@ -316,8 +239,8 @@ uint8_t Sensor_Config_Validate(void)
     /*
      * Single-turn chip
      */
-    if (Sensor_ST_Chip != SENSOR_CHIP_MU &&
-        Sensor_ST_Chip != SENSOR_CHIP_PZ)
+    if (Sensor_Chip_ST != SENSOR_CHIP_MU &&
+        Sensor_Chip_ST != SENSOR_CHIP_PZ)
     {
         return 1;
     }
@@ -354,7 +277,7 @@ void Factory_Config_SaveDEE(void)
 
 uint8_t Sensor_Config_Save(void)
 {
-    switch (Sensor_Chip)
+    switch (Sensor_Chip_ST)
     {
     case SENSOR_CHIP_MU:
         return Sensor_MU_Config();
@@ -394,7 +317,7 @@ uint8_t Sensor_MU_Config(void)
      * If multiturn is enabled, write PVL configuration
      * to the external EEPROM through iC-MU I2C.
      */
-    if (Sensor_MT_Config(SENSOR_CHIP_PVL) != 0)
+    if (Sensor_MT_Config(Sensor_Chip_MT) != 0)
     {
         SPI1_Open(0);
         return 1;
@@ -460,14 +383,14 @@ uint8_t Sensor_PZ_Config(void)
      * If multiturn is enabled, write PVL configuration
      * to the external EEPROM through I2C.
      */
-    if (Sensor_MT_Config(SENSOR_CHIP_PVL) != 0)
+    if (Sensor_MT_Config(Sensor_Chip_MT) != 0)
     {
-        SPI1_Open(0);
+       SPI1_Open(0);
         return 1;
-    }
+    } 
 
-    //pz_read_param(&); // read status1 to update the output bit configuration
-    // pz_write_command(CMD_MU_I2C_COM);
+    // pz_read_param(&); // read status1 to update the output bit configuration
+    //  pz_write_command(CMD_MU_I2C_COM);
 
     Sensor_SetProtocol(SENSOR_PROTOCOL_EXTSSI); // change to extssi mode
 
@@ -485,9 +408,9 @@ uint8_t Sensor_PZ_Config(void)
     return 0;
 }
 
-uint8_t Sensor_MT_Config(SensorChip_t chip)
+uint8_t Sensor_MT_Config(SensorChip_t MTchip)
 {
-    switch (chip)
+    switch (MTchip)
     {
     case SENSOR_CHIP_PVL:
 

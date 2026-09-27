@@ -9,13 +9,6 @@
 
 #define FACTORY_Save_KEY      0x505A   //config code
 
-/* Factory configuration protocol values */
-#define SENSOR_ST_CHIP_MU      0x01
-#define SENSOR_ST_CHIP_PZ      0x02
-
-#define SENSOR_MT_CHIP_NONE    0x00
-#define SENSOR_MT_CHIP_PVL     0x01
-
 #define MU_STATUS1_CRC_ERR    0x80
 
 struct factory_param

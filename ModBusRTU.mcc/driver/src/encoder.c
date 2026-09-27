@@ -29,8 +29,8 @@ uint16_t Data_Temp = 0;
 uint8_t BissData;
 static uint8_t biss_crc_reg = 0; // 4 位 CRC 寄存器
 
-extern SensorChip_t Sensor_ST_Chip;
-extern SensorChip_t Sensor_MT_Chip;
+SensorChip_t Sensor_Chip_ST;
+SensorChip_t Sensor_Chip_MT;
 
 ENCODER_CONFIG Encoder_Config;
 
@@ -959,7 +959,7 @@ uint8_t Sensor_SetProtocol(SensorProtocol_t protocol)
       return 1;
    }
 
-   switch (Sensor_ST_Chip)
+   switch (Sensor_Chip_ST)
    {
    case SENSOR_CHIP_MU:
       mu_write_param(&MU_MODEA, protocol);
@@ -969,13 +969,11 @@ uint8_t Sensor_SetProtocol(SensorProtocol_t protocol)
       switch (protocol)
       {
       case SENSOR_PROTOCOL_EXTSSI:
-
          pz_write_param(&PZ_SSI_EN, 1);
          pz_write_param(&PZ_SSI_EXT, 1);
          break;
 
       case SENSOR_PROTOCOL_SSI:
-
          pz_write_param(&PZ_SSI_EN, 1);
          pz_write_param(&PZ_SSI_EXT, 0);
          break;
@@ -983,12 +981,13 @@ uint8_t Sensor_SetProtocol(SensorProtocol_t protocol)
       default:
          return 1;
       }
-
       break;
 
    default:
       return 1;
    }
+
+   return 0;
 }
 
 uint8_t MU_Load_PVL_Config(void)

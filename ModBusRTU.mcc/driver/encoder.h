@@ -91,7 +91,9 @@ typedef enum
     SENSOR_PROTOCOL_EXTSSI = 0x07
 } SensorProtocol_t;
 
-extern SensorChip_t Sensor_Chip;
+extern SensorType_t Sensor_Type;
+extern SensorChip_t Sensor_Chip_ST;
+extern SensorChip_t Sensor_Chip_MT;
 
 extern ENCODER_CONFIG Encoder_Config; // 聲明為全局變量
 extern uint32_t Zero_SingleTurn_Data; // 當前單圈數據值
