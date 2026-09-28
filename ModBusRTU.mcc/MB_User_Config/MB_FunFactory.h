@@ -11,6 +11,9 @@
 
 #define MU_STATUS1_CRC_ERR    0x80
 
+#define FACTORY_CRC_6    0x00
+#define FACTORY_CRC_16   0x01
+
 struct factory_param
 {
     uint16_t addr;
@@ -31,6 +34,6 @@ uint8_t Sensor_Config_Validate(void);
 uint8_t Sensor_Config_Save(void);
 uint8_t Sensor_MU_Config(void);
 uint8_t Sensor_PZ_Config(void);
-uint8_t Sensor_MT_Config(SensorChip_t chip);
+uint8_t Sensor_MT_Config(SensorChipMT_t  MTchip);
 
 #endif

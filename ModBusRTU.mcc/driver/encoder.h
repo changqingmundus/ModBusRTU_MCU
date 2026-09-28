@@ -23,8 +23,9 @@
 
 #define DEE_MultiTurn_Origin_Mode 10 // DEE存放編碼器多圈原點數據
 
-#define DEE_SENSOR_TYPE 18 // 寄存器保存芯片模式
-#define DEE_SENSOR_CHIP 19 // 寄存器保存芯片型号
+#define DEE_SENSOR_TYPE 18    // DEE存放芯片模式
+#define DEE_SENSOR_ST_CHIP 19 // DEE存放单圈芯片型号
+#define DEE_SENSOR_MT_CHIP 20 // DEE存放多圈芯片型号
 
 #define MA_Clear() SCLK_MA_SetLow()         // 設置SLO腳為低電平
 #define MA_Set() SCLK_MA_SetHigh()          // 設置SLO腳為高電平
@@ -45,15 +46,19 @@ typedef enum
 typedef enum
 {
     /* No Chip */
-    SENSOR_CHIP_NONE = 0x00,
+    SENSOR_CHIP_ST_NONE = 0x00,
 
     /*SingleTurn Chip*/
     SENSOR_CHIP_MU = 0x01,
     SENSOR_CHIP_PZ = 0x02,
+} SensorChipST_t;
 
-    /*MuultiTurn Chip*/
-    SENSOR_CHIP_PVL = 0x10
-} SensorChip_t;
+typedef enum
+{
+    /* MultiTurn Chip */
+    SENSOR_CHIP_MT_NONE = 0x00,
+    SENSOR_CHIP_PVL = 0x01
+} SensorChipMT_t;
 
 typedef struct
 {
@@ -92,8 +97,8 @@ typedef enum
 } SensorProtocol_t;
 
 extern SensorType_t Sensor_Type;
-extern SensorChip_t Sensor_Chip_ST;
-extern SensorChip_t Sensor_Chip_MT;
+extern SensorChipST_t Sensor_Chip_ST;
+extern SensorChipMT_t Sensor_Chip_MT;
 
 extern ENCODER_CONFIG Encoder_Config; // 聲明為全局變量
 extern uint32_t Zero_SingleTurn_Data; // 當前單圈數據值

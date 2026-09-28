@@ -29,9 +29,6 @@ uint16_t Data_Temp = 0;
 uint8_t BissData;
 static uint8_t biss_crc_reg = 0; // 4 位 CRC 寄存器
 
-SensorChip_t Sensor_Chip_ST;
-SensorChip_t Sensor_Chip_MT;
-
 ENCODER_CONFIG Encoder_Config;
 
 static void Biss_SendCDM(uint8_t bit, EncoderFrameMode_t mode);
@@ -185,6 +182,10 @@ void Encoder_Init(void)
 
    if (Magic_Value == FACTORY_MAGIC_KEY)
    {
+      DEE_Read(DEE_SENSOR_TYPE, &Sensor_Type);
+      DEE_Read(DEE_SENSOR_ST_CHIP, &Sensor_Chip_ST);
+      DEE_Read(DEE_SENSOR_MT_CHIP, &Sensor_Chip_MT);
+
       Encoder_Config.MultiTurn_Bit = 0;
       Encoder_Config.SingleTurn_Bit = 0;
       Encoder_Config.CRC_Bit = 0;
@@ -879,8 +880,6 @@ void Enable_GPIO(void)
    SPI1_Close();
 
    __builtin_write_RPCON(0x0000);
-   RPOR5bits.RP43R = 0x0000;
-   RPINR20bits.SDI1R = 0x00;
    __builtin_write_RPCON(0x0800);
 
    TRISBbits.TRISB11 = 0;

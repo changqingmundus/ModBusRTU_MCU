@@ -30,5 +30,6 @@
 
 #define DEE_MB_Reg_Mode       17         //寄存器表选择保存地址
 
-#define DEE_SENSOR_TYPE 18               //寄存器保存芯片模式
-#define DEE_SENSOR_CHIP 19               //寄存器保存芯片型号
+#define DEE_SENSOR_TYPE 18               // DEE存放芯片模式
+#define DEE_SENSOR_ST_CHIP 19            // DEE存放单圈芯片型号
+#define DEE_SENSOR_MT_CHIP 20            // DEE存放多圈芯片型号

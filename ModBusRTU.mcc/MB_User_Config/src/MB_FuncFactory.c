@@ -12,10 +12,11 @@
 const struct factory_param FACTORY_SENSOR_TYPE = {.addr = FACTORY_SENSOR_CONFIG, .pos = 0, .len = 4};
 const struct factory_param FACTORY_ST_CHIP = {.addr = FACTORY_SENSOR_CONFIG, .pos = 4, .len = 4};
 const struct factory_param FACTORY_MT_CHIP = {.addr = FACTORY_SENSOR_CONFIG, .pos = 8, .len = 4};
-const struct factory_param FACTORY_SINGLE_TURN_BIT = {.addr = FACTORY_OUTPUT_CONFIG, .pos = 0, .len = 2};
-const struct factory_param FACTORY_MULTI_TURN_BIT = {.addr = FACTORY_OUTPUT_CONFIG, .pos = 2, .len = 2};
-const struct factory_param FACTORY_CRC_BIT = {.addr = FACTORY_OUTPUT_CONFIG, .pos = 4, .len = 6};
-const struct factory_param FACTORY_MB_REG_MODE = {.addr = FACTORY_OUTPUT_CONFIG, .pos = 10, .len = 6};
+
+const struct factory_param FACTORY_MB_REG_MODE = {.addr = FACTORY_OUTPUT_CONFIG, .pos = 0, .len = 2};
+const struct factory_param FACTORY_CRC_BIT = {.addr = FACTORY_OUTPUT_CONFIG, .pos = 2, .len = 2};
+const struct factory_param FACTORY_SINGLE_TURN_BIT = {.addr = FACTORY_OUTPUT_CONFIG, .pos = 4, .len = 6};
+const struct factory_param FACTORY_MULTI_TURN_BIT = {.addr = FACTORY_OUTPUT_CONFIG, .pos = 10, .len = 6};
 
 uint8_t Factory_SingleTurnBit = 0;
 uint8_t Factory_MultiTurnBit = 0;
@@ -24,6 +25,8 @@ uint8_t Factory_CRCBit = 0;
 static uint16_t Factory_GetField(uint16_t value, const struct factory_param *param);
 
 SensorType_t Sensor_Type;
+SensorChipST_t Sensor_Chip_ST;
+SensorChipMT_t Sensor_Chip_MT;
 
 eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
 {
@@ -116,7 +119,7 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
 
             break;
         }
-        
+
         /* =================================================
          * OUTPUT CONFIG
          *
@@ -183,6 +186,20 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
     return MB_EX_NONE;
 }
 
+void Factory_Config_SaveDEE(void)
+{
+    DEE_Write(DEE_SENSOR_TYPE, Sensor_Type);
+    DEE_Write(DEE_SENSOR_ST_CHIP, Sensor_Chip_ST);
+    DEE_Write(DEE_SENSOR_MT_CHIP, Sensor_Chip_MT);
+
+    DEE_Write(DEE_Encoder_MultiTurnBitSize, Factory_MultiTurnBit);
+    DEE_Write(DEE_Encoder_SingleTurnBitSize, Factory_SingleTurnBit);
+    DEE_Write(DEE_Encoder_CRCBitSize, Factory_CRCBit);
+    DEE_Write(DEE_Encoder_MagicKey, FACTORY_MAGIC_KEY);
+
+    DEE_Write(DEE_MB_Reg_Mode, MB_Reg_Mode);
+}
+
 static uint16_t Factory_GetField(uint16_t value, const struct factory_param *param)
 {
     uint16_t mask;
@@ -200,6 +217,7 @@ uint8_t Sensor_Config_Validate(void)
     if (Factory_SingleTurnBit == 0 ||
         Factory_SingleTurnBit > 32)
     {
+        SPI1_Open(0);
         return 1;
     }
 
@@ -210,11 +228,13 @@ uint8_t Sensor_Config_Validate(void)
     {
         if (Factory_MultiTurnBit != 0)
         {
+            SPI1_Open(0);
             return 1;
         }
 
-        if (Sensor_Chip_ST != SENSOR_CHIP_NONE)
+        if (Sensor_Chip_ST != SENSOR_CHIP_ST_NONE)
         {
+            SPI1_Open(0);
             return 1;
         }
     }
@@ -223,16 +243,19 @@ uint8_t Sensor_Config_Validate(void)
         if (Factory_MultiTurnBit == 0 ||
             Factory_MultiTurnBit > 32)
         {
+            SPI1_Open(0);
             return 1;
         }
 
-        if (Sensor_Chip_ST == SENSOR_CHIP_NONE)
+        if (Sensor_Chip_ST == SENSOR_CHIP_ST_NONE)
         {
+            SPI1_Open(0);
             return 1;
         }
     }
     else
     {
+        SPI1_Open(0);
         return 1;
     }
 
@@ -242,15 +265,17 @@ uint8_t Sensor_Config_Validate(void)
     if (Sensor_Chip_ST != SENSOR_CHIP_MU &&
         Sensor_Chip_ST != SENSOR_CHIP_PZ)
     {
+        SPI1_Open(0);
         return 1;
     }
 
     /*
      * CRC
      */
-    if (Factory_CRCBit != 6 &&
-        Factory_CRCBit != 16)
+    if (Factory_CRCBit != FACTORY_CRC_6 &&
+        Factory_CRCBit != FACTORY_CRC_16)
     {
+        SPI1_Open(0);
         return 1;
     }
 
@@ -259,20 +284,11 @@ uint8_t Sensor_Config_Validate(void)
      */
     if (MB_Reg_Mode > MB_REG_FORCE32)
     {
+        SPI1_Open(0);
         return 1;
     }
 
     return 0;
-}
-
-void Factory_Config_SaveDEE(void)
-{
-    DEE_Write(DEE_Encoder_MultiTurnBitSize, Factory_MultiTurnBit);
-    DEE_Write(DEE_Encoder_SingleTurnBitSize, Factory_SingleTurnBit);
-    DEE_Write(DEE_Encoder_CRCBitSize, Factory_CRCBit);
-    DEE_Write(DEE_Encoder_MagicKey, FACTORY_MAGIC_KEY);
-
-    DEE_Write(DEE_MB_Reg_Mode, MB_Reg_Mode);
 }
 
 uint8_t Sensor_Config_Save(void)
@@ -286,6 +302,7 @@ uint8_t Sensor_Config_Save(void)
         return Sensor_PZ_Config();
 
     default:
+        SPI1_Open(0);
         return 1;
     }
 }
@@ -334,6 +351,7 @@ uint8_t Sensor_MU_Config(void)
 
     if (status1 & MU_STATUS1_CRC_ERR)
     {
+        SPI1_Open(0);
         return 1;
     }
 
@@ -385,9 +403,9 @@ uint8_t Sensor_PZ_Config(void)
      */
     if (Sensor_MT_Config(Sensor_Chip_MT) != 0)
     {
-       SPI1_Open(0);
+        SPI1_Open(0);
         return 1;
-    } 
+    }
 
     // pz_read_param(&); // read status1 to update the output bit configuration
     //  pz_write_command(CMD_MU_I2C_COM);
@@ -401,6 +419,7 @@ uint8_t Sensor_PZ_Config(void)
 
     if (diag != 0)
     {
+        SPI1_Open(0);
         return 1;
     }
 
@@ -408,7 +427,7 @@ uint8_t Sensor_PZ_Config(void)
     return 0;
 }
 
-uint8_t Sensor_MT_Config(SensorChip_t MTchip)
+uint8_t Sensor_MT_Config(SensorChipMT_t MTchip)
 {
     switch (MTchip)
     {
@@ -421,6 +440,7 @@ uint8_t Sensor_MT_Config(SensorChip_t MTchip)
 
             if (MU_Load_PVL_Config() != 0) // Load PVL configuration to MU USER_EXCHANGE_REGISTERS
             {
+                SPI1_Open(0);
                 return 1;
             }
 
@@ -447,6 +467,7 @@ uint8_t Sensor_MT_Config(SensorChip_t MTchip)
         break;
 
     default:
+        SPI1_Open(0);
         return 1;
     }
 
