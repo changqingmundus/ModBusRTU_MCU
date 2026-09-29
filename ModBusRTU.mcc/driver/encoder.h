@@ -71,8 +71,8 @@ typedef struct
     uint64_t Raw_Data;        // 編碼器原始數據
     uint32_t MultiTurn_Data;  // 編碼器多圈數據
     uint32_t SingleTurn_Data; // 編碼器單圈數據
-    uint32_t Warning_Data;    // 編碼器警告數據
-    uint32_t Error_Data;      // 編碼器錯誤數據
+    bool Warning_Data;        // 編碼器警告數據
+    bool Error_Data;          // 編碼器錯誤數據
     uint32_t CRC_Data;        // 編碼器CRC數據
 } ENCODER_CONFIG;
 

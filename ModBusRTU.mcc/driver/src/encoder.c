@@ -292,30 +292,21 @@ void Encoder_Read_Data(void)
     */
 
    // CRC
-   Encoder_Config.CRC_Data =
-       spi_data &
-       ((1ULL << Encoder_Config.CRC_Bit) - 1ULL);
-
-   // Error
-   Encoder_Config.Error_Data =
-       (spi_data >> Encoder_Config.CRC_Bit) & 0x01U;
+   Encoder_Config.CRC_Data = spi_data & ((1ULL << Encoder_Config.CRC_Bit) - 1ULL);
 
    // Warning
-   Encoder_Config.Warning_Data =
-       (spi_data >> (Encoder_Config.CRC_Bit + 1U)) & 0x01U;
+   Encoder_Config.Warning_Data = (spi_data >> (Encoder_Config.CRC_Bit)) & 0x01U;
+
+   // Error
+   Encoder_Config.Error_Data = (spi_data >> (Encoder_Config.CRC_Bit + 1U)) & 0x01U;
 
    // SingleTurn
-   Encoder_Config.SingleTurn_Data =
-       (spi_data >> (Encoder_Config.CRC_Bit + 2U)) &
-       ((1ULL << Encoder_Config.SingleTurn_Bit) - 1ULL);
+   Encoder_Config.SingleTurn_Data = (spi_data >> (Encoder_Config.CRC_Bit + 2U)) & ((1ULL << Encoder_Config.SingleTurn_Bit) - 1ULL);
 
    // MultiTurn
-   Encoder_Config.MultiTurn_Data =
-       spi_data >> (Encoder_Config.CRC_Bit + 2U +
-                    Encoder_Config.SingleTurn_Bit);
+   Encoder_Config.MultiTurn_Data = spi_data >> (Encoder_Config.CRC_Bit + 2U + Encoder_Config.SingleTurn_Bit);
 
-   // if (Encoder_Config.Warning_Data || Encoder_Config.Error_Data == 1)
-   if (Encoder_Config.Error_Data == 0)
+   if (!Encoder_Config.Warning_Data || !Encoder_Config.Error_Data)
    {
       LED0_SetLow();
    }
