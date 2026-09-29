@@ -3,7 +3,7 @@
     "configurePresets": [
         {
             "name": "ModBusRTU_MCU_default_conf",
-            "binaryDir": "${fileDir}/../../../_build/ModBusRTU_MCU/default",
+            "binaryDir": "${sourceDir}/_build/ModBusRTU_MCU/default",
             "generator": "Ninja",
             "toolchainFile": "${fileDir}/.generated/toolchain.cmake",
             "cacheVariables": {
