@@ -131,9 +131,18 @@ eMBException eMBFuncFactoryConfig(UCHAR *pucFrame, USHORT *usLen)
         case FACTORY_OUTPUT_CONFIG:
         {
             MB_Reg_Mode = Factory_GetField(value, &FACTORY_MB_REG_MODE);
-            Factory_CRCBit = Factory_GetField(value, &FACTORY_CRC_BIT);
+            uint8_t CRC_Bit = Factory_GetField(value, &FACTORY_CRC_BIT);
             Factory_SingleTurnBit = Factory_GetField(value, &FACTORY_SINGLE_TURN_BIT);
             Factory_MultiTurnBit = Factory_GetField(value, &FACTORY_MULTI_TURN_BIT);
+
+            if (CRC_Bit == FACTORY_CRC_6)
+            {
+                Factory_CRCBit = 6;
+            }
+            else if (CRC_Bit == FACTORY_CRC_16)
+            {
+                Factory_CRCBit = 16;
+            }
 
             break;
         }
@@ -272,8 +281,8 @@ uint8_t Sensor_Config_Validate(void)
     /*
      * CRC
      */
-    if (Factory_CRCBit != FACTORY_CRC_6 &&
-        Factory_CRCBit != FACTORY_CRC_16)
+    if (Factory_CRCBit != 6 &&
+        Factory_CRCBit != 16)
     {
         SPI1_Open(0);
         return 1;

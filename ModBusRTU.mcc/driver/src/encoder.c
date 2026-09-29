@@ -267,16 +267,12 @@ void Encoder_Read_Data(void)
        2U +
        Encoder_Config.CRC_Bit;
 
-   /* SSI前面的启动clock */
-   uint16_t total_bits = data_bits + 1U;
-
-   /* SPI按8bit传输 */
-   uint16_t byte_num = (total_bits + 7U) / 8U;
-
    Encoder_SSI_Read(data_bits, rx_data);
 
+   uint16_t byte_num = (data_bits + 1U + 7U) / 8U;
+
    // 把SPI收到的byte拼成一个64bit数据
-   for (uint16_t i = 0; i < (data_bits + 1U + 7U) / 8U; i++)
+   for (uint16_t i = 0; i < byte_num; i++)
    {
       spi_data = (spi_data << 8) | rx_data[i];
    }
@@ -284,7 +280,7 @@ void Encoder_Read_Data(void)
    /*
     * 丢掉无效bit
     */
-   spi_data >>= (byte_num * 8U - total_bits);
+   spi_data >>= (byte_num * 8U - (data_bits + 1U));
 
    /*
     * 保存完整SSI数据
