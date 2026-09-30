@@ -875,7 +875,7 @@ void Enable_GPIO(void)
    TRISBbits.TRISB13 = 1;
 }
 
-void Change_To_Biss(void)
+void MU_Change_To_Biss(void)
 {
    uint8_t cts = 1;
    uint8_t id = 0;
@@ -893,6 +893,28 @@ void Change_To_Biss(void)
    // Write back 0x0B
    Biss_WriteByteHeader(SSI_FRAME, cts, id, 0x0B);
    Biss_WriteByte(SSI_FRAME, &mode_reg, 1);
+}
+
+void PZ_Change_To_Biss(void)
+{
+   uint8_t cts = 1;
+   uint8_t id = 0;
+   uint8_t data_rx;
+   uint8_t bank = 0x06;
+
+   // Select Bank 6
+   Biss_WriteByteHeader(SSI_FRAME, cts, id, 0x40);
+   Biss_WriteByte(SSI_FRAME, &bank, 1);
+
+   // Read Bank 6 / 0x0A
+   Biss_ReadByte(SSI_FRAME, cts, id, 0x0A, &data_rx);
+
+   // SSI_EN(bit6), SSI_EXT(bit5), SSI_GRAY(bit4) = 0
+   data_rx &= ~(0x70);
+
+   // Write Bank 6 / 0x0A
+   Biss_WriteByteHeader(SSI_FRAME, cts, id, 0x0A);
+   Biss_WriteByte(SSI_FRAME, &data_rx, 1);
 }
 
 void MU_OutputBit_Config(uint8_t single_turn_bits, uint8_t multi_turn_bits)
@@ -955,11 +977,15 @@ uint8_t Sensor_SetProtocol(SensorProtocol_t protocol)
       switch (protocol)
       {
       case SENSOR_PROTOCOL_EXTSSI:
+         pz_switch_bank(0x06); // switch bank to 0x06
+
          pz_write_param(&PZ_SSI_EN, 1);
          pz_write_param(&PZ_SSI_EXT, 1);
          break;
 
       case SENSOR_PROTOCOL_SSI:
+         pz_switch_bank(0x06); // switch bank to 0x06
+
          pz_write_param(&PZ_SSI_EN, 1);
          pz_write_param(&PZ_SSI_EXT, 0);
          break;
@@ -993,6 +1019,37 @@ uint8_t MU_Load_PVL_Config(void)
    return 0;
 }
 
+uint8_t PZ_Load_PVL_Config(void)
+{
+   uint8_t pvl_data[13];
+
+   IC_PVL_Config.DIR = 0;
+   IC_PVL_ConfigToBytes(pvl_data);
+
+   pz_switch_bank(0x20); // switch bank to 0x20
+   for (uint8_t i = 0; i < 13; i++)
+   {
+      if (PZ_WriteRegister_Verify(0x00 + i, pvl_data[i]) != 0)
+      {
+         return 1;
+      }
+   }
+
+   pz_switch_bank(0x0A); // switch bank to 0x0A
+   pz_write_param(&PZ_DEV_ID_0, 0xC2);
+   pz_write_param(&PZ_I2C_T_0, 0x00);
+   pz_write_param(&PZ_I2C_F_0, 0x00);
+   for (uint8_t i = 0; i < 13; i++)
+   {
+      if (PZ_WriteRegister_Verify(0x00 + i, pvl_data[i]) != 0)
+      {
+         return 1;
+      }
+   }
+
+   return 0;
+}
+
 uint8_t MU_WriteRegister_Verify(uint8_t addr, uint8_t data)
 {
    uint8_t read_back;
@@ -1005,6 +1062,27 @@ uint8_t MU_WriteRegister_Verify(uint8_t addr, uint8_t data)
       mu_read_data = 0;
       mu_read_register(addr);
       read_back = mu_read_data;
+
+      if (read_back == data)
+      {
+         return 0;
+      }
+
+      retry++;
+   }
+
+   return 1;
+}
+
+uint8_t PZ_WriteRegister_Verify(uint8_t addr, uint8_t data)
+{
+   uint8_t read_back;
+   uint8_t retry = 0;
+
+   while (retry < 3)
+   {
+      pz_write_registers(addr, &data, 1);
+      pz_read_registers(addr, &read_back, 1);
 
       if (read_back == data)
       {

@@ -156,7 +156,8 @@ void SSI_CDM1(void);
  */
 void Biss_Enable_Short_Frame(void); // for multi biss slavers
 
-void Change_To_Biss(void);
+void MU_Change_To_Biss(void);
+void PZ_Change_To_Biss(void);
 
 /**
  * @brief This function can be used to read one byte from a BiSS register.
@@ -175,8 +176,10 @@ void Biss_WriteByte(EncoderFrameMode_t mode, uint8_t *write_data, uint8_t data_l
 
 uint8_t Sensor_SetProtocol(SensorProtocol_t protocol);
 uint8_t MU_Load_PVL_Config(void);
+uint8_t PZ_Load_PVL_Config(void);
 uint8_t PVL_Check_Status(void);
 uint8_t MU_WriteRegister_Verify(uint8_t addr, uint8_t data);
+uint8_t PZ_WriteRegister_Verify(uint8_t addr, uint8_t data);
 void MU_I2C_Transfer(uint8_t devid, uint8_t ram_start, uint8_t ram_end, uint8_t dev_start);
 
 void Encoder_Update_Speed(void);

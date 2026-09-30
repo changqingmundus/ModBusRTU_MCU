@@ -323,7 +323,7 @@ uint8_t Sensor_MU_Config(void)
     uint8_t status1;
 
     Enable_GPIO();
-    Change_To_Biss(); // change protocol to biss-c
+    MU_Change_To_Biss(); // change protocol to biss-c
 
     MU_OutputBit_Config(Factory_SingleTurnBit, Factory_MultiTurnBit);
 
@@ -374,8 +374,9 @@ uint8_t Sensor_PZ_Config(void)
     uint8_t out_msb;
 
     Enable_GPIO();
-    Change_To_Biss(); // change protocol to biss-c
+    PZ_Change_To_Biss(); // change protocol to biss-c
 
+    pz_switch_bank(0x00); // switch bank to 0x00
     pz_write_param(&PZ_ST_PDL, Factory_SingleTurnBit);
     pz_write_param(&PZ_MT_PDL, Factory_MultiTurnBit);
 
@@ -391,6 +392,7 @@ uint8_t Sensor_PZ_Config(void)
         return 1;
     }
 
+    pz_switch_bank(0x06); // switch bank to 0x06
     pz_write_param(&PZ_BISS_ST_DL, Factory_SingleTurnBit);
     pz_write_param(&PZ_BISS_MT_DL, Factory_MultiTurnBit);
 
@@ -444,39 +446,59 @@ uint8_t Sensor_MT_Config(SensorChipMT_t MTchip)
 
         if (Factory_MultiTurnBit != 0)
         {
+            PVL_OutputBit_Config(Factory_MultiTurnBit);
 
-            PVL_OutputBit_Config(Factory_MultiTurnBit); // Configure PVL output bits
-
-            if (MU_Load_PVL_Config() != 0) // Load PVL configuration to MU USER_EXCHANGE_REGISTERS
+            switch (Sensor_Chip_ST)
             {
+            case SENSOR_CHIP_MU:
+                if (MU_Load_PVL_Config() != 0) // Load PVL configuration to MU USER_EXCHANGE_REGISTERS
+                {
+                    SPI1_Open(0);
+                    return 1;
+                }
+
+                MU_I2C_Transfer(0xA0, 0x60, 0x6C, 0x40); // Write PVL configuration to EEPROM 0x40 ~ 0x4C
+
+                /*if (MU_WriteRegister_Verify(0x6D, 0x05) != 0) // Send SCLR command to iC-PVL
+                {
+                    return 1;
+                }
+                MU_I2C_Transfer(0xC0, 0x6D, 0x6D, 0x11);
+
+                if (MU_WriteRegister_Verify(0x6D, 0x03) != 0) // Send REBOOT command to iC-PVL
+                {
+                    return 1;
+                }
+                MU_I2C_Transfer(0xC0, 0x6D, 0x6D, 0x11);
+
+                if (PVL_Check_Status() != 0) // Check PVL status after reboot
+                {
+                    return 1;
+                }*/
+
+                break;
+
+            case SENSOR_CHIP_PZ:
+                pz_switch_bank(0x00); // switch bank to 0x00
+                pz_write_param(&PZ_ADI_SBL, 0x03);
+                pz_write_param(&PZ_ADI_CFG, 0x0F0); // 4,5,6,7 = '1'
+
+                if (PZ_Load_PVL_Config() != 0) // Load PVL configuration to PZ USER_EXCHANGE_REGISTERS
+                {
+                    SPI1_Open(0);
+                    return 1;
+                }
+                break;
+
+            default:
                 SPI1_Open(0);
                 return 1;
             }
-
-            MU_I2C_Transfer(0xA0, 0x60, 0x6C, 0x40); // Write PVL configuration to EEPROM 0x40 ~ 0x4C
-
-            /*if (MU_WriteRegister_Verify(0x6D, 0x05) != 0) // Send SCLR command to iC-PVL
-            {
-                return 1;
-            }
-            MU_I2C_Transfer(0xC0, 0x6D, 0x6D, 0x11);
-
-            if (MU_WriteRegister_Verify(0x6D, 0x03) != 0) // Send REBOOT command to iC-PVL
-            {
-                return 1;
-            }
-            MU_I2C_Transfer(0xC0, 0x6D, 0x6D, 0x11);
-
-            if (PVL_Check_Status() != 0) // Check PVL status after reboot
-            {
-                return 1;
-            }*/
         }
 
         break;
 
     default:
-        SPI1_Open(0);
         return 1;
     }
 
